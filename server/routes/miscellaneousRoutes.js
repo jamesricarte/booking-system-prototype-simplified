@@ -57,4 +57,50 @@ router.get("/timeslots", (req, res) => {
   }
 });
 
+//Fetch enum booking purposes
+router.get("/bookingPurposes", (req, res) => {
+  try {
+    db.query(
+      "SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ? AND COLUMN_NAME = ?",
+      ["bookings", "purpose"],
+      async (err, result) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ message: "Something went wrong", error: err.message });
+        }
+
+        if (!result) {
+          return res.status(500).json({
+            message: "Error fetching booking purposes",
+            error: result,
+          });
+        }
+
+        if (result.length === 0) {
+          return res
+            .status(400)
+            .json({ message: "No booking purposes were found" });
+        }
+
+        const enumStr = result[0].COLUMN_TYPE;
+        const purposes = enumStr
+          .match(/'([^']+)'/g)
+          .map((val) => val.replace(/'/g, ""));
+
+        res.status(200).json({
+          message: "Successfully fetched booking purposes",
+          bookingPurposes: purposes,
+        });
+      }
+    );
+  } catch (error) {
+    if (!res.headersSent) {
+      res
+        .status(500)
+        .json({ message: "Internal Server Error", error: error.message });
+    }
+  }
+});
+
 module.exports = router;

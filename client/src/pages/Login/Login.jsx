@@ -44,7 +44,6 @@ const Login = () => {
       }
 
       const result = await response.json();
-      console.log(result);
       login(result.fetchedUser);
       setResponse({
         isResponseAvailable: true,

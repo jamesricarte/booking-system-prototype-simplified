@@ -11,24 +11,19 @@ const RoomDetails = () => {
   const [roomDetails, setRoomDetails] = useState(null);
   const [classes, setClasses] = useState([]);
   const [timeslots, setTimeslots] = useState([]);
-  const [bookings, setBookings] = useState([
-    {
-      id: 1,
-      start_time: "09:30:00",
-      end_time: "10:30:00",
-      purpose: "Meeting with Client",
-      professor_name: "Rogie Mar A. Bolon",
-      class: "1A",
-    },
-    {
-      id: 2,
-      start_time: "14:00:00",
-      end_time: "16:00:00",
-      purpose: "Lecture with Students",
-      professor_name: "Marites O. Olesco",
-      class: "1B",
-    },
-  ]);
+  const [bookings, setBookings] = useState([]);
+  const [bookingsPurposes, setBookingsPurposes] = useState([]);
+  const [serverDate, setServerDate] = useState(null);
+
+  //Form States
+  const [bookNowFormData, setBookNowFormData] = useState({
+    startTime: "",
+    endTime: "",
+    classId: "",
+    purpose: "",
+    roomId: "",
+    professorId: "",
+  });
 
   //React router dom states
   const { id } = useParams();
@@ -41,9 +36,45 @@ const RoomDetails = () => {
   const [currentTimePosition, setCurrentTimePosition] = useState(0);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [selectedBookingPosition, setSelectedBookingPosition] = useState(null);
+  const [filteredStartTimeSlots, setFilteredStartTimeslots] = useState([]);
+  const [filteredEndTimeSlots, setFilteredEndTimeslots] = useState([]);
 
   //Other Declarations
   const scrollableDivRef = useRef(null);
+
+  //Form Spread Operators
+  const handleBookNowFormData = (e) => {
+    const { name, value } = e.target;
+    setBookNowFormData({ ...bookNowFormData, [name]: value });
+  };
+
+  //POST Requests
+  const bookNow = async (e) => {
+    e.preventDefault();
+
+    console.log(bookNowFormData);
+    console.log(timeslots.slice(0, -1));
+
+    // try {
+    //   const response = await fetch(`${API_URL}/api/newBooking`, {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(bookNowFormData),
+    //   });
+
+    //   if (!response.ok) {
+    //     const errorData = await response.json();
+    //     throw errorData;
+    //   }
+
+    //   const result = await response.json();
+    //   console.log(result);
+    // } catch (error) {
+    //   console.error(error);
+    // }
+  };
 
   //Fetches from database
   const fetchRoom = async () => {
@@ -103,40 +134,64 @@ const RoomDetails = () => {
       }
 
       const result = await response.json();
-      convertTimeSlotsTo12HourFormat(result.timeslots);
+      setTimeslots(result.timeslots);
     } catch (error) {
       console.error(error.message);
     }
   };
 
-  //Functions
-  const convertTimeSlotsTo12HourFormat = (originalTimeslots) => {
-    const convertedTimeslots = originalTimeslots.map((time, index) => {
-      let [hour, minutes, seconds] = time.time.split(":").map(Number);
-      let period;
-      if (hour < 12) {
-        period = "AM";
-      } else {
-        period = "PM";
+  const fetchBookings = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/bookings/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
       }
 
-      hour = hour % 12 || 12;
-
-      return {
-        ...time,
-        time: `${
-          hour.toString().padStart(2, "0") +
-          ":" +
-          minutes.toString().padStart(2, "0") +
-          " " +
-          period
-        }`,
+      const result = await response.json();
+      const updatedDateResult = {
+        ...result,
+        server_date: convertUTCDateToSameTimezone(result.server_date),
+        bookings: result.bookings.map((booking) => ({
+          ...booking,
+          date: convertUTCDateToSameTimezone(booking.date),
+        })),
       };
-    });
-
-    setTimeslots(convertedTimeslots);
+      setBookings(updatedDateResult.bookings);
+      setServerDate(updatedDateResult.server_date);
+    } catch (error) {
+      console.error(error.message);
+    }
   };
 
+  const fetchBookingPurposes = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/bookingPurposes`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      const result = await response.json();
+      setBookingsPurposes(result.bookingPurposes);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  //Functions
   const convertTimeTo12HourFormat = (time) => {
     if (time) {
       let [hours, minutes, seconds] = time.split(":").map(Number);
@@ -160,10 +215,35 @@ const RoomDetails = () => {
     }
   };
 
-  const timeToMinutes = (time) => {
-    let [hour, minutes, seconds] = time.split(":").map(Number);
+  const convertUTCDateToSameTimezone = (dateTime) => {
+    const localDate = new Date(dateTime);
+    const formattedLocalDate = localDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
 
+    return formattedLocalDate;
+  };
+
+  const convertTimeToMinutes = (time) => {
+    const [hours, minutes, seconds] = time.split(":").map(Number);
+    return hours * 60 + minutes;
+  };
+
+  const bookingTimeToMinutes = (time) => {
+    let [hour, minutes, seconds] = time.split(":").map(Number);
     return (hour - 7) * 60 + minutes;
+  };
+
+  const getNearestTimeSlot = () => {
+    const now = new Date();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+
+    minutes = minutes < 30 ? 0 : 30;
+
+    return hours * 60 + minutes;
   };
 
   const updateCurrentTime = () => {
@@ -194,7 +274,7 @@ const RoomDetails = () => {
   const updatePosition = () => {
     if (selectedBooking) {
       const bookingElement = document.getElementById(
-        `booking-${selectedBooking.id}`
+        `booking-${selectedBooking.booking_id}`
       );
       const bookingElementRect = bookingElement.getBoundingClientRect();
 
@@ -222,7 +302,32 @@ const RoomDetails = () => {
     fetchRoom();
     fetchClasses();
     fetchTimeslots();
+    fetchBookings();
+    fetchBookingPurposes();
   }, []);
+
+  useEffect(() => {
+    const filteredTimeSlots = timeslots.filter(
+      (timeslot) => convertTimeToMinutes(timeslot.time) >= getNearestTimeSlot()
+    );
+    setFilteredStartTimeslots(
+      filteredTimeSlots.length > 0
+        ? filteredTimeSlots
+        : [timeslots[timeslots.length - 1]]
+    );
+  }, [timeslots]);
+
+  useEffect(() => {
+    setBookNowFormData((prevData) => ({
+      ...prevData,
+      startTime: filteredStartTimeSlots[0]?.id,
+      endTime: filteredStartTimeSlots[0]?.id,
+      classId: classes[0]?.id,
+      purpose: "Lecture",
+      roomId: roomDetails?.id,
+      professorId: 1,
+    }));
+  }, [filteredStartTimeSlots, classes, roomDetails]);
 
   useEffect(() => {
     updateCurrentTime();
@@ -289,29 +394,32 @@ const RoomDetails = () => {
             {/* Timeslots */}
             {timeslots.map((timeslot, index) => (
               <div key={index} className="flex items-center">
-                <p className="min-w-20">{timeslot.time}</p>
+                <p className="min-w-20">
+                  {convertTimeTo12HourFormat(timeslot.time)}
+                </p>
                 <div className="w-full h-[1px] bg-gray-300"></div>
               </div>
             ))}
 
             {/* Bookings */}
             {bookings.map((booking, index) => {
-              const start = timeToMinutes(booking.start_time);
-              const end = timeToMinutes(booking.end_time);
+              const start = bookingTimeToMinutes(booking.start_time);
+              const end = bookingTimeToMinutes(booking.end_time);
               const top = (start / 30) * 50.4 + 25;
               const height = ((end - start) / 30) * 50.4;
 
               return (
                 <div
                   key={index}
-                  id={`booking-${booking.id}`}
+                  id={`booking-${booking.booking_id}`}
                   className="absolute w-48 px-1 text-sm text-white bg-blue-500 rounded cursor-pointer left-28"
                   style={{ top: `${top}px`, height: `${height}px` }}
                   onClick={(e) => handleSelectedBookingClick(booking, e)}
                 >
                   <div className="relative">
                     <p>{booking.professor_name}</p>
-                    <p>{booking.class}</p>
+                    <p>{booking.class_name}</p>
+                    <p>{booking.purpose}</p>
                   </div>
                 </div>
               );
@@ -347,30 +455,34 @@ const RoomDetails = () => {
                 }}
               />
             </div>
-            <h3>Booking Detail:</h3>
+            <h3>Booking Details:</h3>
             <div className="flex gap-1">
               <p>Date: </p>
-              <p>March 20, 2025</p>
+              <p>{selectedBooking.date.split("T")[0]}</p>
+            </div>
+            <div className="flex gap-1">
+              <p>Room Number: </p>
+              <p>{selectedBooking.room_number}</p>
             </div>
             <div className="flex gap-1">
               <p>Start Time:</p>
-              <p>13:00:00</p>
+              <p>{convertTimeTo12HourFormat(selectedBooking.start_time)}</p>
             </div>
             <div className="flex gap-1">
               <p>End Time:</p>
-              <p>14:30:00</p>
+              <p>{convertTimeTo12HourFormat(selectedBooking.end_time)}</p>
             </div>
             <div className="flex gap-1">
               <p>Faculty In Charge:</p>
-              <p>Rogie Mar A. Bolon</p>
+              <p>{selectedBooking.professor_name}</p>
             </div>
             <div className="flex gap-1">
               <p>Class:</p>
-              <p>1 B</p>
+              <p>{selectedBooking.class_name}</p>
             </div>
             <div className="flex gap-1">
               <p>Purpose:</p>
-              <p>Meeting with Client</p>
+              <p>{selectedBooking.purpose}</p>
             </div>
           </div>
         )}
@@ -381,113 +493,214 @@ const RoomDetails = () => {
             bookNowModal ? "block" : "hidden"
           }`}
         >
-          <h3>Book this room</h3>
-          <div className="flex">
-            <p>Date:</p>
-            <p>March 15, 2025</p>
-          </div>
-          <div className="flex">
-            <p>Time:</p>
-            <div>
-              <p>Start Time:</p>
-              <input type="time" />
+          <form onSubmit={bookNow}>
+            <h3>Book now</h3>
+            <div className="flex">
+              <p>Date:</p>
+              <p>{serverDate?.split("T")[0]}</p>
+            </div>
+            <div className="flex">
+              <p>Time:</p>
+              <div>
+                <p>Start Time:</p>
+                <select
+                  name="startTime"
+                  value={bookNowFormData.startTime}
+                  onChange={handleBookNowFormData}
+                >
+                  {timeslots
+                    .slice(0, -1)
+                    .filter((timeslot, index, arr) => {
+                      const nearestTime = getNearestTimeSlot();
+                      const slotTime = convertTimeToMinutes(timeslot.time);
+                      const hasValidSlots = arr.some(
+                        (timeslot) =>
+                          convertTimeToMinutes(timeslot.time) >= nearestTime
+                      );
+
+                      return (
+                        slotTime >= nearestTime ||
+                        (!hasValidSlots && index === arr.length - 1)
+                      );
+                    })
+                    .map((timeslot, index) => (
+                      <option key={index} value={timeslot.id}>
+                        {convertTimeTo12HourFormat(timeslot.time)}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div>
+                <p>End Time:</p>
+                <select
+                  name="endTime"
+                  value={bookNowFormData.endTime}
+                  onChange={handleBookNowFormData}
+                >
+                  {timeslots
+                    .filter(
+                      (timeslot) =>
+                        timeslot.id > parseInt(bookNowFormData.startTime)
+                    )
+                    .map((timeslot, index) => (
+                      <option key={index} value={timeslot.id}>
+                        {convertTimeTo12HourFormat(timeslot.time)}
+                      </option>
+                    ))}
+                </select>
+              </div>
             </div>
 
-            <div>
-              <p>End Time:</p>
-              <input type="time" />
+            <div className="flex">
+              <p>Faculty in Charge:</p>
+              <p>Rogie Mar A. Bolon</p>
             </div>
-          </div>
 
-          <div className="flex">
-            <p>professor_name in Charge:</p>
-            <p>Rogie Mar A. Bolon</p>
-          </div>
-
-          <div className="flex">
-            <p>Class Year & Block:</p>
-            <select name="" id="">
-              {classes.map((ClassItem, index) => (
-                <option key={index} value={ClassItem.id}>
-                  {ClassItem.class_name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex">
-            <p>Purpose:</p>
-            <select name="" id="">
-              <option value="">Lecture</option>
-              <option value="">Workshop</option>
-              <option value="">Meeting</option>
-              <option value="">Seminar</option>
-              <option value="">Group Study</option>
-              <option value="">Exam</option>
-              <option value="">Training Session</option>
-              <option value="">Special Event</option>
-              <option value="">Tutoring</option>
-              <option value="">Club Activity</option>
-            </select>
-          </div>
-          <Button>Book Now</Button>
-          <Button onClick={() => setBookNowModal(!bookNowModal)}>Cancel</Button>
+            <div className="flex">
+              <p>Class Year & Block:</p>
+              <select
+                name="classId"
+                value={bookNowFormData.classId}
+                onChange={handleBookNowFormData}
+              >
+                {classes.map((classItem, index) => (
+                  <option key={index} value={classItem.id}>
+                    {classItem.class_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex">
+              <p>Purpose:</p>
+              <select
+                name="purpose"
+                value={bookNowFormData.purpose}
+                onChange={handleBookNowFormData}
+              >
+                {bookingsPurposes.map((bookingPurpose, index) => (
+                  <option key={index} value={bookingPurpose}>
+                    {bookingPurpose}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Button type="submit">Book Now</Button>
+            <Button
+              type="button"
+              onClick={() => setBookNowModal(!bookNowModal)}
+            >
+              Cancel
+            </Button>
+          </form>
         </div>
+
         {/* Reserve Modal */}
         <div
           className={`fixed px-6 py-2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg top-1/2 left-1/2 z-10 ${
             reserveModal ? "block" : "hidden"
           }`}
         >
-          <h3>Reserve Booking</h3>
-          <div className="flex">
-            <p>Date:</p>
-            <p>March 15, 2025</p>
-          </div>
-          <div className="flex">
-            <p>Time:</p>
-            <div>
-              <p>Start Time:</p>
-              <input type="time" />
+          <form>
+            <h3>Reserve Booking</h3>
+            <div className="flex">
+              <p>Date:</p>
+              <p>{serverDate?.split("T")[0]}</p>
+            </div>
+            <div className="flex">
+              <p>Time:</p>
+              <div>
+                <p>Start Time:</p>
+                <select
+                  name="startTime"
+                  value={bookNowFormData.startTime}
+                  onChange={handleBookNowFormData}
+                >
+                  {timeslots
+                    .slice(0, -1)
+                    .filter((timeslot, index, arr) => {
+                      const nearestTime = getNearestTimeSlot();
+                      const slotTime = convertTimeToMinutes(timeslot.time);
+                      const hasValidSlots = arr.some(
+                        (timeslot) =>
+                          convertTimeToMinutes(timeslot.time) >= nearestTime
+                      );
+
+                      return (
+                        slotTime >= nearestTime ||
+                        (!hasValidSlots && index === arr.length - 1)
+                      );
+                    })
+                    .map((timeslot, index) => (
+                      <option key={index} value={timeslot.id}>
+                        {convertTimeTo12HourFormat(timeslot.time)}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div>
+                <p>End Time:</p>
+                <select
+                  name="endTime"
+                  value={bookNowFormData.endTime}
+                  onChange={handleBookNowFormData}
+                >
+                  {timeslots
+                    .filter(
+                      (timeslot) =>
+                        timeslot.id > parseInt(bookNowFormData.startTime)
+                    )
+                    .map((timeslot, index) => (
+                      <option key={index} value={timeslot.id}>
+                        {convertTimeTo12HourFormat(timeslot.time)}
+                      </option>
+                    ))}
+                </select>
+              </div>
             </div>
 
-            <div>
-              <p>End Time:</p>
-              <input type="time" />
+            <div className="flex">
+              <p>Faculty in Charge:</p>
+              <p>Rogie Mar A. Bolon</p>
             </div>
-          </div>
 
-          <div className="flex">
-            <p>professor_name in Charge:</p>
-            <p>Rogie Mar A. Bolon</p>
-          </div>
-
-          <div className="flex">
-            <p>Class Year & Block:</p>
-            <select name="" id="">
-              {classes.map((ClassItem, index) => (
-                <option key={index} value={ClassItem.id}>
-                  {ClassItem.class_name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex">
-            <p>Purpose:</p>
-            <select name="" id="">
-              <option value="">Lecture</option>
-              <option value="">Workshop</option>
-              <option value="">Meeting</option>
-              <option value="">Seminar</option>
-              <option value="">Group Study</option>
-              <option value="">Exam</option>
-              <option value="">Training Session</option>
-              <option value="">Special Event</option>
-              <option value="">Tutoring</option>
-              <option value="">Club Activity</option>
-            </select>
-          </div>
-          <Button>Reserve Now</Button>
-          <Button onClick={() => setReserveModal(!reserveModal)}>Cancel</Button>
+            <div className="flex">
+              <p>Class Year & Block:</p>
+              <select
+                name="classId"
+                value={bookNowFormData.classId}
+                onChange={handleBookNowFormData}
+              >
+                {classes.map((classItem, index) => (
+                  <option key={index} value={classItem.id}>
+                    {classItem.class_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex">
+              <p>Purpose:</p>
+              <select
+                name="purpose"
+                value={bookNowFormData.purpose}
+                onChange={handleBookNowFormData}
+              >
+                {bookingsPurposes.map((bookingPurpose, index) => (
+                  <option key={index} value={bookingPurpose}>
+                    {bookingPurpose}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Button type="submit">Reserve Booking</Button>
+            <Button
+              type="button"
+              onClick={() => setReserveModal(!reserveModal)}
+            >
+              Cancel
+            </Button>
+          </form>
         </div>
 
         {/* Background */}
