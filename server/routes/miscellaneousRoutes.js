@@ -3,6 +3,9 @@ const db = require("../config/db");
 
 const router = express.Router();
 
+//Fetch server date
+router.get("/serverDate", (req, res) => {});
+
 //Fetch Classes
 router.get("/classes", (req, res) => {
   try {

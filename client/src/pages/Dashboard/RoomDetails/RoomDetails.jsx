@@ -53,27 +53,26 @@ const RoomDetails = () => {
     e.preventDefault();
 
     console.log(bookNowFormData);
-    console.log(timeslots.slice(0, -1));
 
-    // try {
-    //   const response = await fetch(`${API_URL}/api/newBooking`, {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(bookNowFormData),
-    //   });
+    try {
+      const response = await fetch(`${API_URL}/api/newBooking`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookNowFormData),
+      });
 
-    //   if (!response.ok) {
-    //     const errorData = await response.json();
-    //     throw errorData;
-    //   }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
 
-    //   const result = await response.json();
-    //   console.log(result);
-    // } catch (error) {
-    //   console.error(error);
-    // }
+      const result = await response.json();
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   //Fetches from database
@@ -311,9 +310,12 @@ const RoomDetails = () => {
       (timeslot) => convertTimeToMinutes(timeslot.time) >= getNearestTimeSlot()
     );
     setFilteredStartTimeslots(
+      filteredTimeSlots.length > 0 ? filteredTimeSlots : timeslots.slice(-2)
+    );
+    setFilteredEndTimeslots(
       filteredTimeSlots.length > 0
-        ? filteredTimeSlots
-        : [timeslots[timeslots.length - 1]]
+        ? filteredTimeSlots.slice(1)
+        : timeslots.slice(-1)
     );
   }, [timeslots]);
 
@@ -321,13 +323,13 @@ const RoomDetails = () => {
     setBookNowFormData((prevData) => ({
       ...prevData,
       startTime: filteredStartTimeSlots[0]?.id,
-      endTime: filteredStartTimeSlots[0]?.id,
+      endTime: filteredEndTimeSlots[0]?.id,
       classId: classes[0]?.id,
       purpose: "Lecture",
       roomId: roomDetails?.id,
       professorId: 1,
     }));
-  }, [filteredStartTimeSlots, classes, roomDetails]);
+  }, [filteredStartTimeSlots, filteredEndTimeSlots, classes, roomDetails]);
 
   useEffect(() => {
     updateCurrentTime();
@@ -348,6 +350,20 @@ const RoomDetails = () => {
       }
     };
   });
+
+  useEffect(() => {
+    if (bookNowFormData.startTime) {
+      const nextAvailableEndTime = filteredEndTimeSlots.find(
+        (timeslot) => timeslot.id > parseInt(bookNowFormData.startTime)
+      );
+      if (nextAvailableEndTime) {
+        setBookNowFormData((prevData) => ({
+          ...prevData,
+          endTime: nextAvailableEndTime.id,
+        }));
+      }
+    }
+  }, [bookNowFormData.startTime]);
 
   return (
     <>
@@ -503,32 +519,9 @@ const RoomDetails = () => {
               <p>Time:</p>
               <div>
                 <p>Start Time:</p>
-                <select
-                  name="startTime"
-                  value={bookNowFormData.startTime}
-                  onChange={handleBookNowFormData}
-                >
-                  {timeslots
-                    .slice(0, -1)
-                    .filter((timeslot, index, arr) => {
-                      const nearestTime = getNearestTimeSlot();
-                      const slotTime = convertTimeToMinutes(timeslot.time);
-                      const hasValidSlots = arr.some(
-                        (timeslot) =>
-                          convertTimeToMinutes(timeslot.time) >= nearestTime
-                      );
-
-                      return (
-                        slotTime >= nearestTime ||
-                        (!hasValidSlots && index === arr.length - 1)
-                      );
-                    })
-                    .map((timeslot, index) => (
-                      <option key={index} value={timeslot.id}>
-                        {convertTimeTo12HourFormat(timeslot.time)}
-                      </option>
-                    ))}
-                </select>
+                <p>
+                  {convertTimeTo12HourFormat(filteredStartTimeSlots[0]?.time)}
+                </p>
               </div>
 
               <div>
@@ -538,7 +531,7 @@ const RoomDetails = () => {
                   value={bookNowFormData.endTime}
                   onChange={handleBookNowFormData}
                 >
-                  {timeslots
+                  {filteredEndTimeSlots
                     .filter(
                       (timeslot) =>
                         timeslot.id > parseInt(bookNowFormData.startTime)
@@ -601,7 +594,7 @@ const RoomDetails = () => {
             reserveModal ? "block" : "hidden"
           }`}
         >
-          <form>
+          <form onSubmit={bookNow}>
             <h3>Reserve Booking</h3>
             <div className="flex">
               <p>Date:</p>
@@ -616,21 +609,8 @@ const RoomDetails = () => {
                   value={bookNowFormData.startTime}
                   onChange={handleBookNowFormData}
                 >
-                  {timeslots
+                  {filteredStartTimeSlots
                     .slice(0, -1)
-                    .filter((timeslot, index, arr) => {
-                      const nearestTime = getNearestTimeSlot();
-                      const slotTime = convertTimeToMinutes(timeslot.time);
-                      const hasValidSlots = arr.some(
-                        (timeslot) =>
-                          convertTimeToMinutes(timeslot.time) >= nearestTime
-                      );
-
-                      return (
-                        slotTime >= nearestTime ||
-                        (!hasValidSlots && index === arr.length - 1)
-                      );
-                    })
                     .map((timeslot, index) => (
                       <option key={index} value={timeslot.id}>
                         {convertTimeTo12HourFormat(timeslot.time)}
@@ -643,10 +623,11 @@ const RoomDetails = () => {
                 <p>End Time:</p>
                 <select
                   name="endTime"
+                  id="endTime"
                   value={bookNowFormData.endTime}
                   onChange={handleBookNowFormData}
                 >
-                  {timeslots
+                  {filteredEndTimeSlots
                     .filter(
                       (timeslot) =>
                         timeslot.id > parseInt(bookNowFormData.startTime)
