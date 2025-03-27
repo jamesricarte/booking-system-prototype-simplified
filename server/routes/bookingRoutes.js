@@ -7,7 +7,7 @@ router.get("/bookings/:id", (req, res) => {
   try {
     const roomId = req.params.id;
     db.query(
-      "SELECT b.id AS booking_id, r.room_number, p.professor_name, c.class_name, t1.time AS start_time, t2.time AS end_time, b.purpose, b.date, b.created_at FROM bookings b JOIN rooms r ON b.room_id = r.id JOIN professors p ON b.professor_id = p.id JOIN classes c ON b.class_id = c.id JOIN timeslots t1 ON b.start_time = t1.id JOIN timeslots t2 ON b.end_time = t2.id WHERE b.date = CURRENT_DATE() AND b.room_id = ?;",
+      "SELECT b.id AS booking_id, r.room_number, p.professor_name, c.class_name, b.start_time AS start_time_id, t1.time AS start_time, b.end_time AS end_time_id, t2.time AS end_time, b.purpose, b.date, b.created_at FROM bookings b JOIN rooms r ON b.room_id = r.id JOIN professors p ON b.professor_id = p.id JOIN classes c ON b.class_id = c.id JOIN timeslots t1 ON b.start_time = t1.id JOIN timeslots t2 ON b.end_time = t2.id WHERE b.date = CURRENT_DATE() AND b.room_id = ?;",
       [roomId],
       async (err, result) => {
         if (err) {
@@ -22,25 +22,9 @@ router.get("/bookings/:id", (req, res) => {
             .json({ message: "No bookings were found", bookings: result });
         }
 
-        db.query("SELECT CURRENT_DATE() AS server_date", (err, dateResult) => {
-          if (err) {
-            return res.status(500).json({
-              message: "Something went wrong",
-              error: err.message,
-            });
-          }
-
-          if (dateResult.length === 0) {
-            return res
-              .status(400)
-              .json({ message: "The retrieval of current date has failed" });
-          }
-
-          res.status(200).json({
-            message: "Bookings were succesfully fetched!",
-            server_date: dateResult[0].server_date,
-            bookings: result,
-          });
+        res.status(200).json({
+          message: "Bookings were succesfully fetched!",
+          bookings: result,
         });
       }
     );
@@ -66,16 +50,15 @@ router.post("/newBooking", (req, res) => {
       return res.status(400).json({ message: "All fields are required!" });
     }
 
+    if (parseInt(booking.endTime) < parseInt(booking.startTime)) {
+      return res
+        .status(400)
+        .json({ message: "Start time must be before end time!" });
+    }
+
     db.query(
-      "INSERT INTO bookings (room_id, professor_id, class_id, start_time, end_time, purpose, date) VALUES (?, ?, ? ,?, ?, ?, NOW())",
-      [
-        booking.roomId,
-        booking.professorId,
-        booking.classId,
-        booking.startTime,
-        booking.endTime,
-        booking.purpose,
-      ],
+      "SELECT * FROM bookings WHERE date = CURRENT_DATE() AND room_id = ? AND NOT ( ? <= start_time OR ? >= end_time)",
+      [booking.roomId, booking.endTime, booking.startTime],
       async (err, result) => {
         if (err) {
           return res
@@ -83,13 +66,116 @@ router.post("/newBooking", (req, res) => {
             .json({ message: "Something went wrong", error: err.message });
         }
 
-        if (!result) {
+        if (result.length > 0) {
+          return res
+            .status(400)
+            .json({ message: "The selected time period is already booked." });
+        } else {
+          db.query(
+            "INSERT INTO bookings (room_id, professor_id, class_id, start_time, end_time, purpose, date) VALUES (?, ?, ? ,?, ?, ?, NOW())",
+            [
+              booking.roomId,
+              booking.professorId,
+              booking.classId,
+              booking.startTime,
+              booking.endTime,
+              booking.purpose,
+            ],
+            async (err, result) => {
+              if (err) {
+                return res.status(500).json({
+                  message: "Something went wrong",
+                  error: err.message,
+                });
+              }
+
+              if (!result) {
+                return res
+                  .status(500)
+                  .json({ message: "Error adding booking", error: result });
+              }
+
+              res
+                .status(201)
+                .json({ message: "Booking has been added!", result });
+            }
+          );
+        }
+      }
+    );
+  } catch (error) {
+    if (!res.headersSent) {
+      res
+        .status(500)
+        .json({ message: "Internal Server Error", error: error.message });
+    }
+  }
+});
+
+//Reserve Booking
+router.post("/reserveBooking", (req, res) => {
+  try {
+    const booking = req.body;
+
+    if (
+      Object.values(booking).includes("") ||
+      Object.values(booking).includes(null) ||
+      Object.values(booking).includes(undefined)
+    ) {
+      return res.status(400).json({ message: "All fields are required!" });
+    }
+
+    if (parseInt(booking.endTime) < parseInt(booking.startTime)) {
+      return res
+        .status(400)
+        .json({ message: "Start time must be before end time!" });
+    }
+
+    db.query(
+      "SELECT * FROM bookings WHERE date = CURRENT_DATE() AND room_id = ? AND NOT ( ? <= start_time OR ? >= end_time)",
+      [booking.roomId, booking.endTime, booking.startTime],
+      async (err, result) => {
+        if (err) {
           return res
             .status(500)
-            .json({ message: "Error adding booking", error: result });
+            .json({ message: "Something went wrong", error: err.message });
         }
 
-        res.status(201).json({ message: "Booking has been added!", result });
+        if (result.length > 0) {
+          return res
+            .status(400)
+            .json({ message: "The selected time period is already booked." });
+        } else {
+          db.query(
+            "INSERT INTO bookings (room_id, professor_id, class_id, start_time, end_time, purpose, date) VALUES (?, ?, ? ,?, ?, ?, NOW())",
+            [
+              booking.roomId,
+              booking.professorId,
+              booking.classId,
+              booking.startTime,
+              booking.endTime,
+              booking.purpose,
+            ],
+            async (err, result) => {
+              if (err) {
+                return res.status(500).json({
+                  message: "Something went wrong",
+                  error: err.message,
+                });
+              }
+
+              if (!result) {
+                return res
+                  .status(500)
+                  .json({ message: "Error adding booking", error: result });
+              }
+
+              res
+                .status(201)
+                .json({ message: "Booking has been added!", result });
+            }
+          );
+        }
       }
     );
   } catch (error) {

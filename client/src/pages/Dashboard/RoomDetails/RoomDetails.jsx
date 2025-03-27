@@ -7,6 +7,9 @@ import { IoIosClose } from "react-icons/io";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const RoomDetails = () => {
+  //React router dom states
+  const { id } = useParams();
+
   // Database States
   const [roomDetails, setRoomDetails] = useState(null);
   const [classes, setClasses] = useState([]);
@@ -24,9 +27,25 @@ const RoomDetails = () => {
     roomId: "",
     professorId: "",
   });
+  const [reserveBookingFormData, setReserveFromData] = useState({
+    startTime: "",
+    endTime: "",
+    classId: "",
+    purpose: "",
+    roomId: "",
+    professorId: "",
+  });
 
-  //React router dom states
-  const { id } = useParams();
+  //Form Spread Operators
+  const handleBookNowFormData = (e) => {
+    const { name, value } = e.target;
+    setBookNowFormData({ ...bookNowFormData, [name]: value });
+  };
+
+  const handleReserveBookingFormData = (e) => {
+    const { name, value } = e.target;
+    setReserveFromData({ ...reserveBookingFormData, [name]: value });
+  };
 
   // Modal States
   const [bookNowModal, setBookNowModal] = useState(false);
@@ -38,21 +57,24 @@ const RoomDetails = () => {
   const [selectedBookingPosition, setSelectedBookingPosition] = useState(null);
   const [filteredStartTimeSlots, setFilteredStartTimeslots] = useState([]);
   const [filteredEndTimeSlots, setFilteredEndTimeslots] = useState([]);
+  const [
+    filteredEndTimeSlotsForReservation,
+    setFilteredEndTimeSlotsForReservation,
+  ] = useState([]);
+  const [isTimeSlotAvailableForBookNow, setIsTimeSlotAvailableForBookNow] =
+    useState(true);
+  const [
+    isTimeSlotAvailableForReserveBooking,
+    setIsTimeSlotAvailableForReserveBooking,
+  ] = useState(true);
 
   //Other Declarations
   const scrollableDivRef = useRef(null);
-
-  //Form Spread Operators
-  const handleBookNowFormData = (e) => {
-    const { name, value } = e.target;
-    setBookNowFormData({ ...bookNowFormData, [name]: value });
-  };
+  const hasScrolledInitially = useRef(false);
 
   //POST Requests
   const bookNow = async (e) => {
     e.preventDefault();
-
-    console.log(bookNowFormData);
 
     try {
       const response = await fetch(`${API_URL}/api/newBooking`, {
@@ -61,6 +83,30 @@ const RoomDetails = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(bookNowFormData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      const result = await response.json();
+      console.log(result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const reserveBooking = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch(`${API_URL}/api/reserveBooking`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reserveBookingFormData),
       });
 
       if (!response.ok) {
@@ -156,14 +202,12 @@ const RoomDetails = () => {
       const result = await response.json();
       const updatedDateResult = {
         ...result,
-        server_date: convertUTCDateToSameTimezone(result.server_date),
         bookings: result.bookings.map((booking) => ({
           ...booking,
           date: convertUTCDateToSameTimezone(booking.date),
         })),
       };
       setBookings(updatedDateResult.bookings);
-      setServerDate(updatedDateResult.server_date);
     } catch (error) {
       console.error(error.message);
     }
@@ -187,6 +231,27 @@ const RoomDetails = () => {
       setBookingsPurposes(result.bookingPurposes);
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const fetchServerDate = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/serverDate`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      const result = await response.json();
+      setServerDate(convertUTCDateToSameTimezone(result.serverDate));
+    } catch (error) {
+      console.error(error.message);
     }
   };
 
@@ -296,13 +361,83 @@ const RoomDetails = () => {
     }
   };
 
+  const checkAvailability = (bookingType) => {
+    let selectedStart;
+    let selectedEnd;
+    if (bookingType === "bookNow") {
+      selectedStart = parseInt(bookNowFormData.startTime);
+      selectedEnd = parseInt(bookNowFormData.endTime);
+    } else {
+      selectedStart = parseInt(reserveBookingFormData.startTime);
+      selectedEnd = parseInt(reserveBookingFormData.endTime);
+    }
+
+    const isOverlapping = bookings.some((booking) => {
+      const bookingStart = booking.start_time_id;
+      const bookingEnd = booking.end_time_id;
+
+      // Overlapping if NOT (selected time is completely before OR completely after)
+      return !(selectedEnd <= bookingStart || selectedStart >= bookingEnd);
+    });
+
+    // If there is NO overlap, the timeslot is available
+    bookingType === "bookNow"
+      ? setIsTimeSlotAvailableForBookNow(!isOverlapping)
+      : setIsTimeSlotAvailableForReserveBooking(!isOverlapping);
+  };
+
   //useEffect section
   useEffect(() => {
-    fetchRoom();
-    fetchClasses();
-    fetchTimeslots();
-    fetchBookings();
-    fetchBookingPurposes();
+    updateCurrentTime();
+    const interval = setInterval(updateCurrentTime, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (
+      scrollableDivRef.current &&
+      currentTimePosition > 0 &&
+      !hasScrolledInitially.current
+    ) {
+      const container = scrollableDivRef.current;
+      const containerHeight = container.clientHeight;
+
+      setTimeout(() => {
+        container.scrollTop = Math.max(
+          currentTimePosition - containerHeight / 2,
+          0
+        );
+        hasScrolledInitially.current = true;
+      }, 100);
+    }
+  }, [currentTimePosition]);
+
+  useEffect(() => {
+    const scrollableDiv = scrollableDivRef.current;
+    if (scrollableDiv) {
+      scrollableDiv.addEventListener("scroll", updatePosition);
+    }
+
+    return () => {
+      if (scrollableDiv) {
+        scrollableDiv.removeEventListener("scroll", updatePosition);
+      }
+    };
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await Promise.all([
+        fetchRoom(),
+        fetchClasses(),
+        fetchTimeslots(),
+        fetchBookings(),
+        fetchBookingPurposes(),
+        fetchServerDate(),
+      ]);
+    };
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -313,6 +448,11 @@ const RoomDetails = () => {
       filteredTimeSlots.length > 0 ? filteredTimeSlots : timeslots.slice(-2)
     );
     setFilteredEndTimeslots(
+      filteredTimeSlots.length > 0
+        ? filteredTimeSlots.slice(1)
+        : timeslots.slice(-1)
+    );
+    setFilteredEndTimeSlotsForReservation(
       filteredTimeSlots.length > 0
         ? filteredTimeSlots.slice(1)
         : timeslots.slice(-1)
@@ -329,41 +469,48 @@ const RoomDetails = () => {
       roomId: roomDetails?.id,
       professorId: 1,
     }));
-  }, [filteredStartTimeSlots, filteredEndTimeSlots, classes, roomDetails]);
+    setReserveFromData((prevData) => ({
+      ...prevData,
+      startTime: filteredStartTimeSlots[0]?.id,
+      endTime: filteredEndTimeSlotsForReservation[0]?.id,
+      classId: classes[0]?.id,
+      purpose: "Lecture",
+      roomId: roomDetails?.id,
+      professorId: 1,
+    }));
+  }, [
+    filteredStartTimeSlots,
+    filteredEndTimeSlots,
+    filteredEndTimeSlotsForReservation,
+    classes,
+    roomDetails,
+  ]);
 
   useEffect(() => {
-    updateCurrentTime();
-    const interval = setInterval(updateCurrentTime, 60000);
-
-    return () => clearInterval(interval);
-  });
-
-  useEffect(() => {
-    const scrollableDiv = scrollableDivRef.current;
-    if (scrollableDiv) {
-      scrollableDiv.addEventListener("scroll", updatePosition);
-    }
-
-    return () => {
-      if (scrollableDiv) {
-        scrollableDiv.removeEventListener("scroll", updatePosition);
-      }
-    };
-  });
-
-  useEffect(() => {
-    if (bookNowFormData.startTime) {
-      const nextAvailableEndTime = filteredEndTimeSlots.find(
-        (timeslot) => timeslot.id > parseInt(bookNowFormData.startTime)
+    if (reserveBookingFormData.startTime) {
+      const nextAvailableEndTime = filteredEndTimeSlotsForReservation.find(
+        (timeslot) => timeslot.id > parseInt(reserveBookingFormData.startTime)
       );
       if (nextAvailableEndTime) {
-        setBookNowFormData((prevData) => ({
+        setReserveFromData((prevData) => ({
           ...prevData,
           endTime: nextAvailableEndTime.id,
         }));
       }
     }
-  }, [bookNowFormData.startTime]);
+  }, [reserveBookingFormData.startTime]);
+
+  useEffect(() => {
+    checkAvailability("bookNow");
+  }, [bookNowFormData.startTime, bookNowFormData.endTime, bookings]);
+
+  useEffect(() => {
+    checkAvailability("reserveBooking");
+  }, [
+    reserveBookingFormData.startTime,
+    reserveBookingFormData.endTime,
+    bookings,
+  ]);
 
   return (
     <>
@@ -511,6 +658,12 @@ const RoomDetails = () => {
         >
           <form onSubmit={bookNow}>
             <h3>Book now</h3>
+            {!isTimeSlotAvailableForBookNow && (
+              <p className="text-red-500">
+                Sorry this room is occupied at this time period. You can reserve
+                for another time.
+              </p>
+            )}
             <div className="flex">
               <p>Date:</p>
               <p>{serverDate?.split("T")[0]}</p>
@@ -531,16 +684,11 @@ const RoomDetails = () => {
                   value={bookNowFormData.endTime}
                   onChange={handleBookNowFormData}
                 >
-                  {filteredEndTimeSlots
-                    .filter(
-                      (timeslot) =>
-                        timeslot.id > parseInt(bookNowFormData.startTime)
-                    )
-                    .map((timeslot, index) => (
-                      <option key={index} value={timeslot.id}>
-                        {convertTimeTo12HourFormat(timeslot.time)}
-                      </option>
-                    ))}
+                  {filteredEndTimeSlots.map((timeslot, index) => (
+                    <option key={index} value={timeslot.id}>
+                      {convertTimeTo12HourFormat(timeslot.time)}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -578,7 +726,9 @@ const RoomDetails = () => {
                 ))}
               </select>
             </div>
-            <Button type="submit">Book Now</Button>
+            <Button type="submit" disabled={!isTimeSlotAvailableForBookNow}>
+              Book Now
+            </Button>
             <Button
               type="button"
               onClick={() => setBookNowModal(!bookNowModal)}
@@ -594,8 +744,14 @@ const RoomDetails = () => {
             reserveModal ? "block" : "hidden"
           }`}
         >
-          <form onSubmit={bookNow}>
+          <form onSubmit={reserveBooking}>
             <h3>Reserve Booking</h3>
+            {!isTimeSlotAvailableForReserveBooking && (
+              <p className="text-red-500">
+                This time period is already booked. Please select a different
+                time.
+              </p>
+            )}
             <div className="flex">
               <p>Date:</p>
               <p>{serverDate?.split("T")[0]}</p>
@@ -606,8 +762,8 @@ const RoomDetails = () => {
                 <p>Start Time:</p>
                 <select
                   name="startTime"
-                  value={bookNowFormData.startTime}
-                  onChange={handleBookNowFormData}
+                  value={reserveBookingFormData.startTime}
+                  onChange={handleReserveBookingFormData}
                 >
                   {filteredStartTimeSlots
                     .slice(0, -1)
@@ -624,13 +780,13 @@ const RoomDetails = () => {
                 <select
                   name="endTime"
                   id="endTime"
-                  value={bookNowFormData.endTime}
-                  onChange={handleBookNowFormData}
+                  value={reserveBookingFormData.endTime}
+                  onChange={handleReserveBookingFormData}
                 >
-                  {filteredEndTimeSlots
+                  {filteredEndTimeSlotsForReservation
                     .filter(
                       (timeslot) =>
-                        timeslot.id > parseInt(bookNowFormData.startTime)
+                        timeslot.id > parseInt(reserveBookingFormData.startTime)
                     )
                     .map((timeslot, index) => (
                       <option key={index} value={timeslot.id}>
@@ -650,8 +806,8 @@ const RoomDetails = () => {
               <p>Class Year & Block:</p>
               <select
                 name="classId"
-                value={bookNowFormData.classId}
-                onChange={handleBookNowFormData}
+                value={reserveBookingFormData.classId}
+                onChange={handleReserveBookingFormData}
               >
                 {classes.map((classItem, index) => (
                   <option key={index} value={classItem.id}>
@@ -664,8 +820,8 @@ const RoomDetails = () => {
               <p>Purpose:</p>
               <select
                 name="purpose"
-                value={bookNowFormData.purpose}
-                onChange={handleBookNowFormData}
+                value={reserveBookingFormData.purpose}
+                onChange={handleReserveBookingFormData}
               >
                 {bookingsPurposes.map((bookingPurpose, index) => (
                   <option key={index} value={bookingPurpose}>
@@ -674,7 +830,12 @@ const RoomDetails = () => {
                 ))}
               </select>
             </div>
-            <Button type="submit">Reserve Booking</Button>
+            <Button
+              type="submit"
+              disabled={!isTimeSlotAvailableForReserveBooking}
+            >
+              Reserve Booking
+            </Button>
             <Button
               type="button"
               onClick={() => setReserveModal(!reserveModal)}

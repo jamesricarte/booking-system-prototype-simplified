@@ -8,9 +8,6 @@ import RoomDetails from "./pages/Dashboard/RoomDetails/RoomDetails";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import Admin from "./pages/Admin/Admin";
 
-import BookingCalendar from "./pages/Dashboard/BookingCalendar";
-import TrackingPositionTest from "./pages/Dashboard/TrackingPositionTest";
-
 const App = () => {
   return (
     <Routes>
@@ -34,12 +31,6 @@ const App = () => {
             <RoomDetails />
           </DashboardProtectedRoute>
         }
-      ></Route>
-
-      <Route path="/booking/calendar" element={<BookingCalendar />}></Route>
-      <Route
-        path="/TrackingPositionTest"
-        element={<TrackingPositionTest />}
       ></Route>
 
       {/* Admin */}
