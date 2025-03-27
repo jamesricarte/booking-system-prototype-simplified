@@ -376,11 +376,9 @@ const RoomDetails = () => {
       const bookingStart = booking.start_time_id;
       const bookingEnd = booking.end_time_id;
 
-      // Overlapping if NOT (selected time is completely before OR completely after)
       return !(selectedEnd <= bookingStart || selectedStart >= bookingEnd);
     });
 
-    // If there is NO overlap, the timeslot is available
     bookingType === "bookNow"
       ? setIsTimeSlotAvailableForBookNow(!isOverlapping)
       : setIsTimeSlotAvailableForReserveBooking(!isOverlapping);
@@ -444,16 +442,17 @@ const RoomDetails = () => {
     const filteredTimeSlots = timeslots.filter(
       (timeslot) => convertTimeToMinutes(timeslot.time) >= getNearestTimeSlot()
     );
+
     setFilteredStartTimeslots(
-      filteredTimeSlots.length > 0 ? filteredTimeSlots : timeslots.slice(-2)
+      filteredTimeSlots.length > 1 ? filteredTimeSlots : timeslots.slice(-2)
     );
     setFilteredEndTimeslots(
-      filteredTimeSlots.length > 0
+      filteredTimeSlots.length > 1
         ? filteredTimeSlots.slice(1)
         : timeslots.slice(-1)
     );
     setFilteredEndTimeSlotsForReservation(
-      filteredTimeSlots.length > 0
+      filteredTimeSlots.length > 1
         ? filteredTimeSlots.slice(1)
         : timeslots.slice(-1)
     );

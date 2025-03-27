@@ -50,7 +50,7 @@ router.post("/newBooking", (req, res) => {
       return res.status(400).json({ message: "All fields are required!" });
     }
 
-    if (parseInt(booking.endTime) < parseInt(booking.startTime)) {
+    if (parseInt(booking.endTime) <= parseInt(booking.startTime)) {
       return res
         .status(400)
         .json({ message: "Start time must be before end time!" });
@@ -125,7 +125,7 @@ router.post("/reserveBooking", (req, res) => {
       return res.status(400).json({ message: "All fields are required!" });
     }
 
-    if (parseInt(booking.endTime) < parseInt(booking.startTime)) {
+    if (parseInt(booking.endTime) <= parseInt(booking.startTime)) {
       return res
         .status(400)
         .json({ message: "Start time must be before end time!" });
