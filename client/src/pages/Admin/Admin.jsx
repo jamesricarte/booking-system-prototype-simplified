@@ -10,7 +10,7 @@ const Admin = () => {
         <table className="border-collapse">
           <thead>
             <tr>
-              <td>Room</td>
+              <td>Room Number</td>
               <td>Class</td>
               <td>Faculty</td>
               <td>Time</td>

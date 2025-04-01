@@ -5,6 +5,7 @@ import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import DashboardProtectedRoute from "./components/DashboardProtectedRoute";
 import Dashboard from "./pages/Dashboard/Dashboard";
+import Bookings from "./pages/Dashboard/Bookings/Bookings";
 import RoomDetails from "./pages/Dashboard/RoomDetails/RoomDetails";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import Admin from "./pages/Admin/Admin";
@@ -26,6 +27,16 @@ const App = () => {
           </DashboardProtectedRoute>
         }
       ></Route>
+
+      <Route
+        path="/bookings"
+        element={
+          <DashboardProtectedRoute>
+            <Bookings />
+          </DashboardProtectedRoute>
+        }
+      ></Route>
+
       <Route
         path="/room/:id"
         element={

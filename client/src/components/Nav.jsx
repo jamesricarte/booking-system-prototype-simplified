@@ -7,7 +7,9 @@ const Nav = () => {
   return (
     <nav className="flex items-center justify-between">
       <div className="ml-10">
-        <h2>Booking Classroom</h2>
+        <Link to="/dashboard" className="text-black no-underline">
+          <h2>Booking Classroom</h2>
+        </Link>
       </div>
       <div className="flex gap-6 mr-10">
         <p className="cursor-pointer">Account</p>

@@ -322,8 +322,8 @@ const RoomDetails = () => {
       <Nav />
       <main className="flex flex-col items-center">
         <div>
-          <Link to="/dashboard">
-            <p>Back to Dashboard</p>
+          <Link to="/bookings">
+            <p>Back to Bookings</p>
           </Link>
 
           <div>
