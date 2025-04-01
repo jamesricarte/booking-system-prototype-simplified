@@ -1,18 +1,17 @@
 import React, { useState } from "react";
 import Input from "../../components/Input";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
 import { handleFormChange } from "../../utils/formHandlers";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const Login = () => {
+const Register = () => {
   const [user, setUser] = useState({
     email: "",
+    schoolId: "",
     password: "",
+    confirmPassword: "",
   });
-
-  const { login } = useAuth();
 
   const [response, setResponse] = useState({
     isResponseAvailable: false,
@@ -24,11 +23,11 @@ const Login = () => {
 
   const handleUserInput = handleFormChange(user, setUser);
 
-  const loginUser = async (e) => {
+  const registerUser = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${API_URL}/api/login`, {
+      const response = await fetch(`${API_URL}/api/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -42,42 +41,43 @@ const Login = () => {
       }
 
       const result = await response.json();
-      login(result.fetchedUser);
       setResponse({
         isResponseAvailable: true,
         message: result.message,
         type: "success",
       });
-      if (result.fetchedUser.user_type === 0) {
-        navigate("/admin");
-      } else if (result.fetchedUser.user_type === 1) {
-        navigate("/dashboard");
-      }
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     } catch (error) {
-      const errorMessage =
-        error.message === "Failed to fetch"
-          ? "Something went wrong with the server."
-          : error.message;
+      console.error(error);
       setResponse({
         isResponseAvailable: true,
-        message: errorMessage,
+        message: error.message,
         type: "error",
       });
     }
   };
-
   return (
     <>
       <main className="flex flex-col items-center justify-center h-screen">
-        <h2>Welcome to Classroom Booking</h2>
-        <h3>Please enter the credentials to login</h3>
-        <form className="flex flex-col" onSubmit={loginUser}>
-          <label htmlFor="email">Email address:</label>
+        <h3>Sign up</h3>
+        <form className="flex flex-col" onSubmit={registerUser}>
+          <label htmlFor="email">Email Address:</label>
           <Input
             type="text"
             id="email"
             name="email"
             value={user.email}
+            onChange={handleUserInput}
+            required={true}
+          />
+          <label htmlFor="schoolId">School Id:</label>
+          <Input
+            type="text"
+            id="schoolId"
+            name="schoolId"
+            value={user.schoolId}
             onChange={handleUserInput}
             required={true}
           />
@@ -87,6 +87,15 @@ const Login = () => {
             id="password"
             name="password"
             value={user.password}
+            onChange={handleUserInput}
+            required={true}
+          />
+          <label htmlFor="confirmPassword">Confirm Password:</label>
+          <Input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            value={user.confirmPassword}
             onChange={handleUserInput}
             required={true}
           />
@@ -100,17 +109,14 @@ const Login = () => {
               {response.message}
             </p>
           )}
-          <p>
-            Forget password? <a href="">Go here</a>
-          </p>
-          <Input type="submit" value="Login" />
+          <Input type="submit" value="Register" />
         </form>
         <p>
-          Don't have an account? <Link to="/register">Register</Link>
+          Already have an account? <Link to="/login">login</Link>
         </p>
       </main>
     </>
   );
 };
 
-export default Login;
+export default Register;

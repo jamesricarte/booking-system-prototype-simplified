@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { convertUTCDateToSameTimezone } from "../../../../utils/timeUtils";
+import { useAuth } from "../../../../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -11,6 +12,10 @@ const useRoomFetches = (roomId) => {
   const [bookings, setBookings] = useState([]);
   const [bookingsPurposes, setBookingsPurposes] = useState([]);
   const [serverDate, setServerDate] = useState(null);
+  const [professor, setProfessor] = useState(null);
+
+  const { user } = useAuth();
+  const schoolId = user.school_id;
 
   //Fetches from database
   const fetchRoom = async () => {
@@ -146,6 +151,27 @@ const useRoomFetches = (roomId) => {
     }
   };
 
+  const fetchProfessor = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/professor/${schoolId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      const result = await response.json();
+      setProfessor(result.professor);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       await Promise.all([
@@ -155,6 +181,7 @@ const useRoomFetches = (roomId) => {
         fetchBookings(),
         fetchBookingPurposes(),
         fetchServerDate(),
+        fetchProfessor(),
       ]);
     };
     fetchData();
@@ -167,6 +194,8 @@ const useRoomFetches = (roomId) => {
     bookings,
     bookingsPurposes,
     serverDate,
+    professor,
+    fetchBookings,
   };
 };
 

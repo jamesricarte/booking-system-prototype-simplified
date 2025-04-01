@@ -2,6 +2,7 @@ import React from "react";
 import "./styles/App.css";
 import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login/Login";
+import Register from "./pages/Register/Register";
 import DashboardProtectedRoute from "./components/DashboardProtectedRoute";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import RoomDetails from "./pages/Dashboard/RoomDetails/RoomDetails";
@@ -14,6 +15,7 @@ const App = () => {
       {/* Auth */}
       <Route path="/" element={<Login />}></Route>
       <Route path="/login" element={<Login />}></Route>
+      <Route path="/register" element={<Register />}></Route>
 
       {/* Dashboard */}
       <Route

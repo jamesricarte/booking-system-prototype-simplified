@@ -27,6 +27,8 @@ const RoomDetails = () => {
     bookings,
     bookingsPurposes,
     serverDate,
+    professor,
+    fetchBookings,
   } = useRoomFetches(id);
 
   const {
@@ -35,7 +37,8 @@ const RoomDetails = () => {
     bookNow,
     reserveBooking,
     setBookNowFormData,
-    setReserveFromData,
+    setReserveBookingFromData,
+    bookingMessage,
   } = useRoomPosts();
 
   //Form Spread Operators
@@ -45,12 +48,19 @@ const RoomDetails = () => {
   );
   const handleReserveBookingFormData = handleFormChange(
     reserveBookingFormData,
-    setReserveFromData
+    setReserveBookingFromData
   );
 
   // Modal States
   const [bookNowModal, setBookNowModal] = useState(false);
   const [reserveModal, setReserveModal] = useState(false);
+
+  //Response message states
+  const [roomAvailability, setRoomAvailability] = useState({
+    status: true,
+    message: "",
+    type: "",
+  });
 
   //Other States
   const [currentTimePosition, setCurrentTimePosition] = useState(0);
@@ -70,11 +80,6 @@ const RoomDetails = () => {
     isTimeSlotAvailableForReserveBooking,
     setIsTimeSlotAvailableForReserveBooking,
   ] = useState(true);
-  const [roomAvailability, setRoomAvailability] = useState({
-    status: true,
-    message: "",
-    type: "",
-  });
   const [isRoomAvailableForBooking, setIsRoomAvailableForBooking] =
     useState(true);
 
@@ -244,16 +249,16 @@ const RoomDetails = () => {
       classId: classes[0]?.id,
       purpose: "Lecture",
       roomId: roomDetails?.id,
-      professorId: 1,
+      professorId: professor?.id,
     }));
-    setReserveFromData((prevData) => ({
+    setReserveBookingFromData((prevData) => ({
       ...prevData,
       startTime: filteredStartTimeSlots[0]?.id,
       endTime: filteredEndTimeSlotsForReservation[0]?.id,
       classId: classes[0]?.id,
       purpose: "Lecture",
       roomId: roomDetails?.id,
-      professorId: 1,
+      professorId: professor?.id,
     }));
   }, [
     filteredStartTimeSlots,
@@ -269,7 +274,7 @@ const RoomDetails = () => {
         (timeslot) => timeslot.id > parseInt(reserveBookingFormData.startTime)
       );
       if (nextAvailableEndTime) {
-        setReserveFromData((prevData) => ({
+        setReserveBookingFromData((prevData) => ({
           ...prevData,
           endTime: nextAvailableEndTime.id,
         }));
@@ -300,6 +305,17 @@ const RoomDetails = () => {
         : { status: true, message: "Vacant", type: "available" }
     );
   }, [currentTimePosition, bookings]);
+
+  useEffect(() => {
+    if (
+      (bookingMessage.isBookingMessageAvaialable && bookNowModal) ||
+      reserveModal
+    ) {
+      setBookNowModal(false);
+      setReserveModal(false);
+      fetchBookings();
+    }
+  }, [bookingMessage]);
 
   return (
     <>
@@ -461,7 +477,9 @@ const RoomDetails = () => {
         {/* Book Now Modal */}
         <div
           className={`fixed px-6 py-2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg top-1/2 left-1/2 z-10 ${
-            bookNowModal ? "block" : "hidden"
+            bookNowModal && !bookingMessage.isBookingMessageAvaialable
+              ? "block"
+              : "hidden"
           }`}
         >
           <form onSubmit={bookNow}>
@@ -563,7 +581,9 @@ const RoomDetails = () => {
         {/* Reserve Modal */}
         <div
           className={`fixed px-6 py-2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg top-1/2 left-1/2 z-10 ${
-            reserveModal ? "block" : "hidden"
+            reserveModal && !bookingMessage.isBookingMessageAvaialable
+              ? "block"
+              : "hidden"
           }`}
         >
           <form onSubmit={reserveBooking}>
@@ -671,11 +691,28 @@ const RoomDetails = () => {
         {/* Background */}
         <div
           className={`fixed top-0 left-0 w-full h-full bg-black  ${
-            bookNowModal || reserveModal
+            bookNowModal ||
+            reserveModal ||
+            bookingMessage.isBookingMessageAvaialable
               ? "opacity-30 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           }`}
         ></div>
+
+        {/* Booking response message */}
+        <div
+          className={`fixed z-10 p-3 m-0 transform -translate-x-1/2 bg-white left-1/2 shadow-xl transition-all duration-500 ease ${
+            bookingMessage.isBookingMessageAvaialable
+              ? "top-12 opacity-100"
+              : "-top-10 opacity-0"
+          } ${
+            bookingMessage.type === "success"
+              ? "text-green-500"
+              : "text-red-500"
+          }`}
+        >
+          <p>{bookingMessage.message}</p>
+        </div>
       </main>
     </>
   );

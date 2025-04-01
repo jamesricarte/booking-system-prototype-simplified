@@ -12,13 +12,20 @@ const useRoomPosts = () => {
     roomId: "",
     professorId: "",
   });
-  const [reserveBookingFormData, setReserveFromData] = useState({
+  const [reserveBookingFormData, setReserveBookingFromData] = useState({
     startTime: "",
     endTime: "",
     classId: "",
     purpose: "",
     roomId: "",
     professorId: "",
+  });
+
+  //Response message states
+  const [bookingMessage, setBookingMessage] = useState({
+    isBookingMessageAvaialable: false,
+    message: "",
+    type: "",
   });
 
   //POST Requests
@@ -40,9 +47,24 @@ const useRoomPosts = () => {
       }
 
       const result = await response.json();
-      console.log(result);
+      setBookingMessage({
+        isBookingMessageAvaialable: true,
+        message: result.message,
+        type: "success",
+      });
     } catch (error) {
-      console.error(error);
+      setBookingMessage({
+        isBookingMessageAvaialable: true,
+        message: error.message,
+        type: "error",
+      });
+    } finally {
+      setTimeout(() => {
+        setBookingMessage((prev) => ({
+          ...prev,
+          isBookingMessageAvaialable: false,
+        }));
+      }, 3000);
     }
   };
 
@@ -64,9 +86,24 @@ const useRoomPosts = () => {
       }
 
       const result = await response.json();
-      console.log(result);
+      setBookingMessage({
+        isBookingMessageAvaialable: true,
+        message: result.message,
+        type: "success",
+      });
     } catch (error) {
-      console.error(error);
+      setBookingMessage({
+        isBookingMessageAvaialable: true,
+        message: error.message,
+        type: "error",
+      });
+    } finally {
+      setTimeout(() => {
+        setBookingMessage((prev) => ({
+          ...prev,
+          isBookingMessageAvaialable: false,
+        }));
+      }, 3500);
     }
   };
 
@@ -76,7 +113,8 @@ const useRoomPosts = () => {
     bookNow,
     reserveBooking,
     setBookNowFormData,
-    setReserveFromData,
+    setReserveBookingFromData,
+    bookingMessage,
   };
 };
 

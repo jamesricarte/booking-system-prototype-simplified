@@ -69,7 +69,7 @@ router.post("/newBooking", (req, res) => {
         if (result.length > 0) {
           return res
             .status(400)
-            .json({ message: "The selected time period is already booked." });
+            .json({ message: "The selected time period was already booked." });
         } else {
           db.query(
             "INSERT INTO bookings (room_id, professor_id, class_id, start_time, end_time, purpose, date) VALUES (?, ?, ? ,?, ?, ?, NOW())",
@@ -95,9 +95,10 @@ router.post("/newBooking", (req, res) => {
                   .json({ message: "Error adding booking", error: result });
               }
 
-              res
-                .status(201)
-                .json({ message: "Booking has been added!", result });
+              res.status(201).json({
+                message: "Your booking has been successfully added!",
+                result,
+              });
             }
           );
         }
@@ -144,7 +145,7 @@ router.post("/reserveBooking", (req, res) => {
         if (result.length > 0) {
           return res
             .status(400)
-            .json({ message: "The selected time period is already booked." });
+            .json({ message: "The selected time period was already booked." });
         } else {
           db.query(
             "INSERT INTO bookings (room_id, professor_id, class_id, start_time, end_time, purpose, date) VALUES (?, ?, ? ,?, ?, ?, NOW())",
@@ -170,9 +171,10 @@ router.post("/reserveBooking", (req, res) => {
                   .json({ message: "Error adding booking", error: result });
               }
 
-              res
-                .status(201)
-                .json({ message: "Booking has been added!", result });
+              res.status(201).json({
+                message: "Your reservation has been successfully confirmed!",
+                result,
+              });
             }
           );
         }
