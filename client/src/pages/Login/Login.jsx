@@ -40,6 +40,7 @@ const Login = () => {
         const errorData = await response.json();
         throw errorData;
       }
+      //Use this errror handling for checking errors⬆️
 
       const result = await response.json();
       login(result.fetchedUser);
@@ -54,6 +55,7 @@ const Login = () => {
         navigate("/dashboard");
       }
     } catch (error) {
+      //error variable will be the same as the response you gave from express (object)
       const errorMessage =
         error.message === "Failed to fetch"
           ? "Something went wrong with the server."

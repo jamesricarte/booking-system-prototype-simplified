@@ -16,6 +16,7 @@ router.post("/login", async (req, res) => {
       Object.values(user).includes(undefined)
     ) {
       return res.status(400).json({ message: "All fields are required!" });
+      //⬆️ return the response if the if statement is true, meaning it will stop executing the code below
     }
 
     db.query(
@@ -59,6 +60,7 @@ router.post("/login", async (req, res) => {
         .status(500)
         .json({ message: "Internal server error", error: error.message });
     }
+    //Use this error handling in catch block ⬆️
   }
 });
 
@@ -72,6 +74,7 @@ router.post("/register", async (req, res) => {
       Object.values(user).includes(undefined)
     ) {
       return res.status(400).json({ message: "All fields are required!" });
+      //⬆️ return the response if the if statement is true, meaning it will stop executing the code below
     }
 
     if (user.password !== user.confirmPassword) {
@@ -177,6 +180,7 @@ router.post("/register", async (req, res) => {
         .status(500)
         .json({ message: "Internal server error", error: error.message });
     }
+    //Use this error handling in catch block ⬆️
   }
 });
 
