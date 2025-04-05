@@ -1,4 +1,19 @@
+@import url("https://fonts.googleapis.com/css2?family=Domine:wght@400;700&display=swap");
+
 @layer theme, base, components, utilities;
-@import "tailwindcss/theme.css" layer(theme);
-/* @import "tailwindcss/preflight.css" layer(base); */
+
+@import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities);
+
+@import "tailwindcss/theme.css" layer(utilities);
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #0000ff;
+  /* --color-sunset-sky: linear-gradient(to right, #fd8112, #0085ca); */
+}
+
+body {
+  font-family: "Domine", serif;
+}
