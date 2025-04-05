@@ -35,36 +35,37 @@ const Bookings = () => {
 
   return (
     <>
-      <Nav />
-      <main className="flex flex-col items-center">
-        <h3>Bookings</h3>
-        <table className="border-collapse">
-          <thead>
-            <tr>
-              <td>Room no.</td>
-              <td>Status</td>
-              <td>Checkout Time</td>
-              <td>Action</td>
-            </tr>
-          </thead>
-          <tbody>
-            {rooms.map((room, index) => (
-              <tr key={index}>
-                <td>
-                  <p>{room.room_number}</p>
-                </td>
-                <td>Vacant</td>
-                <td>10:30pm</td>
-                <td>
-                  <Button>Book Now</Button>
-                  <Link to={`/room/${room.id}`}>
-                    <Button>Details</Button>
-                  </Link>
-                </td>
+      <main className="container w-full h-full px-4 mx-auto bg-white">
+        <div className="flex flex-col items-center justify-center">
+          <h3>Bookings</h3>
+          <table className="border-collapse">
+            <thead>
+              <tr>
+                <td>Room no.</td>
+                <td>Status</td>
+                <td>Checkout Time</td>
+                <td>Action</td>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rooms.map((room, index) => (
+                <tr key={index}>
+                  <td>
+                    <p>{room.room_number}</p>
+                  </td>
+                  <td>Vacant</td>
+                  <td>10:30pm</td>
+                  <td>
+                    <Button>Book Now</Button>
+                    <Link to={`/room/${room.id}`}>
+                      <Button>Details</Button>
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </main>
     </>
   );

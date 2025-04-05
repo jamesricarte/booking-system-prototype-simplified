@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Logo from "../assets/logo/Logo.png";
 import BlankProfile from "../assets/image/elipse.png";
 import { RiSettings5Fill } from "react-icons/ri";
+import { NavLink } from "react-router-dom";
 
 const Sidebar = () => {
   return (
@@ -20,8 +21,27 @@ const Sidebar = () => {
           <hr className="mb-8" />
 
           <nav className="flex flex-col space-y-2 text-2xl">
-            <Link className="p-2 hover:bg-[#B3E5FC]">Dashboard</Link>
-            <Link className="p-2 hover:bg-[#B3E5FC]">Bookings</Link>
+            <NavLink
+              to="/dashboard"
+              className={({ isActive }) =>
+                `p-2 transition-colors ${
+                  isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
+                }`
+              }
+            >
+              Dashboard
+            </NavLink>
+
+            <NavLink
+              to="/bookings"
+              className={({ isActive }) =>
+                `p-2 transition-colors ${
+                  isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
+                }`
+              }
+            >
+              Bookings
+            </NavLink>
           </nav>
         </div>
       </div>
