@@ -3,7 +3,7 @@ import React from "react";
 const Button = ({
   children,
   // ⬇️ This is the default classname of the component (ced will set up this)
-  className = "p-1 border border-gray-500",
+  className = "p-1 border border-gray-500 bg-[#B3E5FC] w-[682px] h-[70px] rounded-md border-none",
   // ⬇️ This is the additional classname if you have specific adjustment when you use the component
   additionalClassName,
   id,

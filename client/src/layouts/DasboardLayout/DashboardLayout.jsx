@@ -4,10 +4,12 @@ import { Outlet } from "react-router-dom";
 
 const DashboardLayout = () => {
   return (
-    <div className="flex h-screen">
+    <div className="flex w-screen h-screen">
       <Sidebar />
-      <div className="flex-1 bg-gradient-to-r from-[#0085CA] to-[#FD8112] p-6">
-        <Outlet />
+      <div className="flex-1 bg-[linear-gradient(to_right,_#0085ca,_#fdb112)] p-10">
+        <div className="w-full h-full rounded-lg g-white">
+          <Outlet />
+        </div>
       </div>
     </div>
   );
