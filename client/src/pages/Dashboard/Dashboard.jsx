@@ -1,24 +1,28 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import Button from "../../components/Button";
-import Input from "../../components/Input";
 
 const Dashboard = () => {
   return (
-    <main className="container w-full h-full px-4 mx-auto bg-white">
-      <div className="mb-96">
-        <Link>Today's Schedule Bookings</Link>
-        <Link>Available Rooms</Link>
-        <Link>Weekly Overview</Link>
-        <Link>Quick Actions Shortcut</Link>
+    <main className="container w-full h-full bg-white">
+      <div className="p-4">
+        <h1>Dashboard Section</h1>
       </div>
-
-      <div className="flex flex-col gap-4">
-        <Button name="login">Login</Button>
-        <Button name="signup">Sign Up</Button>
-        <Input type="text" name="email" placeholder="Enter your email">
-          Enter your email
-        </Input>
+      <hr />
+      <div className="pt-7 px-14">
+        <div className="grid grid-cols-2 gap-8 place ">
+          <Link className="shadow-md p-44 bg-[#F5F5F5] flex items-center justify-center rounded-md ">
+            Today's Schedule Bookings
+          </Link>
+          <Link className="shadow-md p-44 bg-[#F5F5F5] flex items-center justify-center rounded-md">
+            Available Rooms
+          </Link>
+          <Link className="shadow-md p-44 bg-[#F5F5F5] flex items-center justify-center rounded-md">
+            Weekly Overview
+          </Link>
+          <Link className="shadow-md p-44 bg-[#F5F5F5] flex items-center justify-center rounded-md">
+            Quick Actions Shortcut
+          </Link>
+        </div>
       </div>
     </main>
   );

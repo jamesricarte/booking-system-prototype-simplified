@@ -11,7 +11,7 @@
 
 @theme {
   --color-primary: #0000ff;
-  /* --color-sunset-sky: linear-gradient(to right, #fd8112, #0085ca); */
+  /* --custom-gradient: linear-gradient(to right, #fdb112, #0085ca); */
 }
 
 body {
