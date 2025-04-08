@@ -3,6 +3,8 @@ import Input from "../../components/Input";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { handleFormChange } from "../../utils/formHandlers";
+import BackGroundBu from "../../assets/background/Background_bu.png";
+import Logo from "../../assets/logo/Logo.png";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -69,29 +71,45 @@ const Login = () => {
   };
 
   return (
-    <>
-      <main className="flex flex-col items-center justify-center h-screen">
-        <h2>Welcome to Classroom Booking</h2>
-        <h3>Please enter the credentials to login</h3>
-        <form className="flex flex-col" onSubmit={loginUser}>
-          <label htmlFor="email">Email address:</label>
-          <Input
-            type="text"
-            id="email"
-            name="email"
-            value={user.email}
-            onChange={handleUserInput}
-            required={true}
+    <div className="flex">
+      <div className="h-screen">
+        <img src={BackGroundBu} alt="" className="object-cover w-full h-full" />
+      </div>
+      <div className="flex flex-col flex-grow px-4 py-16">
+        <div className="flex items-center px-8">
+          <img
+            src={Logo}
+            alt="Bicol University Logo"
+            className="w-[91px] h-[91px]"
           />
-          <label htmlFor="password">Password:</label>
-          <Input
-            type="password"
-            id="password"
-            name="password"
-            value={user.password}
-            onChange={handleUserInput}
-            required={true}
-          />
+          <h2 className="text-[22px]">
+            Bicol University College of Engineering
+          </h2>
+        </div>
+        <form className="flex flex-col py-6 px-13" onSubmit={loginUser}>
+          <h1 className="mb-5 text-2xl">Login</h1>
+          <div className="flex flex-col gap-4 mb-5">
+            <label htmlFor="email">Email address:</label>
+            <Input
+              type="text"
+              id="email"
+              name="email"
+              value={user.email}
+              onChange={handleUserInput}
+              required={true}
+            />
+          </div>
+          <div className="flex flex-col gap-4 mb-5">
+            <label htmlFor="password">Password:</label>
+            <Input
+              type="password"
+              id="password"
+              name="password"
+              value={user.password}
+              onChange={handleUserInput}
+              required={true}
+            />
+          </div>
 
           {response.isResponseAvailable && (
             <p
@@ -102,16 +120,34 @@ const Login = () => {
               {response.message}
             </p>
           )}
-          <p>
-            Forget password? <a href="">Go here</a>
-          </p>
-          <Input type="submit" value="Login" />
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <input type="checkbox" className="w-3 h-3" />
+              <label htmlFor="" className="text-[19px]">
+                Remember me
+              </label>
+            </div>
+            <p className="text-[19px] text-[#FFA726]">Forget password?</p>
+          </div>
+          <Input
+            type="submit"
+            value="Login"
+            className="mb-2 bg-[#B3E5FC] p-4 rounded-md"
+          />
         </form>
-        <p>
-          Don't have an account? <Link to="/register">Register</Link>
+        <p className="text-[19px] text-center mb-4">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-[#FFA726]">
+            Register
+          </Link>
         </p>
-      </main>
-    </>
+        <div className="mt-auto">
+          <p className="mt-auto text-center">
+            © 2025 BUCENG | All Rights Reserved{" "}
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 
