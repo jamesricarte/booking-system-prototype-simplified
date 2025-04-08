@@ -141,7 +141,7 @@ const Login = () => {
             Register
           </Link>
         </p>
-        <div className=" mt-80">
+        <div className="mt-auto">
           <p className="mt-auto text-center">
             © 2025 BUCENG | All Rights Reserved{" "}
           </p>
