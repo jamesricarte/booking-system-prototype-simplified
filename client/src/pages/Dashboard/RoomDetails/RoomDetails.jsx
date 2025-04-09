@@ -319,9 +319,14 @@ const RoomDetails = () => {
 
   return (
     <>
-      <Nav />
-      <main className="flex flex-col items-center">
-        <div>
+     <main className="container w-full h-full bg-white">
+          <div className="p-4">
+            <h1 className="text-xl">Dashboard Section</h1>
+          </div>
+          <hr />
+          <div className="pt-7 px-14">
+            <div className="grid grid-cols-2 gap-8">
+            <div>
           <Link to="/bookings">
             <p>Back to Bookings</p>
           </Link>
@@ -713,7 +718,9 @@ const RoomDetails = () => {
         >
           <p>{bookingMessage.message}</p>
         </div>
-      </main>
+            </div>
+          </div>
+        </main>
     </>
   );
 };

@@ -10,6 +10,7 @@ import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import Admin from "./pages/Admin/Admin";
 import DashboardLayout from "./layouts/DasboardLayout/DashboardLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
+import UserProfile from "./pages/UserProfile/UserProfile";
 
 const App = () => {
   return (
@@ -30,6 +31,7 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />}></Route>
         <Route path="/bookings" element={<Bookings />}></Route>
         <Route path="/room/:id" element={<RoomDetails />}></Route>
+        <Route path="/userprofile" element={<UserProfile />}></Route>
       </Route>
 
       {/* Admin */}
