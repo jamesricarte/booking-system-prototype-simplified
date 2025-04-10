@@ -88,8 +88,8 @@ const Login = () => {
         </div>
         <form className="flex flex-col py-6 px-13" onSubmit={loginUser}>
           <h1 className="mb-5 text-2xl">Login</h1>
-          <div className="flex flex-col gap-4 mb-5">
-            <label htmlFor="email">Email address:</label>
+          <div className="flex flex-col gap-4 mb-3">
+            <label htmlFor="email">Email Address</label>
             <Input
               type="text"
               id="email"
@@ -99,8 +99,8 @@ const Login = () => {
               required={true}
             />
           </div>
-          <div className="flex flex-col gap-4 mb-5">
-            <label htmlFor="password">Password:</label>
+          <div className="flex flex-col gap-4 mb-3">
+            <label htmlFor="password">Password</label>
             <Input
               type="password"
               id="password"
@@ -123,11 +123,11 @@ const Login = () => {
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2">
               <input type="checkbox" className="w-3 h-3" />
-              <label htmlFor="" className="text-[19px]">
+              <label htmlFor="" className="text-lg">
                 Remember me
               </label>
             </div>
-            <p className="text-[19px] text-[#FFA726]">Forget password?</p>
+            <p className="text-lg text-[#FFA726]">Forget password?</p>
           </div>
           <Input
             type="submit"
@@ -135,14 +135,14 @@ const Login = () => {
             className="mb-2 bg-[#B3E5FC] p-4 rounded-md"
           />
         </form>
-        <p className="text-[19px] text-center mb-4">
+        <p className="mb-4 text-lg text-center">
           Don't have an account?{" "}
           <Link to="/register" className="text-[#FFA726]">
             Register
           </Link>
         </p>
         <div className="mt-auto">
-          <p className="mt-auto text-center">
+          <p className="mt-auto text-sm text-center">
             © 2025 BUCENG | All Rights Reserved{" "}
           </p>
         </div>
