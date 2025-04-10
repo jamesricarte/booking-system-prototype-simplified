@@ -298,10 +298,10 @@ const RoomDetails = () => {
     setRoomAvailability(
       checkRoomAvailability()
         ? {
-            status: false,
-            message: "Occupied",
-            type: "occupied",
-          }
+          status: false,
+          message: "Occupied",
+          type: "occupied",
+        }
         : { status: true, message: "Vacant", type: "available" }
     );
   }, [currentTimePosition, bookings]);
@@ -317,411 +317,452 @@ const RoomDetails = () => {
     }
   }, [bookingMessage]);
 
+
+
   return (
-    <>
-     <main className="container w-full h-full bg-white">
-          <div className="p-4">
-            <h1 className="text-xl">Dashboard Section</h1>
-          </div>
-          <hr />
-          <div className="pt-7 px-14">
-            <div className="grid grid-cols-2 gap-8">
-            <div>
-          <Link to="/bookings">
-            <p>Back to Bookings</p>
-          </Link>
+    <main className="container w-full h-full bg-white">
+      {/* TOP BAR */}
+      <div className="flex items-center justify-between p-4">
+        <h1 className="text-xl">
+          Booking Section &gt; Room Details
+        </h1>
+        <Link to="/bookings" className="text-black hover:underline">
+          &lt; Back to Bookings
+        </Link>
+      </div>
+      <hr />
 
+      {/* CONTENT AREA */}
+      <div className="pt-7 px-14">
+        {/* 2-COLUMN LAYOUT: LEFT (Bookings), RIGHT (Room Details + Time) */}
+        <div className="grid grid-cols-2 gap-8">
+          {/* LEFT COLUMN: Bookings */}
           <div>
-            <h3>Room Details:</h3>
-            <div className="flex items-center">
-              <h4>Room Number:</h4>
-              <p>{roomDetails?.room_number}</p>
-            </div>
-            <div className="flex items-center">
-              <h4>Capacity:</h4>
-              <p>{roomDetails?.capacity}</p>
-            </div>
-            <div>
-              <h4>Resources:</h4>
-              <p>Whiteboard: {roomDetails?.whiteboard ? "✅" : "❌"}</p>
-              <p>TV: {roomDetails?.tv ? "✅" : "❌"}</p>
-            </div>
-
-            {isRoomAvailableForBooking && (
-              <div>
-                <h4>Status:</h4>
-
-                <p
-                  className={`${
-                    roomAvailability.type === "available"
-                      ? "text-green-500"
-                      : "text-red-500"
-                  } font-bold`}
+            <h3 className="mb-2 text-lg font-semibold">Bookings</h3>
+            {isRoomAvailableForBooking ? (
+              <>
+                <div
+                  className="relative px-6 overflow-y-scroll border border-gray-200 h-105 w-96"
+                  ref={scrollableDivRef}
                 >
-                  {roomAvailability.message}
-                </p>
-              </div>
+                  {/* Red Current-Time Indicator */}
+                  <div
+                    className="absolute h-[3px] left-24 right-0 bg-red-500 z-10"
+                    style={{ top: `${currentTimePosition}px` }}
+                  />
+                  {/* Timeslot Lines */}
+                  {timeslots.map((timeslot, index) => (
+                    <div key={index} className="flex items-center">
+                      <p className="min-w-[4rem]">
+                        {convertTimeTo12HourFormat(timeslot.time)}
+                      </p>
+                      <div className="w-full h-[1px] bg-gray-300"></div>
+                    </div>
+                  ))}
+                  {/* Bookings Rectangles */}
+                  {bookings.map((booking, index) => {
+                    const start = bookingTimeToMinutes(booking.start_time);
+                    const end = bookingTimeToMinutes(booking.end_time);
+                    const top = (start / 30) * 50.4 + 25;
+                    const height = ((end - start) / 30) * 50.4;
+
+                    return (
+                      <div
+                        key={index}
+                        id={`booking-${booking.booking_id}`}
+                        className="absolute w-48 px-1 text-sm text-white bg-blue-500 rounded cursor-pointer left-28"
+                        style={{ top: `${top}px`, height: `${height}px` }}
+                        onClick={(e) => handleSelectedBookingClick(booking, e)}
+                      >
+                        <div className="relative">
+                          <p>{booking.professor_name}</p>
+                          <p>{booking.class_name}</p>
+                          <p>{booking.purpose}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="flex gap-2 mt-6">
+                  <button className="px-4 py-2 text-black bg-[#B3E5FC] rounded hover:bg-blue-300" onClick={() => setBookNowModal(!bookNowModal)}>
+                    Book Now
+                  </button>
+                  <button className="px-4 py-2 text-gray-800 bg-[#FFCC80] rounded hover:bg-[#ffc080]" onClick={() => setReserveModal(!reserveModal)}>
+                    Reserve
+                  </button>
+                </div>
+              </>
+            ) : (
+              <p className="text-red-500">
+                Booking is not available at this time period.
+              </p>
             )}
           </div>
+          {/* RIGHT COLUMN: Room Details (table) + Time box */}
+          <div>
+            {/* ROOM DETAILS TABLE */}
+            <h3 className="mb-2 text-lg font-semibold">Room Details</h3>
+            <table className="min-w-full border-collapse">
+              <tbody>
+                <tr>
+                  <td className="p-2 font-medium border">Room Number:</td>
+                  <td className="p-2 border">{roomDetails?.room_number}</td>
+                </tr>
+                <tr>
+                  <td className="p-2 font-medium border">Room Capacity:</td>
+                  <td className="p-2 border">{roomDetails?.capacity}</td>
+                </tr>
+                <tr>
+                  <td className="p-2 font-medium border">Room Status:</td>
+                  <td
+                    className={`${roomAvailability.type === "available"
+                        ? "text-green-500"
+                        : "text-red-500"
+                      } font-bold border p-2`}
+                  >
+                    {roomAvailability?.message}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="p-2 font-medium border">Resources:</td>
+                  <td className="p-2 border">
+                    Whiteboard: {roomDetails?.whiteboard ? "✅" : "❌"} <br />
+                    TV: {roomDetails?.tv ? "✅" : "❌"}
+                  </td>
+                </tr>
+                {isRoomAvailableForBooking && (
+                  <tr>
+                    <td className="p-2 font-medium border">Status:</td>
+                    <td className="p-2 border">
+                      <span
+                        className={`${roomAvailability.type === "available"
+                            ? "text-green-500"
+                            : "text-red-500"
+                          } font-bold`}
+                      >
+                        {roomAvailability.message}
+                      </span>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
 
-          <h3>Bookings</h3>
-          {isRoomAvailableForBooking ? (
-            <>
-              <div
-                className="relative px-6 overflow-y-scroll border border-gray-200 h-80 w-96"
-                ref={scrollableDivRef}
-              >
-                {/* Current Time Indicator */}
-                <div
-                  className="absolute h-[3px] left-24 right-0 bg-red-500 z-10"
-                  style={{ top: `${currentTimePosition}px` }}
-                ></div>
+            {/* TIME BOXES */}
+            <div className="mt-6">
+              <h3 className="mb-2 text-lg font-semibold">Time</h3>
+              <div className="shadow-md p-6 bg-[#f6f6f6] rounded-lg min-w-full h-65 overflow-y-auto">
+                {Array.from({ length: 22 }, (_, i) => {
+                  const startHour = 7 + Math.floor(i / 2);
+                  const startMinute = i % 2 === 0 ? 0 : 30;
+                  const endHour = 7 + Math.floor((i + 1) / 2);
+                  const endMinute = (i + 1) % 2 === 0 ? 0 : 30;
 
-                {/* Timeslots */}
-                {timeslots.map((timeslot, index) => (
-                  <div key={index} className="flex items-center">
-                    <p className="min-w-20">
-                      {convertTimeTo12HourFormat(timeslot.time)}
-                    </p>
-                    <div className="w-full h-[1px] bg-gray-300"></div>
-                  </div>
-                ))}
+                  const startTime = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
+                  const endTime = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
 
-                {/* Bookings */}
-                {bookings.map((booking, index) => {
-                  const start = bookingTimeToMinutes(booking.start_time);
-                  const end = bookingTimeToMinutes(booking.end_time);
-                  const top = (start / 30) * 50.4 + 25;
-                  const height = ((end - start) / 30) * 50.4;
+                  const isReserved = bookings.some((booking) => {
+                    const bookingStart = convertTimeToMinutes(booking.start_time);
+                    const bookingEnd = convertTimeToMinutes(booking.end_time);
+                    const currentStart = convertTimeToMinutes(startTime);
+                    const currentEnd = convertTimeToMinutes(endTime);
+
+                    return bookingStart < currentEnd && bookingEnd > currentStart;
+                  });
 
                   return (
                     <div
-                      key={index}
-                      id={`booking-${booking.booking_id}`}
-                      className="absolute w-48 px-1 text-sm text-white bg-blue-500 rounded cursor-pointer left-28"
-                      style={{ top: `${top}px`, height: `${height}px` }}
-                      onClick={(e) => handleSelectedBookingClick(booking, e)}
+                      key={i}
+                      className="flex justify-between px-3 py-2 mb-2 bg-white rounded-md shadow-sm"
                     >
-                      <div className="relative">
-                        <p>{booking.professor_name}</p>
-                        <p>{booking.class_name}</p>
-                        <p>{booking.purpose}</p>
-                      </div>
+                      <span className="font-medium">
+                        {convertTimeTo12HourFormat(startTime)} - {convertTimeTo12HourFormat(endTime)}
+                      </span>
+                      <span className={`font-semibold ${isReserved ? "text-red-500" : "text-green-500"}`}>
+                        {isReserved ? "Reserved" : "Available"}
+                      </span>
                     </div>
                   );
                 })}
               </div>
-
-              <div className="flex gap-2 mt-6">
-                <Button onClick={() => setBookNowModal(!bookNowModal)}>
-                  Book Now
-                </Button>
-                <Button onClick={() => setReserveModal(!reserveModal)}>
-                  Reserve
-                </Button>
-              </div>
-            </>
-          ) : (
-            <p className="text-red-500">
-              Booking is not available at this time period.
-            </p>
-          )}
-        </div>
-
-        {/* Modals Below: */}
-        {/* Booking Detail Modal */}
-        {selectedBooking && (
-          <div
-            className="absolute z-10 p-3 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg left-1/2 top-1/2"
-            style={{
-              top: `${selectedBookingPosition?.top}px`,
-              left: `${selectedBookingPosition?.left}px`,
-            }}
-          >
-            <div className="text-right">
-              <IoIosClose
-                size={30}
-                className="hover:bg-gray-200"
-                onClick={() => {
-                  setSelectedBooking(null);
-                }}
-              />
-            </div>
-            <h3>Booking Details:</h3>
-            <div className="flex gap-1">
-              <p>Date: </p>
-              <p>{selectedBooking.date.split("T")[0]}</p>
-            </div>
-            <div className="flex gap-1">
-              <p>Room Number: </p>
-              <p>{selectedBooking.room_number}</p>
-            </div>
-            <div className="flex gap-1">
-              <p>Start Time:</p>
-              <p>{convertTimeTo12HourFormat(selectedBooking.start_time)}</p>
-            </div>
-            <div className="flex gap-1">
-              <p>End Time:</p>
-              <p>{convertTimeTo12HourFormat(selectedBooking.end_time)}</p>
-            </div>
-            <div className="flex gap-1">
-              <p>Faculty In Charge:</p>
-              <p>{selectedBooking.professor_name}</p>
-            </div>
-            <div className="flex gap-1">
-              <p>Class:</p>
-              <p>{selectedBooking.class_name}</p>
-            </div>
-            <div className="flex gap-1">
-              <p>Purpose:</p>
-              <p>{selectedBooking.purpose}</p>
             </div>
           </div>
-        )}
+        </div>
+      </div>
 
-        {/* Book Now Modal */}
+      {/* ====================== MODALS & OVERLAYS ====================== */}
+
+      {/* Booking Detail Popup */}
+      {selectedBooking && (
         <div
-          className={`fixed px-6 py-2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg top-1/2 left-1/2 z-10 ${
-            bookNowModal && !bookingMessage.isBookingMessageAvaialable
-              ? "block"
-              : "hidden"
-          }`}
+          className="absolute z-10 p-3 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg left-1/2 top-1/2"
+          style={{
+            top: `${selectedBookingPosition?.top}px`,
+            left: `${selectedBookingPosition?.left}px`,
+          }}
         >
-          <form onSubmit={bookNow}>
-            <h3>Book now</h3>
-            {!isTimeSlotAvailableForBookNow ? (
-              <p className="text-red-500">
-                Sorry this room is occupied at this time period. You can reserve
-                for another time.
-              </p>
-            ) : (
-              <div className="flex">
-                <p>Status: </p>
-                <p
-                  className={`${
-                    roomAvailability.type === "available"
-                      ? "text-green-500"
-                      : "text-red-500"
+          <div className="text-right">
+            <IoIosClose
+              size={30}
+              className="cursor-pointer hover:bg-gray-200"
+              onClick={() => setSelectedBooking(null)}
+            />
+          </div>
+          <h3>Booking Details:</h3>
+          <div className="flex gap-1">
+            <p>Date:</p>
+            <p>{selectedBooking.date.split("T")[0]}</p>
+          </div>
+          <div className="flex gap-1">
+            <p>Room Number:</p>
+            <p>{selectedBooking.room_number}</p>
+          </div>
+          <div className="flex gap-1">
+            <p>Start Time:</p>
+            <p>{convertTimeTo12HourFormat(selectedBooking.start_time)}</p>
+          </div>
+          <div className="flex gap-1">
+            <p>End Time:</p>
+            <p>{convertTimeTo12HourFormat(selectedBooking.end_time)}</p>
+          </div>
+          <div className="flex gap-1">
+            <p>Faculty In Charge:</p>
+            <p>{selectedBooking.professor_name}</p>
+          </div>
+          <div className="flex gap-1">
+            <p>Class:</p>
+            <p>{selectedBooking.class_name}</p>
+          </div>
+          <div className="flex gap-1">
+            <p>Purpose:</p>
+            <p>{selectedBooking.purpose}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Book Now Modal */}
+      <div
+        className={`fixed px-6 py-2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg top-1/2 left-1/2 z-10 ${bookNowModal && !bookingMessage.isBookingMessageAvaialable
+            ? "block"
+            : "hidden"
+          }`}
+      >
+        <form onSubmit={bookNow}>
+          <h3>Book now</h3>
+          {!isTimeSlotAvailableForBookNow ? (
+            <p className="text-red-500">
+              Sorry, this room is occupied at this time. You can reserve for another
+              time.
+            </p>
+          ) : (
+            <div className="flex">
+              <p>Status:&nbsp;</p>
+              <p
+                className={`${roomAvailability.type === "available"
+                    ? "text-green-500"
+                    : "text-red-500"
                   } font-bold`}
-                >
-                  {roomAvailability.message}
-                </p>
-              </div>
-            )}
-
-            <div className="flex">
-              <p>Date:</p>
-              <p>{serverDate?.split("T")[0]}</p>
+              >
+                {roomAvailability.message}
+              </p>
             </div>
-            <div className="flex">
-              <p>Time:</p>
-              <div>
-                <p>Start Time:</p>
-                <p>
-                  {convertTimeTo12HourFormat(filteredStartTimeSlots[0]?.time)}
-                </p>
-              </div>
+          )}
 
-              <div>
-                <p>End Time:</p>
-                <select
-                  name="endTime"
-                  value={bookNowFormData.endTime}
-                  onChange={handleBookNowFormData}
-                >
-                  {filteredEndTimeSlots.map((timeslot, index) => (
+          <div className="flex">
+            <p>Date:&nbsp;</p>
+            <p>{serverDate?.split("T")[0]}</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <p>Time:</p>
+            <div>
+              <p>Start Time:</p>
+              <p>{convertTimeTo12HourFormat(filteredStartTimeSlots[0]?.time)}</p>
+            </div>
+            <div>
+              <p>End Time:</p>
+              <select
+                name="endTime"
+                value={bookNowFormData.endTime}
+                onChange={handleBookNowFormData}
+              >
+                {filteredEndTimeSlots.map((timeslot, index) => (
+                  <option key={index} value={timeslot.id}>
+                    {convertTimeTo12HourFormat(timeslot.time)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="flex">
+            <p>Faculty in Charge:&nbsp;</p>
+            <p>Rogie Mar A. Bolon</p>
+          </div>
+
+          <div className="flex">
+            <p>Class Year &amp; Block:&nbsp;</p>
+            <select
+              name="classId"
+              value={bookNowFormData.classId}
+              onChange={handleBookNowFormData}
+            >
+              {classes.map((classItem, index) => (
+                <option key={index} value={classItem.id}>
+                  {classItem.class_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex">
+            <p>Purpose:&nbsp;</p>
+            <select
+              name="purpose"
+              value={bookNowFormData.purpose}
+              onChange={handleBookNowFormData}
+            >
+              {bookingsPurposes.map((bookingPurpose, index) => (
+                <option key={index} value={bookingPurpose}>
+                  {bookingPurpose}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <Button type="submit" disabled={!isTimeSlotAvailableForBookNow}>
+            Book Now
+          </Button>
+          <Button type="button" onClick={() => setBookNowModal(!bookNowModal)}>
+            Cancel
+          </Button>
+        </form>
+      </div>
+
+      {/* Reserve Modal */}
+      <div
+        className={`fixed px-6 py-2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg top-1/2 left-1/2 z-10 ${reserveModal && !bookingMessage.isBookingMessageAvaialable
+            ? "block"
+            : "hidden"
+          }`}
+      >
+        <form onSubmit={reserveBooking}>
+          <h3>Reserve Booking</h3>
+          {!isTimeSlotAvailableForReserveBooking && (
+            <p className="text-red-500">
+              This time period is already booked. Please select a different time.
+            </p>
+          )}
+
+          <div className="flex">
+            <p>Date:&nbsp;</p>
+            <p>{serverDate?.split("T")[0]}</p>
+          </div>
+          <div className="flex items-start gap-2">
+            <p>Time:</p>
+            <div>
+              <p>Start Time:</p>
+              <select
+                name="startTime"
+                value={reserveBookingFormData.startTime}
+                onChange={handleReserveBookingFormData}
+              >
+                {filteredStartTimeSlots.slice(0, -1).map((timeslot, index) => (
+                  <option key={index} value={timeslot.id}>
+                    {convertTimeTo12HourFormat(timeslot.time)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <p>End Time:</p>
+              <select
+                name="endTime"
+                id="endTime"
+                value={reserveBookingFormData.endTime}
+                onChange={handleReserveBookingFormData}
+              >
+                {filteredEndTimeSlotsForReservation
+                  .filter(
+                    (timeslot) =>
+                      timeslot.id > parseInt(reserveBookingFormData.startTime)
+                  )
+                  .map((timeslot, index) => (
                     <option key={index} value={timeslot.id}>
                       {convertTimeTo12HourFormat(timeslot.time)}
                     </option>
                   ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex">
-              <p>Faculty in Charge:</p>
-              <p>Rogie Mar A. Bolon</p>
-            </div>
-
-            <div className="flex">
-              <p>Class Year & Block:</p>
-              <select
-                name="classId"
-                value={bookNowFormData.classId}
-                onChange={handleBookNowFormData}
-              >
-                {classes.map((classItem, index) => (
-                  <option key={index} value={classItem.id}>
-                    {classItem.class_name}
-                  </option>
-                ))}
               </select>
-            </div>
-            <div className="flex">
-              <p>Purpose:</p>
-              <select
-                name="purpose"
-                value={bookNowFormData.purpose}
-                onChange={handleBookNowFormData}
-              >
-                {bookingsPurposes.map((bookingPurpose, index) => (
-                  <option key={index} value={bookingPurpose}>
-                    {bookingPurpose}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Button type="submit" disabled={!isTimeSlotAvailableForBookNow}>
-              Book Now
-            </Button>
-            <Button
-              type="button"
-              onClick={() => setBookNowModal(!bookNowModal)}
-            >
-              Cancel
-            </Button>
-          </form>
-        </div>
-
-        {/* Reserve Modal */}
-        <div
-          className={`fixed px-6 py-2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg top-1/2 left-1/2 z-10 ${
-            reserveModal && !bookingMessage.isBookingMessageAvaialable
-              ? "block"
-              : "hidden"
-          }`}
-        >
-          <form onSubmit={reserveBooking}>
-            <h3>Reserve Booking</h3>
-            {!isTimeSlotAvailableForReserveBooking && (
-              <p className="text-red-500">
-                This time period is already booked. Please select a different
-                time.
-              </p>
-            )}
-
-            <div className="flex">
-              <p>Date:</p>
-              <p>{serverDate?.split("T")[0]}</p>
-            </div>
-            <div className="flex">
-              <p>Time:</p>
-              <div>
-                <p>Start Time:</p>
-                <select
-                  name="startTime"
-                  value={reserveBookingFormData.startTime}
-                  onChange={handleReserveBookingFormData}
-                >
-                  {filteredStartTimeSlots
-                    .slice(0, -1)
-                    .map((timeslot, index) => (
-                      <option key={index} value={timeslot.id}>
-                        {convertTimeTo12HourFormat(timeslot.time)}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              <div>
-                <p>End Time:</p>
-                <select
-                  name="endTime"
-                  id="endTime"
-                  value={reserveBookingFormData.endTime}
-                  onChange={handleReserveBookingFormData}
-                >
-                  {filteredEndTimeSlotsForReservation
-                    .filter(
-                      (timeslot) =>
-                        timeslot.id > parseInt(reserveBookingFormData.startTime)
-                    )
-                    .map((timeslot, index) => (
-                      <option key={index} value={timeslot.id}>
-                        {convertTimeTo12HourFormat(timeslot.time)}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex">
-              <p>Faculty in Charge:</p>
-              <p>Rogie Mar A. Bolon</p>
-            </div>
-
-            <div className="flex">
-              <p>Class Year & Block:</p>
-              <select
-                name="classId"
-                value={reserveBookingFormData.classId}
-                onChange={handleReserveBookingFormData}
-              >
-                {classes.map((classItem, index) => (
-                  <option key={index} value={classItem.id}>
-                    {classItem.class_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex">
-              <p>Purpose:</p>
-              <select
-                name="purpose"
-                value={reserveBookingFormData.purpose}
-                onChange={handleReserveBookingFormData}
-              >
-                {bookingsPurposes.map((bookingPurpose, index) => (
-                  <option key={index} value={bookingPurpose}>
-                    {bookingPurpose}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Button
-              type="submit"
-              disabled={!isTimeSlotAvailableForReserveBooking}
-            >
-              Reserve Booking
-            </Button>
-            <Button
-              type="button"
-              onClick={() => setReserveModal(!reserveModal)}
-            >
-              Cancel
-            </Button>
-          </form>
-        </div>
-
-        {/* Background */}
-        <div
-          className={`fixed top-0 left-0 w-full h-full bg-black  ${
-            bookNowModal ||
-            reserveModal ||
-            bookingMessage.isBookingMessageAvaialable
-              ? "opacity-30 pointer-events-auto"
-              : "opacity-0 pointer-events-none"
-          }`}
-        ></div>
-
-        {/* Booking response message */}
-        <div
-          className={`fixed z-10 p-3 m-0 transform -translate-x-1/2 bg-white left-1/2 shadow-xl transition-all duration-500 ease ${
-            bookingMessage.isBookingMessageAvaialable
-              ? "top-12 opacity-100"
-              : "-top-10 opacity-0"
-          } ${
-            bookingMessage.type === "success"
-              ? "text-green-500"
-              : "text-red-500"
-          }`}
-        >
-          <p>{bookingMessage.message}</p>
-        </div>
             </div>
           </div>
-        </main>
-    </>
+
+          <div className="flex">
+            <p>Faculty in Charge:&nbsp;</p>
+            <p>Rogie Mar A. Bolon</p>
+          </div>
+
+          <div className="flex">
+            <p>Class Year &amp; Block:&nbsp;</p>
+            <select
+              name="classId"
+              value={reserveBookingFormData.classId}
+              onChange={handleReserveBookingFormData}
+            >
+              {classes.map((classItem, index) => (
+                <option key={index} value={classItem.id}>
+                  {classItem.class_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex">
+            <p>Purpose:&nbsp;</p>
+            <select
+              name="purpose"
+              value={reserveBookingFormData.purpose}
+              onChange={handleReserveBookingFormData}
+            >
+              {bookingsPurposes.map((bookingPurpose, index) => (
+                <option key={index} value={bookingPurpose}>
+                  {bookingPurpose}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <Button type="submit" disabled={!isTimeSlotAvailableForReserveBooking}>
+            Reserve Booking
+          </Button>
+          <Button type="button" onClick={() => setReserveModal(!reserveModal)}>
+            Cancel
+          </Button>
+        </form>
+      </div>
+
+      {/* Background Overlay */}
+      <div
+        className={`fixed top-0 left-0 w-full h-full bg-black ${bookNowModal ||
+            reserveModal ||
+            bookingMessage.isBookingMessageAvaialable
+            ? "opacity-30 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+          }`}
+      />
+
+      {/* Booking Response Message */}
+      <div
+        className={`fixed z-10 p-3 m-0 transform -translate-x-1/2 bg-white left-1/2 shadow-xl transition-all duration-500 ease ${bookingMessage.isBookingMessageAvaialable
+            ? "top-12 opacity-100"
+            : "-top-10 opacity-0"
+          } ${bookingMessage.type === "success"
+            ? "text-green-500"
+            : "text-red-500"
+          }`}
+      >
+        <p>{bookingMessage.message}</p>
+      </div>
+    </main>
   );
 };
 
