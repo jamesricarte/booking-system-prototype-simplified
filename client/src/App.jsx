@@ -12,6 +12,7 @@ import DashboardLayout from "./layouts/DasboardLayout/DashboardLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import AdminLayout from "./layouts/AdminLayout/AdminLayout";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
+import UserProfile from "./pages/UserProfile/UserProfile";
 
 const App = () => {
   return (
@@ -32,6 +33,7 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />}></Route>
         <Route path="/bookings" element={<Bookings />}></Route>
         <Route path="/room/:id" element={<RoomDetails />}></Route>
+        <Route path="/userprofile" element={<UserProfile />}></Route>
       </Route>
 
       {/* Admin */}
