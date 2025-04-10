@@ -1,3 +1,4 @@
+import React from "react";
 import DashboardLayout from '../../layouts/DashboardLayout/DashboardLayout';
 
 const AdminDashboard = () => {

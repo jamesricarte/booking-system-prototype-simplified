@@ -1,16 +1,18 @@
-import React from 'react';
-import './styles/App.css';
-import { Routes, Route } from 'react-router-dom';
-import Login from './pages/Login/Login';
-import Register from './pages/Register/Register';
-import DashboardProtectedRoute from './components/DashboardProtectedRoute';
-import Bookings from './pages/Dashboard/Bookings/Bookings';
-import RoomDetails from './pages/Dashboard/RoomDetails/RoomDetails';
-import AdminProtectedRoute from './components/AdminProtectedRoute';
+import React from "react";
+import "./styles/App.css";
+import { Routes, Route } from "react-router-dom";
+import Login from "./pages/Login/Login";
+import Register from "./pages/Register/Register";
+import DashboardProtectedRoute from "./components/DashboardProtectedRoute";
+import Bookings from "./pages/Dashboard/Bookings/Bookings";
+import RoomDetails from "./pages/Dashboard/RoomDetails/RoomDetails";
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import Admin from './pages/Admin/Admin';
-import DashboardLayout from './layouts/DashboardLayout/DashboardLayout';
-import Dashboard from './pages/Dashboard/Dashboard';
-import UserProfile from './pages/UserProfile/UserProfile';
+import DashboardLayout from "./layouts/DasboardLayout/DashboardLayout";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import AdminLayout from "./layouts/AdminLayout/AdminLayout";
+import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
+import UserProfile from "./pages/UserProfile/UserProfile";
 
 const App = () => {
   return (
@@ -36,13 +38,14 @@ const App = () => {
 
       {/* Admin */}
       <Route
-        path="/admin"
         element={
           <AdminProtectedRoute>
-            <Admin />
+            <AdminLayout />
           </AdminProtectedRoute>
         }
-      ></Route>
+      >
+        <Route path="/admin" element={<AdminDashboard />} />
+      </Route>
     </Routes>
   );
 };
