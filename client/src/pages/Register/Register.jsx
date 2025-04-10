@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import Input from "../../components/Input";
 import { Link, useNavigate } from "react-router-dom";
 import { handleFormChange } from "../../utils/formHandlers";
+import BackGroundBu from "../../assets/background/Background_bu.png";
+import Logo from "../../assets/logo/Logo.png";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -59,46 +61,67 @@ const Register = () => {
     }
   };
   return (
-    <>
-      <main className="flex flex-col items-center justify-center h-screen">
-        <h3>Sign up</h3>
-        <form className="flex flex-col" onSubmit={registerUser}>
-          <label htmlFor="email">Email Address:</label>
-          <Input
-            type="text"
-            id="email"
-            name="email"
-            value={user.email}
-            onChange={handleUserInput}
-            required={true}
+    <div className="flex">
+      <div className="h-screen">
+        <img src={BackGroundBu} alt="" className="object-cover w-full h-full" />
+      </div>
+      <div className="flex flex-col flex-grow px-4 py-16">
+        <div className="flex items-center px-8">
+          <img
+            src={Logo}
+            alt="Bicol University Logo"
+            className="w-[91px] h-[91px]"
           />
-          <label htmlFor="schoolId">School Id:</label>
-          <Input
-            type="text"
-            id="schoolId"
-            name="schoolId"
-            value={user.schoolId}
-            onChange={handleUserInput}
-            required={true}
-          />
-          <label htmlFor="password">Password:</label>
-          <Input
-            type="password"
-            id="password"
-            name="password"
-            value={user.password}
-            onChange={handleUserInput}
-            required={true}
-          />
-          <label htmlFor="confirmPassword">Confirm Password:</label>
-          <Input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={user.confirmPassword}
-            onChange={handleUserInput}
-            required={true}
-          />
+          <h2 className="text-[22px]">
+            Bicol University College of Engineering
+          </h2>
+        </div>
+        <form className="flex flex-col p-6 px-13" onSubmit={registerUser}>
+          <h1 className="mb-5 text-2xl">Sign Up</h1>
+          <div className="flex flex-col gap-4 mb-3">
+            <label htmlFor="email">Email Address</label>
+            <Input
+              type="text"
+              id="email"
+              name="email"
+              value={user.email}
+              onChange={handleUserInput}
+              required={true}
+            />
+          </div>
+          <div className="flex flex-col gap-4 mb-3">
+            <label htmlFor="schoolId">School Id</label>
+            <Input
+              type="password"
+              id="password"
+              name="password"
+              value={user.password}
+              onChange={handleUserInput}
+              required={true}
+            />
+          </div>
+          <div className="flex flex-col gap-4 mb-3">
+            <label htmlFor="password">Password</label>
+            <Input
+              type="text"
+              id="schoolId"
+              name="schoolId"
+              value={user.schoolId}
+              onChange={handleUserInput}
+              required={true}
+            />
+          </div>
+          <div className="flex flex-col gap-4 mb-7">
+            <label htmlFor="confirmPassword">Confirm Password</label>
+            <Input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={user.confirmPassword}
+              onChange={handleUserInput}
+              required={true}
+            />
+          </div>
 
           {response.isResponseAvailable && (
             <p
@@ -109,13 +132,25 @@ const Register = () => {
               {response.message}
             </p>
           )}
-          <Input type="submit" value="Register" />
+          <Input
+            type="submit"
+            value="Register Account"
+            className=" bg-[#B3E5FC] p-4 rounded-md"
+          />
         </form>
-        <p>
-          Already have an account? <Link to="/login">login</Link>
+        <p className="mb-4 text-lg text-center">
+          Already have an account?{" "}
+          <Link to="/login" className="text-[#FFA726]">
+            Login
+          </Link>
         </p>
-      </main>
-    </>
+        <div className="mt-auto">
+          <p className="mt-auto text-sm text-center">
+            © 2025 BUCENG | All Rights Reserved{" "}
+          </p>
+        </div>
+      </div>
+    </div>
   );
 };
 
