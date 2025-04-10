@@ -1,53 +1,30 @@
-import React from "react";
-import Nav from "../../components/Nav";
+import { Link } from 'react-router-dom';
 
-const Admin = () => {
+const Dashboard = () => {
   return (
-    <>
-      <Nav />
-      <main className="flex flex-col items-center">
-        <h3>History of Occupancy</h3>
-        <table className="border-collapse">
-          <thead>
-            <tr>
-              <td>Room Number</td>
-              <td>Class</td>
-              <td>Faculty</td>
-              <td>Time</td>
-              <td>Date</td>
-              <td>User Account</td>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>201</td>
-              <td>1A</td>
-              <td>Rogie A. Bolon</td>
-              <td>7:30-9:00</td>
-              <td>03-09-2025</td>
-              <td>Rogie A. Bolon</td>
-            </tr>
-            <tr>
-              <td>202</td>
-              <td>1B</td>
-              <td>Marites 0. Olesco</td>
-              <td>13:00-14:30</td>
-              <td>03-09-2025</td>
-              <td>Marites 0. Olesco</td>
-            </tr>
-            <tr>
-              <td>203</td>
-              <td>2C</td>
-              <td>Kim Arvin P. Leocadio</td>
-              <td>17:00-19:00</td>
-              <td>03-09-2025</td>
-              <td>Kim Arvin P. Leocadio</td>
-            </tr>
-          </tbody>
-        </table>
-      </main>
-    </>
+    <main className="container w-full h-full bg-white">
+      <div className="p-4">
+        <h1 className="text-xl">Dashboard Section</h1>
+      </div>
+      <hr />
+      <div className="pt-7 px-14">
+        <div className="grid grid-cols-2 gap-8">
+          <Link className="shadow-md p-36 bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px] text-center">
+            System Summary
+          </Link>
+          <Link className="shadow-md p-36 bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px]">
+            Latest Booking Activities
+          </Link>
+          <Link className="shadow-md p-36  bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px]">
+            Upcoming Schedules
+          </Link>
+          <Link className="shadow-md  p-36  bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px] text-center">
+            Reports
+          </Link>
+        </div>
+      </div>
+    </main>
   );
 };
 
-export default Admin;
+export default Dashboard;
