@@ -53,13 +53,36 @@ const Sidebar = () => {
         <hr className="-mx-5 border-t-2 border-gray-300" />
         <div className="flex items-center justify-between p-5">
           <div className="flex items-center gap-4">
+            <NavLink
+            to="/UserProfile"
+            >
             <img src={BlankProfile} alt="" className="w-12 h-12" />
+              </NavLink>
             <div>
+            <NavLink
+            to="/UserProfile"
+            >
               <h1 className="text-[22px]">James Bond</h1>
+              </NavLink>
+              <NavLink
+            to="/UserProfile"
+            >
               <p className="text-sm">James@gmail.com</p>
+            </NavLink>
+              
             </div>
           </div>
-          <RiSettings5Fill className="text-[41px] text-[#757575]" />
+          <NavLink
+            to="/UserProfile"
+          >
+            {({ isActive }) => (
+              <RiSettings5Fill
+                className={`text-[41px] transition-colors ${
+                  isActive ? "text-[#B3E5FC]" : "text-[#757575]"
+                }`}
+              />
+            )}
+          </NavLink>
         </div>
       </div>
     </aside>
