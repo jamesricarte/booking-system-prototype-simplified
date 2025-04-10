@@ -1,26 +1,26 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Dashboard = () => {
+const AdminDashboard = () => {
   return (
     <main className="container w-full h-full bg-white">
       <div className="p-4">
-        <h1 className="text-xl">Dashboard Section</h1>
+        <h1 className="text-xl">Admin Dashboard Section</h1>
       </div>
       <hr />
       <div className="px-10 pt-7">
         <div className="grid grid-cols-2 gap-8">
           <Link className="shadow-md p-28 bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px] text-center">
-            Today's Schedule Bookings
+            System Summary
           </Link>
-          <Link className="shadow-md p-28 bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px]">
-            Available Rooms
+          <Link className="shadow-md p-28 bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px] text-center">
+            Latest Booking Activities
           </Link>
-          <Link className="shadow-md p-28  bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px]">
-            Weekly Overview
+          <Link className="shadow-md p-28  bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px] text-center">
+            Upcoming Schedules
           </Link>
           <Link className="shadow-md  p-28  bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px] text-center">
-            Quick Actions Shortcut
+            Reports
           </Link>
         </div>
       </div>
@@ -28,4 +28,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;
