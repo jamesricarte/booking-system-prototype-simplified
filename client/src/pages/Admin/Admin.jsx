@@ -1,4 +1,4 @@
-import DashboardLayout from '../../layouts/DasboardLayout/DashboardLayout';
+import DashboardLayout from '../../layouts/DashboardLayout/DashboardLayout';
 
 const AdminDashboard = () => {
   return (
