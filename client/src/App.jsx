@@ -8,7 +8,7 @@ import Bookings from "./pages/Dashboard/Bookings/Bookings";
 import RoomDetails from "./pages/Dashboard/RoomDetails/RoomDetails";
 import AdminProtectedRoute from "./components/AdminProtectedRoute";
 import Admin from './pages/Admin/Admin';
-import DashboardLayout from "./layouts/DasboardLayout/DashboardLayout";
+import DashboardLayout from "./layouts/DashboardLayout/DashboardLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import AdminLayout from "./layouts/AdminLayout/AdminLayout";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
