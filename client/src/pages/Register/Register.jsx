@@ -19,12 +19,18 @@ const Register = () => {
     type: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleUserInput = handleFormChange(user, setUser);
 
   const registerUser = async (e) => {
     e.preventDefault();
+
+    setLoading(true);
+    const startTime = Date.now();
+    let message = { isResponseAvailable: false, message: "", type: "" };
 
     try {
       const response = await fetch(`${API_URL}/api/register`, {
@@ -41,21 +47,34 @@ const Register = () => {
       }
 
       const result = await response.json();
-      setResponse({
+      message = {
         isResponseAvailable: true,
         message: result.message,
         type: "success",
-      });
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
+      };
     } catch (error) {
-      console.error(error);
-      setResponse({
+      message = {
         isResponseAvailable: true,
         message: error.message,
         type: "error",
-      });
+      };
+    } finally {
+      const elapsedTime = Date.now() - startTime;
+      const minimumTime = 1000;
+
+      setTimeout(() => {
+        setLoading(false);
+        setResponse({
+          isResponseAvailable: message.isResponseAvailable,
+          message: message.message,
+          type: message.type,
+        });
+        if (message.type === "success") {
+          setTimeout(() => {
+            navigate("/login");
+          }, 1500);
+        }
+      }, Math.max(0, minimumTime - elapsedTime));
     }
   };
   return (
@@ -114,6 +133,20 @@ const Register = () => {
         <p>
           Already have an account? <Link to="/login">login</Link>
         </p>
+
+        {/* Loading spinner */}
+        <div
+          className={`absolute z-10 w-5 h-5 transform -translate-x-1/2 -translate-y-1/2 rounded-full border-5 rounded-1/2 border-t-transparent border-cyan-500 left-1/2 top-1/2 ${
+            loading ? "block animate-spin" : "hidden"
+          }`}
+        ></div>
+
+        {/* Background */}
+        <div
+          className={`fixed top-0 left-0 w-full h-full bg-white opacity-60 pointer-events-auto ${
+            loading ? "block" : "hidden"
+          }`}
+        ></div>
       </main>
     </>
   );

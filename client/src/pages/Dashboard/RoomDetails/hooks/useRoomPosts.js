@@ -28,9 +28,15 @@ const useRoomPosts = () => {
     type: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   //POST Requests
   const bookNow = async (e) => {
     e.preventDefault();
+
+    setLoading(true);
+    const startTime = Date.now();
+    let message = { isBookingMessageAvaialable: false, message: "", type: "" };
 
     try {
       const response = await fetch(`${API_URL}/api/newBooking`, {
@@ -47,29 +53,44 @@ const useRoomPosts = () => {
       }
 
       const result = await response.json();
-      setBookingMessage({
+      message = {
         isBookingMessageAvaialable: true,
         message: result.message,
         type: "success",
-      });
+      };
     } catch (error) {
-      setBookingMessage({
+      message = {
         isBookingMessageAvaialable: true,
         message: error.message,
         type: "error",
-      });
+      };
     } finally {
+      const elapsedTime = Date.now() - startTime;
+      const minimumTime = 1000;
+
       setTimeout(() => {
-        setBookingMessage((prev) => ({
-          ...prev,
-          isBookingMessageAvaialable: false,
-        }));
-      }, 3000);
+        setLoading(false);
+        setBookingMessage({
+          isBookingMessageAvaialable: message.isBookingMessageAvaialable,
+          message: message.message,
+          type: message.type,
+        });
+        setTimeout(() => {
+          setBookingMessage((prev) => ({
+            ...prev,
+            isBookingMessageAvaialable: false,
+          }));
+        }, 2000);
+      }, Math.max(0, minimumTime - elapsedTime));
     }
   };
 
   const reserveBooking = async (e) => {
     e.preventDefault();
+
+    setLoading(true);
+    const startTime = Date.now();
+    let message = { isBookingMessageAvaialable: false, message: "", type: "" };
 
     try {
       const response = await fetch(`${API_URL}/api/reserveBooking`, {
@@ -86,24 +107,35 @@ const useRoomPosts = () => {
       }
 
       const result = await response.json();
-      setBookingMessage({
+      message = {
         isBookingMessageAvaialable: true,
         message: result.message,
         type: "success",
-      });
+      };
     } catch (error) {
-      setBookingMessage({
+      message = {
         isBookingMessageAvaialable: true,
         message: error.message,
         type: "error",
-      });
+      };
     } finally {
+      const elapsedTime = Date.now() - startTime;
+      const minimumTime = 1000;
+
       setTimeout(() => {
-        setBookingMessage((prev) => ({
-          ...prev,
-          isBookingMessageAvaialable: false,
-        }));
-      }, 3500);
+        setLoading(false);
+        setBookingMessage({
+          isBookingMessageAvaialable: message.isBookingMessageAvaialable,
+          message: message.message,
+          type: message.type,
+        });
+        setTimeout(() => {
+          setBookingMessage((prev) => ({
+            ...prev,
+            isBookingMessageAvaialable: false,
+          }));
+        }, 2000);
+      }, Math.max(0, minimumTime - elapsedTime));
     }
   };
 
@@ -115,6 +147,7 @@ const useRoomPosts = () => {
     setBookNowFormData,
     setReserveBookingFromData,
     bookingMessage,
+    loading,
   };
 };
 

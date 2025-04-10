@@ -20,12 +20,19 @@ const Login = () => {
     type: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleUserInput = handleFormChange(user, setUser);
 
   const loginUser = async (e) => {
     e.preventDefault();
+
+    setLoading(true);
+    const startTime = Date.now();
+    let result;
+    let message = { isResponseAvailable: false, message: "", type: "" };
 
     try {
       const response = await fetch(`${API_URL}/api/login`, {
@@ -42,36 +49,49 @@ const Login = () => {
       }
       //Use this errror handling for checking errors⬆️
 
-      const result = await response.json();
+      result = await response.json();
       login(result.fetchedUser);
-      setResponse({
+      result = result;
+      message = {
         isResponseAvailable: true,
         message: result.message,
         type: "success",
-      });
-      if (result.fetchedUser.user_type === 0) {
-        navigate("/admin");
-      } else if (result.fetchedUser.user_type === 1) {
-        navigate("/dashboard");
-      }
+      };
     } catch (error) {
       //error variable will be the same as the response you gave from express (object)
       const errorMessage =
         error.message === "Failed to fetch"
           ? "Something went wrong with the server."
           : error.message;
-      setResponse({
+      message = {
         isResponseAvailable: true,
         message: errorMessage,
         type: "error",
-      });
+      };
+    } finally {
+      const elapsedTime = Date.now() - startTime;
+      const minimumTime = 1000;
+
+      setTimeout(() => {
+        setLoading(false);
+        if (result?.fetchedUser.user_type === 0) {
+          navigate("/admin");
+        } else if (result?.fetchedUser.user_type === 1) {
+          navigate("/dashboard");
+        }
+        setResponse({
+          isResponseAvailable: message.isResponseAvailable,
+          message: message.message,
+          type: message.type,
+        });
+      }, Math.max(0, minimumTime - elapsedTime));
     }
   };
 
   return (
     <>
       <main className="flex flex-col items-center justify-center h-screen">
-        <h2>Welcome to Classroom Booking</h2>
+        {/* <h2>Welcome to Classroom Booking</h2> */}
         <h3>Please enter the credentials to login</h3>
         <form className="flex flex-col" onSubmit={loginUser}>
           <label htmlFor="email">Email address:</label>
@@ -110,6 +130,20 @@ const Login = () => {
         <p>
           Don't have an account? <Link to="/register">Register</Link>
         </p>
+
+        {/* Loading spinner */}
+        <div
+          className={`absolute z-10 w-5 h-5 transform -translate-x-1/2 -translate-y-1/2 rounded-full border-5 rounded-1/2 border-t-transparent border-cyan-500 left-1/2 top-1/2 ${
+            loading ? "block animate-spin" : "hidden"
+          }`}
+        ></div>
+
+        {/* Background */}
+        <div
+          className={`fixed top-0 left-0 w-full h-full bg-white opacity-60 pointer-events-auto ${
+            loading ? "block" : "hidden"
+          }`}
+        ></div>
       </main>
     </>
   );

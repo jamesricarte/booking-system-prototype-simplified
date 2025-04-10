@@ -39,6 +39,7 @@ const RoomDetails = () => {
     setBookNowFormData,
     setReserveBookingFromData,
     bookingMessage,
+    loading,
   } = useRoomPosts();
 
   //Form Spread Operators
@@ -99,7 +100,7 @@ const RoomDetails = () => {
 
       const totalMinutes = (hours - 7) * 60 + minutes;
 
-      if (hours - 7 <= 0) {
+      if (hours - 7 < 0) {
         setCurrentTimePosition(25);
         setIsRoomAvailableForBooking(false);
       } else if (hours - 7 >= 12) {
@@ -107,6 +108,7 @@ const RoomDetails = () => {
         setIsRoomAvailableForBooking(false);
       } else {
         setCurrentTimePosition((totalMinutes / 30) * 50.4 + 25);
+        setIsRoomAvailableForBooking(true);
       }
     }
   };
@@ -187,7 +189,7 @@ const RoomDetails = () => {
     const interval = setInterval(updateCurrentTime, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isRoomAvailableForBooking]);
 
   useEffect(() => {
     if (
@@ -309,13 +311,14 @@ const RoomDetails = () => {
   useEffect(() => {
     if (
       (bookingMessage.isBookingMessageAvaialable && bookNowModal) ||
-      reserveModal
+      (bookingMessage.isBookingMessageAvaialable && reserveModal)
     ) {
       setBookNowModal(false);
       setReserveModal(false);
+    } else if (bookingMessage.type === "success") {
       fetchBookings();
     }
-  }, [bookingMessage]);
+  }, [bookingMessage, loading]);
 
   return (
     <>
@@ -576,6 +579,13 @@ const RoomDetails = () => {
               Cancel
             </Button>
           </form>
+
+          {/* White background */}
+          <div
+            className={`fixed top-0 left-0 w-full h-full bg-white opacity-40 pointer-events-auto z-10 ${
+              loading ? "block" : "hidden"
+            }`}
+          ></div>
         </div>
 
         {/* Reserve Modal */}
@@ -686,14 +696,21 @@ const RoomDetails = () => {
               Cancel
             </Button>
           </form>
+          {/* White background */}
+          <div
+            className={`fixed top-0 left-0 w-full h-full bg-white opacity-50 pointer-events-auto z-10 ${
+              loading ? "block" : "hidden"
+            }`}
+          ></div>
         </div>
 
         {/* Background */}
         <div
-          className={`fixed top-0 left-0 w-full h-full bg-black  ${
+          className={`fixed top-0 left-0 w-full h-full bg-black transition-all ease duration-500 ${
             bookNowModal ||
             reserveModal ||
-            bookingMessage.isBookingMessageAvaialable
+            bookingMessage.isBookingMessageAvaialable ||
+            loading
               ? "opacity-30 pointer-events-auto"
               : "opacity-0 pointer-events-none"
           }`}
@@ -714,6 +731,12 @@ const RoomDetails = () => {
           <p>{bookingMessage.message}</p>
         </div>
       </main>
+      {/* Loading spinner */}
+      <div
+        className={`fixed z-10 w-5 h-5 transform -translate-x-1/2 -translate-y-1/2 rounded-full border-5 rounded-1/2 border-t-transparent border-cyan-500 left-1/2 top-1/2 ${
+          loading ? "block animate-spin" : "hidden"
+        }`}
+      ></div>
     </>
   );
 };

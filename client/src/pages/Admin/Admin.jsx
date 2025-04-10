@@ -1,7 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Nav from "../../components/Nav";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const Admin = () => {
+  const [occupancyHistoryData, setOccupancyHistoryData] = useState([]);
+
+  const fetchOccupancyHistory = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/occupancyHistory`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      const result = await response.json();
+      setOccupancyHistoryData(result.occupancyHistory);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchOccupancyHistory();
+  }, []);
+
   return (
     <>
       <Nav />
@@ -19,30 +48,18 @@ const Admin = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>201</td>
-              <td>1A</td>
-              <td>Rogie A. Bolon</td>
-              <td>7:30-9:00</td>
-              <td>03-09-2025</td>
-              <td>Rogie A. Bolon</td>
-            </tr>
-            <tr>
-              <td>202</td>
-              <td>1B</td>
-              <td>Marites 0. Olesco</td>
-              <td>13:00-14:30</td>
-              <td>03-09-2025</td>
-              <td>Marites 0. Olesco</td>
-            </tr>
-            <tr>
-              <td>203</td>
-              <td>2C</td>
-              <td>Kim Arvin P. Leocadio</td>
-              <td>17:00-19:00</td>
-              <td>03-09-2025</td>
-              <td>Kim Arvin P. Leocadio</td>
-            </tr>
+            {occupancyHistoryData.map((occupancyHistory, index) => (
+              <tr key={index}>
+                <td>{occupancyHistory.room_id}</td>
+                <td>{occupancyHistory.class_id}</td>
+                <td>{occupancyHistory.professor_id}</td>
+                <td>
+                  {occupancyHistory.start_time} - {occupancyHistory.end_time}
+                </td>
+                <td>{occupancyHistory.date}</td>
+                <td>{occupancyHistory.professor_id}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </main>

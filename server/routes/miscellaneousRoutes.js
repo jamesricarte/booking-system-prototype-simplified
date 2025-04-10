@@ -153,12 +153,42 @@ router.get("/professor/:schoolId", (req, res) => {
           });
         }
 
-        return res.status(200).json({
+        res.status(200).json({
           message: "Successfully fetched professor details",
           professor: { id: result[0].id },
         });
       }
     );
+  } catch (error) {
+    if (!res.headersSent) {
+      res
+        .status(500)
+        .json({ message: "Internal Server Error", error: error.message });
+    }
+  }
+});
+
+//Fetch occupancy history
+router.get("/occupancyHistory", (req, res) => {
+  try {
+    db.query("SELECT * FROM bookings", async (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err });
+      }
+
+      if (result.length === 0) {
+        return res
+          .status(400)
+          .json({ message: "The occupancy history is empty" });
+      }
+
+      res.status(200).json({
+        message: "Successfully fetched occupancy history data!",
+        occupancyHistory: result,
+      });
+    });
   } catch (error) {
     if (!res.headersSent) {
       res
