@@ -1,9 +1,9 @@
-import React from "react";
-import Logo from "../assets/logo/Logo.png";
-import BlankProfile from "../assets/image/elipse.png";
-import { RiSettings5Fill } from "react-icons/ri";
-import { FaRegCalendarAlt } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
+import React from 'react';
+import Logo from '../assets/logo/Logo.png';
+import BlankProfile from '../assets/image/elipse.png';
+import { RiSettings5Fill } from 'react-icons/ri';
+import { FaRegCalendarAlt } from 'react-icons/fa';
+import { NavLink } from 'react-router-dom';
 
 const Sidebar = ({ isAdmin }) => {
   return (
@@ -30,19 +30,40 @@ const Sidebar = ({ isAdmin }) => {
                   to="admin"
                   className={({ isActive }) =>
                     `p-2 transition-colors text-2xl ${
-                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
+                      isActive ? 'bg-[#B3E5FC]' : 'text-black hover:bg-white/20'
                     }`
                   }
                 >
                   Dashboard
                 </NavLink>
-                <NavLink className="p-2 text-2xl transition-colors">
+                <NavLink
+                  to="/historyOfOccupancy"
+                  className={({ isActive }) =>
+                    `p-2 transition-colors text-2xl ${
+                      isActive ? 'bg-[#B3E5FC]' : 'text-black hover:bg-white/20'
+                    }`
+                  }
+                >
                   History of Occupancy
                 </NavLink>
-                <NavLink className="p-2 text-2xl transition-colors">
+                <NavLink
+                  to="/rooms"
+                  className={({ isActive }) =>
+                    `p-2 transition-colors text-2xl ${
+                      isActive ? 'bg-[#B3E5FC]' : 'text-black hover:bg-white/20'
+                    }`
+                  }
+                >
                   Rooms
                 </NavLink>
-                <NavLink className="p-2 text-2xl transition-colors">
+                <NavLink
+                  to="/users"
+                  className={({ isActive }) =>
+                    `p-2 transition-colors text-2xl ${
+                      isActive ? 'bg-[#B3E5FC]' : 'text-black hover:bg-white/20'
+                    }`
+                  }
+                >
                   User
                 </NavLink>
               </>
@@ -52,7 +73,7 @@ const Sidebar = ({ isAdmin }) => {
                   to="/dashboard"
                   className={({ isActive }) =>
                     `p-2 transition-colors text-2xl ${
-                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
+                      isActive ? 'bg-[#B3E5FC]' : 'text-black hover:bg-white/20'
                     }`
                   }
                 >
@@ -63,7 +84,7 @@ const Sidebar = ({ isAdmin }) => {
                   to="/bookings"
                   className={({ isActive }) =>
                     `p-2 transition-colors text-2xl ${
-                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
+                      isActive ? 'bg-[#B3E5FC]' : 'text-black hover:bg-white/20'
                     }`
                   }
                 >
@@ -79,32 +100,23 @@ const Sidebar = ({ isAdmin }) => {
         <hr className="-mx-5 border-t-2 border-gray-300" />
         <div className="flex items-center justify-between p-5">
           <div className="flex items-center gap-4">
-            <NavLink
-            to="/UserProfile"
-            >
-            <img src={BlankProfile} alt="" className="w-12 h-12" />
-              </NavLink>
-            <div>
-            <NavLink
-            to="/UserProfile"
-            >
-              <h1 className="text-[22px]">James Bond</h1>
-              </NavLink>
-              <NavLink
-            to="/UserProfile"
-            >
-              <p className="text-sm">James@gmail.com</p>
+            <NavLink to="/UserProfile">
+              <img src={BlankProfile} alt="" className="w-12 h-12" />
             </NavLink>
-              
+            <div>
+              <NavLink to="/UserProfile">
+                <h1 className="text-[22px]">James Bond</h1>
+              </NavLink>
+              <NavLink to="/UserProfile">
+                <p className="text-sm">James@gmail.com</p>
+              </NavLink>
             </div>
           </div>
-          <NavLink
-            to="/UserProfile"
-          >
+          <NavLink to="/UserProfile">
             {({ isActive }) => (
               <RiSettings5Fill
                 className={`text-[41px] transition-colors ${
-                  isActive ? "text-[#B3E5FC]" : "text-[#757575]"
+                  isActive ? 'text-[#B3E5FC]' : 'text-[#757575]'
                 }`}
               />
             )}
