@@ -5,7 +5,7 @@ import { RiSettings5Fill } from "react-icons/ri";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 
-const Sidebar = () => {
+const Sidebar = ({ isAdmin }) => {
   return (
     <aside className="w-[372px] min-h-screen p-4 shadow-lg flex flex-col justify-between">
       <div>
@@ -24,27 +24,53 @@ const Sidebar = () => {
           <hr className="mb-8" />
 
           <nav className="flex flex-col space-y-2 text-lg">
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) =>
-                `p-2 transition-colors text-2xl ${
-                  isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
-                }`
-              }
-            >
-              Dashboard
-            </NavLink>
+            {isAdmin ? (
+              <>
+                <NavLink
+                  to="admin"
+                  className={({ isActive }) =>
+                    `p-2 transition-colors text-2xl ${
+                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
+                    }`
+                  }
+                >
+                  Dashboard
+                </NavLink>
+                <NavLink className="p-2 text-2xl transition-colors">
+                  History of Occupancy
+                </NavLink>
+                <NavLink className="p-2 text-2xl transition-colors">
+                  Rooms
+                </NavLink>
+                <NavLink className="p-2 text-2xl transition-colors">
+                  User
+                </NavLink>
+              </>
+            ) : (
+              <>
+                <NavLink
+                  to="/dashboard"
+                  className={({ isActive }) =>
+                    `p-2 transition-colors text-2xl ${
+                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
+                    }`
+                  }
+                >
+                  Dashboard
+                </NavLink>
 
-            <NavLink
-              to="/bookings"
-              className={({ isActive }) =>
-                `p-2 transition-colors text-2xl ${
-                  isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
-                }`
-              }
-            >
-              Bookings
-            </NavLink>
+                <NavLink
+                  to="/bookings"
+                  className={({ isActive }) =>
+                    `p-2 transition-colors text-2xl ${
+                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
+                    }`
+                  }
+                >
+                  Bookings
+                </NavLink>
+              </>
+            )}
           </nav>
         </div>
       </div>

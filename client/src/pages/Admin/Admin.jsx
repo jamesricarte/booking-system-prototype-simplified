@@ -1,10 +1,8 @@
 import React from "react";
-import Nav from "../../components/Nav";
 
 const Admin = () => {
   return (
     <>
-      <Nav />
       <main className="flex flex-col items-center">
         <h3>History of Occupancy</h3>
         <table className="border-collapse">
