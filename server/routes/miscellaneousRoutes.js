@@ -189,11 +189,31 @@ router.get('/history-of-occupancy', async (req, res) => {
       ORDER BY b.date DESC;
     `;
 
+    console.log('Database connection state:', db.state);
+    console.log('Executing query:', query);
+
     const [results] = await db.promise().query(query);
-    res.json(results);
+
+    if (results.length === 0) {
+      console.log('No history of occupancy found.');
+      return res.status(404).json({
+        message: 'No history of occupancy found.',
+      });
+    }
+
+    console.log('Query results:', results);
+
+    res.status(200).json({
+      message: 'Successfully fetched history of occupancy.',
+      data: results,
+    });
   } catch (error) {
     console.error('Error fetching history of occupancy:', error);
-    res.status(500).json({ error: 'Failed to fetch history of occupancy' });
+
+    res.status(500).json({
+      error: 'Failed to fetch history of occupancy',
+      details: error.message,
+    });
   }
 });
 

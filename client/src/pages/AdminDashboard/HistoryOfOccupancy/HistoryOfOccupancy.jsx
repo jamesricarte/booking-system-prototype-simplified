@@ -3,19 +3,39 @@ import axios from 'axios';
 
 const HistoryOfOccupancy = () => {
   const [historyData, setHistoryData] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchHistory = async () => {
       try {
+        console.log('Fetching history of occupancy...');
         const response = await axios.get('/api/history-of-occupancy');
-        setHistoryData(response.data);
+        console.log('Response data:', response.data);
+
+        if (Array.isArray(response.data.data)) {
+          setHistoryData(response.data.data);
+        } else {
+          console.error('Unexpected response format:', response.data);
+          setError('Unexpected response format. Please contact support.');
+        }
       } catch (error) {
         console.error('Error fetching history of occupancy:', error);
+        setError(
+          'Failed to fetch history of occupancy. Please try again later.'
+        );
       }
     };
 
     fetchHistory();
   }, []);
+
+  if (error) {
+    return (
+      <div className="container w-full h-full bg-white flex items-center justify-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -24,7 +44,7 @@ const HistoryOfOccupancy = () => {
           <h1 className="text-xl">History of Occupancy</h1>
         </div>
         <hr />
-        <div className="px-10 pt-7">
+        <div className="px-10 pt-7 overflow-auto max-h-[500px]">
           <table className="border-collapse w-full">
             <thead>
               <tr>
