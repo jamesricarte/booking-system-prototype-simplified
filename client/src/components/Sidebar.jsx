@@ -37,7 +37,7 @@ const Sidebar = ({ isAdmin }) => {
                   Dashboard
                 </NavLink>
                 <NavLink
-                  to="/historyOfOccupancy"
+                  to="/history"
                   className={({ isActive }) =>
                     `p-2 transition-colors text-2xl ${
                       isActive ? 'bg-[#B3E5FC]' : 'text-black hover:bg-white/20'

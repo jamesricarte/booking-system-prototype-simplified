@@ -1,49 +1,55 @@
-import Nav from '../../../components/Nav';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const HistoryOfOccupancy = () => {
+  const [historyData, setHistoryData] = useState([]);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const response = await axios.get('/api/history-of-occupancy');
+        setHistoryData(response.data);
+      } catch (error) {
+        console.error('Error fetching history of occupancy:', error);
+      }
+    };
+
+    fetchHistory();
+  }, []);
+
   return (
     <>
-      <Nav />
-      <main className="flex flex-col items-center">
-        <h3>History of Occupancy</h3>
-        <table className="border-collapse">
-          <thead>
-            <tr>
-              <td>Room Number</td>
-              <td>Class</td>
-              <td>Faculty</td>
-              <td>Time</td>
-              <td>Date</td>
-              <td>User Account</td>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>201</td>
-              <td>1A</td>
-              <td>Rogie A. Bolon</td>
-              <td>7:30-9:00</td>
-              <td>03-09-2025</td>
-              <td>Rogie A. Bolon</td>
-            </tr>
-            <tr>
-              <td>202</td>
-              <td>1B</td>
-              <td>Marites 0. Olesco</td>
-              <td>13:00-14:30</td>
-              <td>03-09-2025</td>
-              <td>Marites 0. Olesco</td>
-            </tr>
-            <tr>
-              <td>203</td>
-              <td>2C</td>
-              <td>Kim Arvin P. Leocadio</td>
-              <td>17:00-19:00</td>
-              <td>03-09-2025</td>
-              <td>Kim Arvin P. Leocadio</td>
-            </tr>
-          </tbody>
-        </table>
+      <main className="container w-full h-full bg-white">
+        <div className="p-4">
+          <h1 className="text-xl">History of Occupancy</h1>
+        </div>
+        <hr />
+        <div className="px-10 pt-7">
+          <table className="border-collapse w-full">
+            <thead>
+              <tr>
+                <td className="border p-2">Room Number</td>
+                <td className="border p-2">Class</td>
+                <td className="border p-2">Faculty</td>
+                <td className="border p-2">Time</td>
+                <td className="border p-2">Date</td>
+                <td className="border p-2">User Account</td>
+              </tr>
+            </thead>
+            <tbody>
+              {historyData.map((entry, index) => (
+                <tr key={index}>
+                  <td className="border p-2">{entry.roomNumber}</td>
+                  <td className="border p-2">{entry.className}</td>
+                  <td className="border p-2">{entry.faculty}</td>
+                  <td className="border p-2">{entry.time}</td>
+                  <td className="border p-2">{entry.date}</td>
+                  <td className="border p-2">{entry.userAccount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </main>
     </>
   );
