@@ -35,7 +35,7 @@ const Bookings = () => {
 
   return (
     <>
-      <main className="container w-full h-full px-4 mx-auto bg-white">
+      <main className="container w-full h-full px-4 mx-auto overflow-y-auto bg-white">
         <div className="flex flex-col items-center justify-center">
           <h3>Bookings</h3>
           <table className="border-collapse">

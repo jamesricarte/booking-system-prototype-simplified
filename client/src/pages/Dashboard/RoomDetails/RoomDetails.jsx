@@ -298,10 +298,10 @@ const RoomDetails = () => {
     setRoomAvailability(
       checkRoomAvailability()
         ? {
-          status: false,
-          message: "Occupied",
-          type: "occupied",
-        }
+            status: false,
+            message: "Occupied",
+            type: "occupied",
+          }
         : { status: true, message: "Vacant", type: "available" }
     );
   }, [currentTimePosition, bookings]);
@@ -317,15 +317,11 @@ const RoomDetails = () => {
     }
   }, [bookingMessage]);
 
-
-
   return (
-    <main className="container w-full h-full bg-white">
+    <main className="container w-full h-full overflow-y-auto bg-white">
       {/* TOP BAR */}
       <div className="flex items-center justify-between p-4">
-        <h1 className="text-xl">
-          Booking Section &gt; Room Details
-        </h1>
+        <h1 className="text-xl">Booking Section &gt; Room Details</h1>
         <Link to="/bookings" className="text-black hover:underline">
           &lt; Back to Bookings
         </Link>
@@ -333,7 +329,7 @@ const RoomDetails = () => {
       <hr />
 
       {/* CONTENT AREA */}
-      <div className="pt-7 px-14">
+      <div className="py-7 px-14">
         {/* 2-COLUMN LAYOUT: LEFT (Bookings), RIGHT (Room Details + Time) */}
         <div className="grid grid-cols-2 gap-8">
           {/* LEFT COLUMN: Bookings */}
@@ -385,10 +381,16 @@ const RoomDetails = () => {
                 </div>
 
                 <div className="flex gap-2 mt-6">
-                  <button className="px-4 py-2 text-black bg-[#B3E5FC] rounded hover:bg-blue-300" onClick={() => setBookNowModal(!bookNowModal)}>
+                  <button
+                    className="px-4 py-2 text-black bg-[#B3E5FC] rounded hover:bg-blue-300"
+                    onClick={() => setBookNowModal(!bookNowModal)}
+                  >
                     Book Now
                   </button>
-                  <button className="px-4 py-2 text-gray-800 bg-[#FFCC80] rounded hover:bg-[#ffc080]" onClick={() => setReserveModal(!reserveModal)}>
+                  <button
+                    className="px-4 py-2 text-gray-800 bg-[#FFCC80] rounded hover:bg-[#ffc080]"
+                    onClick={() => setReserveModal(!reserveModal)}
+                  >
                     Reserve
                   </button>
                 </div>
@@ -416,10 +418,11 @@ const RoomDetails = () => {
                 <tr>
                   <td className="p-2 font-medium border">Room Status:</td>
                   <td
-                    className={`${roomAvailability.type === "available"
+                    className={`${
+                      roomAvailability.type === "available"
                         ? "text-green-500"
                         : "text-red-500"
-                      } font-bold border p-2`}
+                    } font-bold border p-2`}
                   >
                     {roomAvailability?.message}
                   </td>
@@ -436,10 +439,11 @@ const RoomDetails = () => {
                     <td className="p-2 font-medium border">Status:</td>
                     <td className="p-2 border">
                       <span
-                        className={`${roomAvailability.type === "available"
+                        className={`${
+                          roomAvailability.type === "available"
                             ? "text-green-500"
                             : "text-red-500"
-                          } font-bold`}
+                        } font-bold`}
                       >
                         {roomAvailability.message}
                       </span>
@@ -459,16 +463,28 @@ const RoomDetails = () => {
                   const endHour = 7 + Math.floor((i + 1) / 2);
                   const endMinute = (i + 1) % 2 === 0 ? 0 : 30;
 
-                  const startTime = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
-                  const endTime = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`;
+                  const startTime = `${startHour
+                    .toString()
+                    .padStart(2, "0")}:${startMinute
+                    .toString()
+                    .padStart(2, "0")}`;
+                  const endTime = `${endHour
+                    .toString()
+                    .padStart(2, "0")}:${endMinute
+                    .toString()
+                    .padStart(2, "0")}`;
 
                   const isReserved = bookings.some((booking) => {
-                    const bookingStart = convertTimeToMinutes(booking.start_time);
+                    const bookingStart = convertTimeToMinutes(
+                      booking.start_time
+                    );
                     const bookingEnd = convertTimeToMinutes(booking.end_time);
                     const currentStart = convertTimeToMinutes(startTime);
                     const currentEnd = convertTimeToMinutes(endTime);
 
-                    return bookingStart < currentEnd && bookingEnd > currentStart;
+                    return (
+                      bookingStart < currentEnd && bookingEnd > currentStart
+                    );
                   });
 
                   return (
@@ -477,9 +493,14 @@ const RoomDetails = () => {
                       className="flex justify-between px-3 py-2 mb-2 bg-white rounded-md shadow-sm"
                     >
                       <span className="font-medium">
-                        {convertTimeTo12HourFormat(startTime)} - {convertTimeTo12HourFormat(endTime)}
+                        {convertTimeTo12HourFormat(startTime)} -{" "}
+                        {convertTimeTo12HourFormat(endTime)}
                       </span>
-                      <span className={`font-semibold ${isReserved ? "text-red-500" : "text-green-500"}`}>
+                      <span
+                        className={`font-semibold ${
+                          isReserved ? "text-red-500" : "text-green-500"
+                        }`}
+                      >
                         {isReserved ? "Reserved" : "Available"}
                       </span>
                     </div>
@@ -543,26 +564,28 @@ const RoomDetails = () => {
 
       {/* Book Now Modal */}
       <div
-        className={`fixed px-6 py-2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg top-1/2 left-1/2 z-10 ${bookNowModal && !bookingMessage.isBookingMessageAvaialable
+        className={`fixed px-6 py-2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg top-1/2 left-1/2 z-10 ${
+          bookNowModal && !bookingMessage.isBookingMessageAvaialable
             ? "block"
             : "hidden"
-          }`}
+        }`}
       >
         <form onSubmit={bookNow}>
           <h3>Book now</h3>
           {!isTimeSlotAvailableForBookNow ? (
             <p className="text-red-500">
-              Sorry, this room is occupied at this time. You can reserve for another
-              time.
+              Sorry, this room is occupied at this time. You can reserve for
+              another time.
             </p>
           ) : (
             <div className="flex">
               <p>Status:&nbsp;</p>
               <p
-                className={`${roomAvailability.type === "available"
+                className={`${
+                  roomAvailability.type === "available"
                     ? "text-green-500"
                     : "text-red-500"
-                  } font-bold`}
+                } font-bold`}
               >
                 {roomAvailability.message}
               </p>
@@ -577,7 +600,9 @@ const RoomDetails = () => {
             <p>Time:</p>
             <div>
               <p>Start Time:</p>
-              <p>{convertTimeTo12HourFormat(filteredStartTimeSlots[0]?.time)}</p>
+              <p>
+                {convertTimeTo12HourFormat(filteredStartTimeSlots[0]?.time)}
+              </p>
             </div>
             <div>
               <p>End Time:</p>
@@ -641,16 +666,18 @@ const RoomDetails = () => {
 
       {/* Reserve Modal */}
       <div
-        className={`fixed px-6 py-2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg top-1/2 left-1/2 z-10 ${reserveModal && !bookingMessage.isBookingMessageAvaialable
+        className={`fixed px-6 py-2 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg top-1/2 left-1/2 z-10 ${
+          reserveModal && !bookingMessage.isBookingMessageAvaialable
             ? "block"
             : "hidden"
-          }`}
+        }`}
       >
         <form onSubmit={reserveBooking}>
           <h3>Reserve Booking</h3>
           {!isTimeSlotAvailableForReserveBooking && (
             <p className="text-red-500">
-              This time period is already booked. Please select a different time.
+              This time period is already booked. Please select a different
+              time.
             </p>
           )}
 
@@ -731,7 +758,10 @@ const RoomDetails = () => {
             </select>
           </div>
 
-          <Button type="submit" disabled={!isTimeSlotAvailableForReserveBooking}>
+          <Button
+            type="submit"
+            disabled={!isTimeSlotAvailableForReserveBooking}
+          >
             Reserve Booking
           </Button>
           <Button type="button" onClick={() => setReserveModal(!reserveModal)}>
@@ -742,23 +772,24 @@ const RoomDetails = () => {
 
       {/* Background Overlay */}
       <div
-        className={`fixed top-0 left-0 w-full h-full bg-black ${bookNowModal ||
-            reserveModal ||
-            bookingMessage.isBookingMessageAvaialable
+        className={`fixed top-0 left-0 w-full h-full bg-black ${
+          bookNowModal ||
+          reserveModal ||
+          bookingMessage.isBookingMessageAvaialable
             ? "opacity-30 pointer-events-auto"
             : "opacity-0 pointer-events-none"
-          }`}
+        }`}
       />
 
       {/* Booking Response Message */}
       <div
-        className={`fixed z-10 p-3 m-0 transform -translate-x-1/2 bg-white left-1/2 shadow-xl transition-all duration-500 ease ${bookingMessage.isBookingMessageAvaialable
+        className={`fixed z-10 p-3 m-0 transform -translate-x-1/2 bg-white left-1/2 shadow-xl transition-all duration-500 ease ${
+          bookingMessage.isBookingMessageAvaialable
             ? "top-12 opacity-100"
             : "-top-10 opacity-0"
-          } ${bookingMessage.type === "success"
-            ? "text-green-500"
-            : "text-red-500"
-          }`}
+        } ${
+          bookingMessage.type === "success" ? "text-green-500" : "text-red-500"
+        }`}
       >
         <p>{bookingMessage.message}</p>
       </div>

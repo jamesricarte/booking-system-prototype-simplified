@@ -1,22 +1,21 @@
-import React from "react";
 import { Link } from "react-router-dom";
 
 const AdminDashboard = () => {
   return (
-    <main className="container w-full h-full bg-white">
+    <main className="container w-full h-full overflow-y-auto bg-white">
       <div className="p-4">
         <h1 className="text-xl">Admin Dashboard Section</h1>
       </div>
       <hr />
-      <div className="px-10 pt-7">
+      <div className="px-10 py-7">
         <div className="grid grid-cols-2 gap-8">
           <Link className="shadow-md p-28 bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px] text-center">
             System Summary
           </Link>
-          <Link className="shadow-md p-28 bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px] text-center">
+          <Link className="shadow-md p-28 bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px]">
             Latest Booking Activities
           </Link>
-          <Link className="shadow-md p-28  bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px] text-center">
+          <Link className="shadow-md p-28  bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px]">
             Upcoming Schedules
           </Link>
           <Link className="shadow-md  p-28  bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px] text-center">

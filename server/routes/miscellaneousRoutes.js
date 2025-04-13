@@ -190,6 +190,54 @@ router.get("/user/:schoolId", (req, res) => {
   );
 });
 
+//Fetch occupancy history
+router.get("/occupancyHistory", (req, res) => {
+  try {
+    db.query(
+      `SELECT b.id AS booking_id,
+      r.room_number,
+      p.professor_name,
+      c.class_name,
+      b.start_time AS start_time_id,
+      t1.time AS start_time,
+      b.end_time AS end_time_id,
+      t2.time AS end_time,
+      b.purpose,
+      b.date,
+      b.created_at 
+      FROM bookings b
+      JOIN rooms r ON b.room_id = r.id
+      JOIN professors p ON b.professor_id = p.id
+      JOIN classes c ON b.class_id = c.id
+      JOIN timeslots t1 ON b.start_time = t1.id
+      JOIN timeslots t2 ON b.end_time = t2.id
+      ORDER BY b.date DESC;`,
+      async (err, result) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ message: "Something went wrong", error: err });
+        }
 
+        if (result.length === 0) {
+          return res
+            .status(400)
+            .json({ message: "The occupancy history is empty" });
+        }
+
+        res.status(200).json({
+          message: "Successfully fetched occupancy history data!",
+          occupancyHistory: result,
+        });
+      }
+    );
+  } catch (error) {
+    if (!res.headersSent) {
+      res
+        .status(500)
+        .json({ message: "Internal Server Error", error: error.message });
+    }
+  }
+});
 
 module.exports = router;

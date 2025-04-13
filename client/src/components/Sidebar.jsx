@@ -36,13 +36,34 @@ const Sidebar = ({ isAdmin }) => {
                 >
                   Dashboard
                 </NavLink>
-                <NavLink className="p-2 text-2xl transition-colors">
+                <NavLink
+                  to="/history"
+                  className={({ isActive }) =>
+                    `p-2 transition-colors text-2xl ${
+                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
+                    }`
+                  }
+                >
                   History of Occupancy
                 </NavLink>
-                <NavLink className="p-2 text-2xl transition-colors">
+                <NavLink
+                  to="/rooms"
+                  className={({ isActive }) =>
+                    `p-2 transition-colors text-2xl ${
+                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
+                    }`
+                  }
+                >
                   Rooms
                 </NavLink>
-                <NavLink className="p-2 text-2xl transition-colors">
+                <NavLink
+                  to="/users"
+                  className={({ isActive }) =>
+                    `p-2 transition-colors text-2xl ${
+                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
+                    }`
+                  }
+                >
                   User
                 </NavLink>
               </>
@@ -79,28 +100,19 @@ const Sidebar = ({ isAdmin }) => {
         <hr className="-mx-5 border-t-2 border-gray-300" />
         <div className="flex items-center justify-between p-5">
           <div className="flex items-center gap-4">
-            <NavLink
-            to="/UserProfile"
-            >
-            <img src={BlankProfile} alt="" className="w-12 h-12" />
-              </NavLink>
-            <div>
-            <NavLink
-            to="/UserProfile"
-            >
-              <h1 className="text-[22px]">James Bond</h1>
-              </NavLink>
-              <NavLink
-            to="/UserProfile"
-            >
-              <p className="text-sm">James@gmail.com</p>
+            <NavLink to={`${isAdmin ? "/AdminProfile" : "/UserProfile"}`}>
+              <img src={BlankProfile} alt="" className="w-12 h-12" />
             </NavLink>
-              
+            <div>
+              <NavLink to={`${isAdmin ? "/AdminProfile" : "/UserProfile"}`}>
+                <h1 className="text-[22px]">James Bond</h1>
+              </NavLink>
+              <NavLink to={`${isAdmin ? "/AdminProfile" : "/UserProfile"}`}>
+                <p className="text-sm">James@gmail.com</p>
+              </NavLink>
             </div>
           </div>
-          <NavLink
-            to="/UserProfile"
-          >
+          <NavLink to={`${isAdmin ? "/AdminProfile" : "/UserProfile"}`}>
             {({ isActive }) => (
               <RiSettings5Fill
                 className={`text-[41px] transition-colors ${
