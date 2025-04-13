@@ -11,7 +11,7 @@ import DashboardLayout from "./layouts/DashboardLayout/DashboardLayout";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import AdminLayout from "./layouts/AdminLayout/AdminLayout";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
-import UserProfile from "./pages/UserProfile/UserProfile";
+import UserProfile from "./pages/Dashboard/UserProfile/UserProfile";
 import HistoryOfOccupancy from "./pages/AdminDashboard/HistoryOfOccupancy/HistoryOfOccupancy";
 import Rooms from "./pages/AdminDashboard/Rooms/rooms";
 import Users from "./pages/AdminDashboard/Users/users";

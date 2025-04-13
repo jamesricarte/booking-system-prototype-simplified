@@ -21,12 +21,18 @@ const Register = () => {
     type: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
   const handleUserInput = handleFormChange(user, setUser);
 
   const registerUser = async (e) => {
     e.preventDefault();
+
+    setLoading(true);
+    const startTime = Date.now();
+    let message = { isResponseAvailable: false, message: "", type: "" };
 
     try {
       const response = await fetch(`${API_URL}/api/register`, {
@@ -43,25 +49,39 @@ const Register = () => {
       }
 
       const result = await response.json();
-      setResponse({
+      message = {
         isResponseAvailable: true,
         message: result.message,
         type: "success",
-      });
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
+      };
     } catch (error) {
-      console.error(error);
-      setResponse({
+      message = {
         isResponseAvailable: true,
         message: error.message,
         type: "error",
-      });
+      };
+    } finally {
+      const elapsedTime = Date.now() - startTime;
+      const minimumTime = 1000;
+
+      setTimeout(() => {
+        setLoading(false);
+        setResponse({
+          isResponseAvailable: message.isResponseAvailable,
+          message: message.message,
+          type: message.type,
+        });
+        if (message.type === "success") {
+          setTimeout(() => {
+            navigate("/login");
+          }, 1500);
+        }
+      }, Math.max(0, minimumTime - elapsedTime));
     }
   };
+
   return (
-    <div className="flex">
+    <main className="flex">
       <div className="h-screen">
         <img src={BackGroundBu} alt="" className="object-cover w-full h-full" />
       </div>
@@ -92,10 +112,10 @@ const Register = () => {
           <div className="flex flex-col gap-4 mb-3">
             <label htmlFor="schoolId">School Id</label>
             <Input
-              type="password"
-              id="password"
-              name="password"
-              value={user.password}
+              type="text"
+              id="schoolId"
+              name="schoolId"
+              value={user.schoolId}
               onChange={handleUserInput}
               required={true}
             />
@@ -103,10 +123,10 @@ const Register = () => {
           <div className="flex flex-col gap-4 mb-3">
             <label htmlFor="password">Password</label>
             <Input
-              type="text"
-              id="schoolId"
-              name="schoolId"
-              value={user.schoolId}
+              type="password"
+              id="password"
+              name="password"
+              value={user.password}
               onChange={handleUserInput}
               required={true}
             />
@@ -125,7 +145,7 @@ const Register = () => {
 
           {response.isResponseAvailable && (
             <p
-              className={`${
+              className={`mb-4 ${
                 response.type === "success" ? "text-green-500" : "text-red-500"
               }`}
             >
@@ -150,7 +170,21 @@ const Register = () => {
           </p>
         </div>
       </div>
-    </div>
+
+      {/* Loading spinner */}
+      <div
+        className={`absolute z-10 w-8 h-8 transform -translate-x-1/2 -translate-y-1/2 rounded-full border-6 rounded-1/2 border-t-transparent border-cyan-500 left-1/2 top-1/2 ${
+          loading ? "block animate-spin" : "hidden"
+        }`}
+      ></div>
+
+      {/* Background */}
+      <div
+        className={`fixed top-0 left-0 w-full h-full bg-white opacity-60 pointer-events-auto ${
+          loading ? "block" : "hidden"
+        }`}
+      ></div>
+    </main>
   );
 };
 

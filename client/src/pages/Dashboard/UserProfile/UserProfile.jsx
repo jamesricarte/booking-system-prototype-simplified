@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import BlankProfile from "../../assets/image/elipse.png";
-import { useAuth } from "../../context/AuthContext";
-import Button from "../../components/Button";
-import Input from "../../components/Input";
+import BlankProfile from "../../../assets/image/elipse.png";
+import { useAuth } from "../../../context/AuthContext";
+import Button from "../../../components/Button";
+import Input from "../../../components/Input";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -63,7 +63,7 @@ const UserProfile = () => {
 
             <button
               onClick={logout}
-              className="px-4 py-2 mt-6 text-white bg-red-500 rounded hover:bg-red-600"
+              className="px-4 py-2 mt-auto text-white bg-red-500 rounded mb-[20%] hover:bg-red-600"
             >
               Logout
             </button>

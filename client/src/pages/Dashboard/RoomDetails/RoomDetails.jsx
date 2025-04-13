@@ -39,6 +39,7 @@ const RoomDetails = () => {
     setBookNowFormData,
     setReserveBookingFromData,
     bookingMessage,
+    loading,
   } = useRoomPosts();
 
   //Form Spread Operators
@@ -86,6 +87,8 @@ const RoomDetails = () => {
   //Other Declarations
   const scrollableDivRef = useRef(null);
   const hasScrolledInitially = useRef(false);
+  const initialTimePosition = 22.5;
+  const timeslotDistance = 48;
 
   //Functions
   const updateCurrentTime = () => {
@@ -99,14 +102,17 @@ const RoomDetails = () => {
 
       const totalMinutes = (hours - 7) * 60 + minutes;
 
-      if (hours - 7 <= 0) {
-        setCurrentTimePosition(25);
+      if (hours - 7 < 0) {
+        setCurrentTimePosition(initialTimePosition);
         setIsRoomAvailableForBooking(false);
       } else if (hours - 7 >= 12) {
-        setCurrentTimePosition(50.4 * 24 + 25);
+        setCurrentTimePosition(timeslotDistance * 24 + initialTimePosition);
         setIsRoomAvailableForBooking(false);
       } else {
-        setCurrentTimePosition((totalMinutes / 30) * 50.4 + 25);
+        setCurrentTimePosition(
+          (totalMinutes / 30) * timeslotDistance + initialTimePosition
+        );
+        setIsRoomAvailableForBooking(true);
       }
     }
   };
@@ -120,7 +126,7 @@ const RoomDetails = () => {
 
       setSelectedBookingPosition({
         top: bookingElementRect.top + window.scrollY,
-        left: bookingElementRect.left + bookingElementRect.width * 1.77,
+        left: bookingElementRect.left + bookingElementRect.width * 1.9,
       });
 
       const scrollableDivRect =
@@ -143,7 +149,7 @@ const RoomDetails = () => {
     setSelectedBooking(booking);
     setSelectedBookingPosition({
       top: bookingRect.top + window.scrollY,
-      left: bookingRect.left + bookingRect.width * 1.77,
+      left: bookingRect.left + bookingRect.width * 1.9,
     });
   };
 
@@ -171,7 +177,8 @@ const RoomDetails = () => {
   };
 
   const checkRoomAvailability = () => {
-    const currentMinutes = ((currentTimePosition - 25) / 50.4) * 30;
+    const currentMinutes =
+      ((currentTimePosition - initialTimePosition) / timeslotDistance) * 30;
 
     return bookings.some((booking) => {
       const startMinutes = convertTimeToMinutes(booking.start_time) - 420;
@@ -187,7 +194,7 @@ const RoomDetails = () => {
     const interval = setInterval(updateCurrentTime, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isRoomAvailableForBooking]);
 
   useEffect(() => {
     if (
@@ -309,16 +316,17 @@ const RoomDetails = () => {
   useEffect(() => {
     if (
       (bookingMessage.isBookingMessageAvaialable && bookNowModal) ||
-      reserveModal
+      (bookingMessage.isBookingMessageAvaialable && reserveModal)
     ) {
       setBookNowModal(false);
       setReserveModal(false);
+    } else if (bookingMessage.type === "success") {
       fetchBookings();
     }
-  }, [bookingMessage]);
+  }, [bookingMessage, loading]);
 
   return (
-    <main className="container w-full h-full overflow-y-auto bg-white">
+    <main className="container h-full overflow-y-auto bg-white">
       {/* TOP BAR */}
       <div className="flex items-center justify-between p-4">
         <h1 className="text-xl">Booking Section &gt; Room Details</h1>
@@ -359,8 +367,11 @@ const RoomDetails = () => {
                   {bookings.map((booking, index) => {
                     const start = bookingTimeToMinutes(booking.start_time);
                     const end = bookingTimeToMinutes(booking.end_time);
-                    const top = (start / 30) * 50.4 + 25;
-                    const height = ((end - start) / 30) * 50.4;
+                    const top =
+                      (start / 30) * timeslotDistance +
+                      initialTimePosition +
+                      1.5;
+                    const height = ((end - start) / 30) * timeslotDistance;
 
                     return (
                       <div
@@ -415,28 +426,9 @@ const RoomDetails = () => {
                   <td className="p-2 font-medium border">Room Capacity:</td>
                   <td className="p-2 border">{roomDetails?.capacity}</td>
                 </tr>
-                <tr>
-                  <td className="p-2 font-medium border">Room Status:</td>
-                  <td
-                    className={`${
-                      roomAvailability.type === "available"
-                        ? "text-green-500"
-                        : "text-red-500"
-                    } font-bold border p-2`}
-                  >
-                    {roomAvailability?.message}
-                  </td>
-                </tr>
-                <tr>
-                  <td className="p-2 font-medium border">Resources:</td>
-                  <td className="p-2 border">
-                    Whiteboard: {roomDetails?.whiteboard ? "✅" : "❌"} <br />
-                    TV: {roomDetails?.tv ? "✅" : "❌"}
-                  </td>
-                </tr>
                 {isRoomAvailableForBooking && (
                   <tr>
-                    <td className="p-2 font-medium border">Status:</td>
+                    <td className="p-2 font-medium border">Room Status:</td>
                     <td className="p-2 border">
                       <span
                         className={`${
@@ -450,63 +442,78 @@ const RoomDetails = () => {
                     </td>
                   </tr>
                 )}
+                <tr>
+                  <td className="p-2 font-medium border">Resources:</td>
+                  <td className="p-2 border">
+                    Whiteboard: {roomDetails?.whiteboard ? "✅" : "❌"} <br />
+                    TV: {roomDetails?.tv ? "✅" : "❌"}
+                  </td>
+                </tr>
               </tbody>
             </table>
 
             {/* TIME BOXES */}
             <div className="mt-6">
               <h3 className="mb-2 text-lg font-semibold">Time</h3>
-              <div className="shadow-md p-6 bg-[#f6f6f6] rounded-lg min-w-full h-65 overflow-y-auto">
-                {Array.from({ length: 22 }, (_, i) => {
-                  const startHour = 7 + Math.floor(i / 2);
-                  const startMinute = i % 2 === 0 ? 0 : 30;
-                  const endHour = 7 + Math.floor((i + 1) / 2);
-                  const endMinute = (i + 1) % 2 === 0 ? 0 : 30;
+              {isRoomAvailableForBooking ? (
+                <div className="shadow-md p-6 bg-[#f6f6f6] rounded-lg min-w-full h-65 overflow-y-auto">
+                  {Array.from({ length: 22 }, (_, i) => {
+                    const startHour = 7 + Math.floor(i / 2);
+                    const startMinute = i % 2 === 0 ? 0 : 30;
+                    const endHour = 7 + Math.floor((i + 1) / 2);
+                    const endMinute = (i + 1) % 2 === 0 ? 0 : 30;
 
-                  const startTime = `${startHour
-                    .toString()
-                    .padStart(2, "0")}:${startMinute
-                    .toString()
-                    .padStart(2, "0")}`;
-                  const endTime = `${endHour
-                    .toString()
-                    .padStart(2, "0")}:${endMinute
-                    .toString()
-                    .padStart(2, "0")}`;
+                    const startTime = `${startHour
+                      .toString()
+                      .padStart(2, "0")}:${startMinute
+                      .toString()
+                      .padStart(2, "0")}`;
+                    const endTime = `${endHour
+                      .toString()
+                      .padStart(2, "0")}:${endMinute
+                      .toString()
+                      .padStart(2, "0")}`;
 
-                  const isReserved = bookings.some((booking) => {
-                    const bookingStart = convertTimeToMinutes(
-                      booking.start_time
-                    );
-                    const bookingEnd = convertTimeToMinutes(booking.end_time);
-                    const currentStart = convertTimeToMinutes(startTime);
-                    const currentEnd = convertTimeToMinutes(endTime);
+                    const isReserved = bookings.some((booking) => {
+                      const bookingStart = convertTimeToMinutes(
+                        booking.start_time
+                      );
+                      const bookingEnd = convertTimeToMinutes(booking.end_time);
+                      const currentStart = convertTimeToMinutes(startTime);
+                      const currentEnd = convertTimeToMinutes(endTime);
+
+                      return (
+                        bookingStart < currentEnd && bookingEnd > currentStart
+                      );
+                    });
 
                     return (
-                      bookingStart < currentEnd && bookingEnd > currentStart
-                    );
-                  });
-
-                  return (
-                    <div
-                      key={i}
-                      className="flex justify-between px-3 py-2 mb-2 bg-white rounded-md shadow-sm"
-                    >
-                      <span className="font-medium">
-                        {convertTimeTo12HourFormat(startTime)} -{" "}
-                        {convertTimeTo12HourFormat(endTime)}
-                      </span>
-                      <span
-                        className={`font-semibold ${
-                          isReserved ? "text-red-500" : "text-green-500"
-                        }`}
+                      <div
+                        key={i}
+                        className="flex justify-between px-3 py-2 mb-2 bg-white rounded-md shadow-sm"
                       >
-                        {isReserved ? "Reserved" : "Available"}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+                        <span className="font-medium">
+                          {convertTimeTo12HourFormat(startTime)} -{" "}
+                          {convertTimeTo12HourFormat(endTime)}
+                        </span>
+                        <span
+                          className={`font-semibold ${
+                            isReserved ? "text-red-500" : "text-green-500"
+                          }`}
+                        >
+                          {isReserved ? "Reserved" : "Available"}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-red-500">
+                  No available time at this time period.
+                </p>
+              )}
+
+              {/* sdfdsfdf */}
             </div>
           </div>
         </div>
@@ -662,6 +669,12 @@ const RoomDetails = () => {
             Cancel
           </Button>
         </form>
+        {/* White background */}
+        <div
+          className={`fixed top-0 left-0 w-full h-full bg-white opacity-50 pointer-events-auto z-10 ${
+            loading ? "block" : "hidden"
+          }`}
+        ></div>
       </div>
 
       {/* Reserve Modal */}
@@ -768,6 +781,12 @@ const RoomDetails = () => {
             Cancel
           </Button>
         </form>
+        {/* White background */}
+        <div
+          className={`fixed top-0 left-0 w-full h-full bg-white opacity-50 pointer-events-auto z-10 ${
+            loading ? "block" : "hidden"
+          }`}
+        ></div>
       </div>
 
       {/* Background Overlay */}
@@ -793,6 +812,13 @@ const RoomDetails = () => {
       >
         <p>{bookingMessage.message}</p>
       </div>
+
+      {/* Loading spinner */}
+      <div
+        className={`fixed z-10 w-8 h-8 transform -translate-x-1/2 -translate-y-1/2 rounded-full border-6 rounded-1/2 border-t-transparent border-cyan-500 left-1/2 top-1/2 ${
+          loading ? "block animate-spin" : "hidden"
+        }`}
+      ></div>
     </main>
   );
 };

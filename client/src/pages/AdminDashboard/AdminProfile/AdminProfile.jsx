@@ -6,9 +6,9 @@ const AdminProfile = () => {
   const { logout } = useAuth();
 
   return (
-    <main className="container w-full h-full overflow-y-auto bg-white">
+    <main className="container h-full overflow-y-auto bg-white">
       <div className="p-4">
-        <h1 className="text-xl">Account Settings Section</h1>
+        <h1 className="text-xl">Admin Settings Section</h1>
       </div>
       <hr />
       <div className="py-7 px-14">
@@ -37,7 +37,7 @@ const AdminProfile = () => {
             {/* Logout Button */}
             <button
               onClick={logout}
-              className="px-4 py-2 mt-6 text-white bg-red-500 rounded hover:bg-red-600"
+              className="px-4 py-2 mt-auto mb-[20%] text-white bg-red-500 rounded hover:bg-red-600"
             >
               Logout
             </button>
