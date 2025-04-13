@@ -1,11 +1,14 @@
-import Nav from '../../../components/Nav';
-
 const Users = () => {
   return (
     <>
-      <Nav />
-      <main className="flex flex-col items-center">
-        <h3>Users</h3>
+      <main className="container w-full h-full bg-white">
+        <div className="p-4">
+          <h1 className="text-xl">Users</h1>
+        </div>
+        <hr />
+        <div className="px-10 pt-7">
+          <div className="grid grid-cols-2 gap-8"></div>
+        </div>
       </main>
     </>
   );

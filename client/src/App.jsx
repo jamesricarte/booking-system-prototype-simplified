@@ -47,10 +47,7 @@ const App = () => {
         }
       >
         <Route path="/admin" element={<AdminDashboard />}></Route>
-        <Route
-          path="/historyOfOccupancy"
-          element={<HistoryOfOccupancy />}
-        ></Route>
+        <Route path="/history" element={<HistoryOfOccupancy />}></Route>
         <Route path="/rooms" element={<Rooms />}></Route>
         <Route path="/users" element={<Users />}></Route>
       </Route>
