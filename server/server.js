@@ -15,6 +15,8 @@ app.use("/api", roomRoutes);
 app.use("/api", bookingRoutes);
 app.use("/api", miscellaneousRoutes);
 
+
+
 app.listen(process.env.PORT, () => {
   console.log(`Server is running at port: ${process.env.PORT}`);
 });

@@ -168,4 +168,28 @@ router.get("/professor/:schoolId", (req, res) => {
   }
 });
 
+//Fetch User
+router.get("/user/:schoolId", (req, res) => {
+  const schoolId = req.params.schoolId;
+
+  db.query(
+    "SELECT * FROM users WHERE school_id = ?",
+    [schoolId],
+    (err, result) => {
+      if (err) {
+        return res.status(500).json({ message: "Error fetching user", error: err.message });
+      }
+
+      if (result.length === 0) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const { password, ...userData } = result[0]; // exclude password
+      return res.status(200).json({ user: userData });
+    }
+  );
+});
+
+
+
 module.exports = router;
