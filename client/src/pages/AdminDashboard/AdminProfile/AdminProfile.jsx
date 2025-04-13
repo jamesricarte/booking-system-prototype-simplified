@@ -1,15 +1,12 @@
 import React from "react";
-import BlankProfile from "../../assets/image/elipse.png";
-import { Link } from "react-router-dom";
-import Button from "../../components/Button";
-import Input from "../../components/Input";
-import { useAuth } from "../../context/AuthContext";
+import BlankProfile from "../../../assets/image/elipse.png";
+import { useAuth } from "../../../context/AuthContext";
 
-const UserProfile = () => {
+const AdminProfile = () => {
   const { logout } = useAuth();
 
   return (
-    <main className="w-full h-full overflow-y-auto bg-white ccontainer">
+    <main className="container w-full h-full overflow-y-auto bg-white">
       <div className="p-4">
         <h1 className="text-xl">Account Settings Section</h1>
       </div>
@@ -139,4 +136,4 @@ const UserProfile = () => {
   );
 };
 
-export default UserProfile;
+export default AdminProfile;

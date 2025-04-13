@@ -1,41 +1,38 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import {
+  convertUTCDateToSameTimezone,
+  convertTimeTo12HourFormat,
+} from "../../../utils/timeUtils";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const HistoryOfOccupancy = () => {
   const [historyData, setHistoryData] = useState([]);
-  const [error, setError] = useState(null);
+
+  const fetchHistoryOccupancy = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/occupancyHistory`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      const result = await response.json();
+      setHistoryData(result.occupancyHistory);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        console.log('Fetching history of occupancy...');
-        const response = await axios.get('/api/history-of-occupancy');
-        console.log('Response data:', response.data);
-
-        if (Array.isArray(response.data.data)) {
-          setHistoryData(response.data.data);
-        } else {
-          console.error('Unexpected response format:', response.data);
-          setError('Unexpected response format. Please contact support.');
-        }
-      } catch (error) {
-        console.error('Error fetching history of occupancy:', error);
-        setError(
-          'Failed to fetch history of occupancy. Please try again later.'
-        );
-      }
-    };
-
-    fetchHistory();
+    fetchHistoryOccupancy();
   }, []);
-
-  if (error) {
-    return (
-      <div className="container w-full h-full bg-white flex items-center justify-center">
-        <p className="text-red-500">{error}</p>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -44,27 +41,32 @@ const HistoryOfOccupancy = () => {
           <h1 className="text-xl">History of Occupancy</h1>
         </div>
         <hr />
-        <div className="px-10 pt-7 overflow-auto max-h-[500px]">
-          <table className="border-collapse w-full">
+        <div className="px-10 py-7 overflow-auto max-h-[500px]">
+          <table className="w-full border-collapse">
             <thead>
               <tr>
-                <td className="border p-2">Room Number</td>
-                <td className="border p-2">Class</td>
-                <td className="border p-2">Faculty</td>
-                <td className="border p-2">Time</td>
-                <td className="border p-2">Date</td>
-                <td className="border p-2">User Account</td>
+                <td className="p-2 border">Room Number</td>
+                <td className="p-2 border">Class</td>
+                <td className="p-2 border">Faculty</td>
+                <td className="p-2 border">Time</td>
+                <td className="p-2 border">Date</td>
+                <td className="p-2 border">User Account</td>
               </tr>
             </thead>
             <tbody>
-              {historyData.map((entry, index) => (
+              {historyData.map((data, index) => (
                 <tr key={index}>
-                  <td className="border p-2">{entry.roomNumber}</td>
-                  <td className="border p-2">{entry.className}</td>
-                  <td className="border p-2">{entry.faculty}</td>
-                  <td className="border p-2">{entry.time}</td>
-                  <td className="border p-2">{entry.date}</td>
-                  <td className="border p-2">{entry.userAccount}</td>
+                  <td className="p-2 border">{data.room_number}</td>
+                  <td className="p-2 border">{data.class_name}</td>
+                  <td className="p-2 border">{data.professor_name}</td>
+                  <td className="p-2 border">
+                    {convertTimeTo12HourFormat(data.start_time)} -{" "}
+                    {convertTimeTo12HourFormat(data.end_time)}
+                  </td>
+                  <td className="p-2 border">
+                    {convertUTCDateToSameTimezone(data.date)}
+                  </td>
+                  <td className="p-2 border">{data.professor_name}</td>
                 </tr>
               ))}
             </tbody>

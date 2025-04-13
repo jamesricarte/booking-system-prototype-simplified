@@ -7,7 +7,24 @@ router.get("/bookings/:id", (req, res) => {
   try {
     const roomId = req.params.id;
     db.query(
-      "SELECT b.id AS booking_id, r.room_number, p.professor_name, c.class_name, b.start_time AS start_time_id, t1.time AS start_time, b.end_time AS end_time_id, t2.time AS end_time, b.purpose, b.date, b.created_at FROM bookings b JOIN rooms r ON b.room_id = r.id JOIN professors p ON b.professor_id = p.id JOIN classes c ON b.class_id = c.id JOIN timeslots t1 ON b.start_time = t1.id JOIN timeslots t2 ON b.end_time = t2.id WHERE b.date = CURRENT_DATE() AND b.room_id = ?;",
+      `SELECT b.id AS booking_id,
+      r.room_number,
+      p.professor_name,
+      c.class_name,
+      b.start_time AS start_time_id,
+      t1.time AS start_time,
+      b.end_time AS end_time_id,
+      t2.time AS end_time,
+      b.purpose,
+      b.date,
+      b.created_at 
+      FROM bookings b
+      JOIN rooms r ON b.room_id = r.id
+      JOIN professors p ON b.professor_id = p.id
+      JOIN classes c ON b.class_id = c.id
+      JOIN timeslots t1 ON b.start_time = t1.id
+      JOIN timeslots t2 ON b.end_time = t2.id
+      WHERE b.date = CURRENT_DATE() AND b.room_id = ?;`,
       [roomId],
       async (err, result) => {
         if (err) {
