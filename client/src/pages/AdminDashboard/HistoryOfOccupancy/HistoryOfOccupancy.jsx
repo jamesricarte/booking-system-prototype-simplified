@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
   convertUTCDateToSameTimezone,
   convertTimeTo12HourFormat,
-} from "../../../utils/timeUtils";
+} from '../../../utils/timeUtils';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -12,9 +12,9 @@ const HistoryOfOccupancy = () => {
   const fetchHistoryOccupancy = async () => {
     try {
       const response = await fetch(`${API_URL}/api/occupancyHistory`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
@@ -36,7 +36,7 @@ const HistoryOfOccupancy = () => {
 
   return (
     <>
-      <main className="container w-full h-full bg-white">
+      <main className="container w-full h-full overflow-y-auto bg-white">
         <div className="p-4">
           <h1 className="text-xl">History of Occupancy</h1>
         </div>
@@ -60,7 +60,7 @@ const HistoryOfOccupancy = () => {
                   <td className="p-2 border">{data.class_name}</td>
                   <td className="p-2 border">{data.professor_name}</td>
                   <td className="p-2 border">
-                    {convertTimeTo12HourFormat(data.start_time)} -{" "}
+                    {convertTimeTo12HourFormat(data.start_time)} -{' '}
                     {convertTimeTo12HourFormat(data.end_time)}
                   </td>
                   <td className="p-2 border">
