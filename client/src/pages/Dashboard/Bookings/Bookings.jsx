@@ -35,31 +35,41 @@ const Bookings = () => {
 
   return (
     <>
-      <main className="container w-full h-full px-4 mx-auto overflow-y-auto bg-white">
-        <div className="flex flex-col items-center justify-center">
-          <h3>Bookings</h3>
-          <table className="border-collapse">
-            <thead>
+      <main className="container w-full h-full mx-auto overflow-y-auto bg-white">
+            <div className="p-4">
+                <h1 className="text-xl">Booking Section</h1>
+              </div>
+        <div>
+          <table className="w-full h-screen border-collapse">
+            <thead className="bg-[#B3E5FC]">
               <tr>
-                <td>Room no.</td>
-                <td>Status</td>
-                <td>Checkout Time</td>
-                <td>Action</td>
+                <td className="p-2 text-center">Room no.</td>
+                <td className="p-2 text-center">Status</td>
+                <td className="p-2 text-center">Checkout Time</td>
+                <td className="p-2 text-center">Action</td>
               </tr>
             </thead>
             <tbody>
               {rooms.map((room, index) => (
                 <tr key={index}>
-                  <td>
+                  <td className="text-center">
                     <p>{room.room_number}</p>
                   </td>
-                  <td>Vacant</td>
-                  <td>10:30pm</td>
+                  <td className="text-center">
+                    <div className="p-2 bg-green-500 rounded-md">Vacant</div>
+                  </td>
+                  <td className="text-center">--:--:--</td>
                   <td>
-                    <Button>Book Now</Button>
-                    <Link to={`/room/${room.id}`}>
-                      <Button>Details</Button>
-                    </Link>
+                    <div className="flex items-center justify-center">
+                      <Button className="px-4 py-2 mr-2 text-black bg-[#B3E5FC] rounded hover:bg-[#a1e1ff]">
+                          Book Now
+                      </Button>
+                      <Link to={`/room/${room.id}`}>
+                        <Button className="px-4 py-2 text-black bg-[#FFCC80] rounded hover:bg-[#ffc480]">
+                          View Details
+                        </Button>
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}

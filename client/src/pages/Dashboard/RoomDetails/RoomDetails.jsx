@@ -416,18 +416,6 @@ const RoomDetails = () => {
                   <td className="p-2 border">{roomDetails?.capacity}</td>
                 </tr>
                 <tr>
-                  <td className="p-2 font-medium border">Room Status:</td>
-                  <td
-                    className={`${
-                      roomAvailability.type === "available"
-                        ? "text-green-500"
-                        : "text-red-500"
-                    } font-bold border p-2`}
-                  >
-                    {roomAvailability?.message}
-                  </td>
-                </tr>
-                <tr>
                   <td className="p-2 font-medium border">Resources:</td>
                   <td className="p-2 border">
                     Whiteboard: {roomDetails?.whiteboard ? "✅" : "❌"} <br />
@@ -436,7 +424,7 @@ const RoomDetails = () => {
                 </tr>
                 {isRoomAvailableForBooking && (
                   <tr>
-                    <td className="p-2 font-medium border">Status:</td>
+                    <td className="p-2 font-medium border">Room Status:</td>
                     <td className="p-2 border">
                       <span
                         className={`${

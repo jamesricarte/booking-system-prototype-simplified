@@ -141,7 +141,7 @@ const UserProfile = () => {
               <div className="flex pt-2 space-x-2">
                 <Button
                   type="submit"
-                  className="px-4 py-2 text-black bg-[#B3E5FC] rounded hover:bg-blue-300"
+                  className="px-4 py-2 text-black bg-[#B3E5FC] rounded hover:bg-[#a1e1ff]"
                 >
                   Save
                 </Button>
