@@ -1,9 +1,35 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import BlankProfile from "../../../assets/image/elipse.png";
 import { useAuth } from "../../../context/AuthContext";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 const AdminProfile = () => {
   const { logout } = useAuth();
+
+  const [admin, setAdmin] = useState({
+    username: "",
+    email: "",
+    school_id: "",
+  });
+
+  useEffect(() => {
+    const fetchAdmin = async () => {
+      try {
+        const response = await fetch(`${API_URL}/api/admin`);
+        const data = await response.json();
+
+        if (response.ok) {
+          setAdmin(data.admin);
+        } else {
+          console.error("Error failed: ", data.message);
+        }
+      } catch (error) {
+        console.error("Error: ", error);
+      }
+    };
+    fetchAdmin();
+  }, []);
 
   return (
     <main className="container h-full overflow-y-auto bg-white">
@@ -56,6 +82,8 @@ const AdminProfile = () => {
                 </label>
                 <input
                   type="text"
+                  value={admin.username || ""}
+                  readOnly
                   className="block w-full p-2 mt-1 border border-gray-300 rounded-md"
                 />
               </div>
@@ -67,6 +95,8 @@ const AdminProfile = () => {
                 </label>
                 <input
                   type="email"
+                  value={admin.email || ""}
+                  readOnly
                   className="block w-full p-2 mt-1 border border-gray-300 rounded-md"
                 />
               </div>
@@ -78,6 +108,8 @@ const AdminProfile = () => {
                 </label>
                 <input
                   type="text"
+                  value={admin.school_id || "N/A"}
+                  readOnly
                   className="block w-full p-2 mt-1 border border-gray-300 rounded-md"
                 />
               </div>
