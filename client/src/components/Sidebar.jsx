@@ -1,11 +1,50 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Logo from "../assets/logo/Logo.png";
 import BlankProfile from "../assets/image/elipse.png";
 import { RiSettings5Fill } from "react-icons/ri";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { formatUTCDateWithOrdinal, getDayName } from "../utils/timeUtils";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Sidebar = ({ isAdmin }) => {
+  const { user } = useAuth();
+
+  const [serverDate, setServerDate] = useState({
+    day: "",
+    date: "",
+  });
+
+  const fetchServerDate = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/serverDate`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      const result = await response.json();
+      setServerDate({
+        date: formatUTCDateWithOrdinal(result.serverDate),
+        day: getDayName(result.serverDate),
+      });
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchServerDate();
+  }, []);
+
   return (
     <aside className="w-[372px] min-h-screen p-4 shadow-lg flex flex-col justify-between">
       <div>
@@ -19,7 +58,9 @@ const Sidebar = ({ isAdmin }) => {
           {/* Date and time */}
           <div className="flex items-center gap-2 mb-2">
             <FaRegCalendarAlt className="text-xl" />
-            <span className="text-lg">Monday, 21st March, 2025</span>
+            <span className="text-lg">
+              {serverDate.day}, {serverDate.date}
+            </span>
           </div>
           <hr className="mb-8" />
 
@@ -105,10 +146,12 @@ const Sidebar = ({ isAdmin }) => {
             </NavLink>
             <div>
               <NavLink to={`${isAdmin ? "/AdminProfile" : "/UserProfile"}`}>
-                <h1 className="text-[22px]">James Bond</h1>
+                <h1 className="text-[20px]">
+                  {isAdmin ? user.username : user.name}
+                </h1>
               </NavLink>
               <NavLink to={`${isAdmin ? "/AdminProfile" : "/UserProfile"}`}>
-                <p className="text-sm">James@gmail.com</p>
+                <p className="text-sm">{user.email}</p>
               </NavLink>
             </div>
           </div>

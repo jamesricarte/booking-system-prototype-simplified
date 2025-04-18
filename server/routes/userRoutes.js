@@ -16,51 +16,58 @@ router.post("/login", async (req, res) => {
       Object.values(user).includes(undefined)
     ) {
       return res.status(400).json({ message: "All fields are required!" });
-      //⬆️ return the response if the if statement is true, meaning it will stop executing the code below
     }
 
-    db.query(
-      "SELECT * FROM users WHERE email = ?",
-      [user.email],
-      async (err, result) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ message: "Something went wrong.", error: err.message });
-        }
+    let query;
 
-        if (result.length === 0) {
-          return res.status(400).json({ message: "Invalid email or password" });
-        }
+    if (user.email === "admin") {
+      query = "SELECT * FROM users WHERE email = ?";
+    } else {
+      query = `SELECT u.id,
+      u.school_id,
+      p.school_id AS professor_school_id,
+      u.email, p.professor_name AS name,
+      u.password,
+      u.user_type
+      FROM users u
+      JOIN professors p ON u.school_id = p.id
+      WHERE u.email = ?`;
+    }
 
-        fetchedUser = result[0];
-
-        const passwordMatch =
-          user.email !== "admin"
-            ? await bcrypt.compare(user.password, fetchedUser.password)
-            : user.password === fetchedUser.password;
-
-        if (passwordMatch) {
-          res.status(200).json({
-            message: "Login successfull.",
-            fetchedUser: {
-              id: fetchedUser.id,
-              school_id: fetchedUser.school_id,
-              user_type: fetchedUser.user_type,
-            },
-          });
-        } else {
-          res.status(400).json({ message: "Incorrect password." });
-        }
+    db.query(query, [user.email], async (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong.", error: err.message });
       }
-    );
+
+      if (result.length === 0) {
+        return res.status(400).json({ message: "Invalid email or password" });
+      }
+
+      const fetchedUser = result[0];
+
+      const passwordMatch =
+        user.email !== "admin"
+          ? await bcrypt.compare(user.password, fetchedUser.password)
+          : user.password === fetchedUser.password;
+
+      if (passwordMatch) {
+        const { password, ...userWithoutPass } = fetchedUser;
+        res.status(200).json({
+          message: "Login successfull.",
+          fetchedUser: userWithoutPass,
+        });
+      } else {
+        res.status(400).json({ message: "Incorrect password." });
+      }
+    });
   } catch (error) {
     if (!res.headersSent) {
       res
         .status(500)
         .json({ message: "Internal server error", error: error.message });
     }
-    //Use this error handling in catch block ⬆️
   }
 });
 
@@ -74,7 +81,6 @@ router.post("/register", async (req, res) => {
       Object.values(user).includes(undefined)
     ) {
       return res.status(400).json({ message: "All fields are required!" });
-      //⬆️ return the response if the if statement is true, meaning it will stop executing the code below
     }
 
     if (user.password !== user.confirmPassword) {
@@ -180,8 +186,154 @@ router.post("/register", async (req, res) => {
         .status(500)
         .json({ message: "Internal server error", error: error.message });
     }
-    //Use this error handling in catch block ⬆️
   }
+});
+
+//Change password
+router.post("/changePassword", (req, res) => {
+  const changePasswordData = req.body;
+
+  if (
+    Object.values(changePasswordData).includes("") ||
+    Object.values(changePasswordData).includes(null) ||
+    Object.values(changePasswordData).includes(undefined)
+  ) {
+    return res.status(400).json({ message: "All fields are required!" });
+  }
+
+  db.query(
+    "SELECT password FROM users WHERE id = ?",
+    [changePasswordData.id],
+    async (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
+      }
+
+      if (result.length === 0) {
+        return res.status(400).json({ message: "Can't access user password?" });
+      }
+
+      const fetchedPassword = result[0].password;
+
+      const passwordMatch = await bcrypt.compare(
+        changePasswordData.currentPassword,
+        fetchedPassword
+      );
+
+      if (!passwordMatch) {
+        return res
+          .status(400)
+          .json({ message: "The current password does not match" });
+      } else {
+        if (
+          changePasswordData.newPassword !== changePasswordData.confirmPassword
+        ) {
+          return res
+            .status(400)
+            .json({ message: "Your confirmation password does not match" });
+        }
+
+        const isPasswordTheSame = await bcrypt.compare(
+          changePasswordData.newPassword,
+          fetchedPassword
+        );
+
+        if (isPasswordTheSame) {
+          return res.status(400).json({
+            message:
+              "The new password is same as the current password, please change for a new one",
+          });
+        }
+
+        if (
+          !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+            changePasswordData.newPassword
+          )
+        ) {
+          return res.status(400).json({
+            message:
+              "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.",
+          });
+        }
+
+        const hashedPassword = await bcrypt.hash(
+          changePasswordData.newPassword,
+          10
+        );
+
+        db.query(
+          "UPDATE users SET password = ? WHERE id = ?",
+          [hashedPassword, changePasswordData.id],
+          (err, result) => {
+            if (err) {
+              return res
+                .status(500)
+                .json({ message: "Something went wrong", error: err.message });
+            }
+
+            return res
+              .status(200)
+              .json({ message: "Password was updated successfully." });
+          }
+        );
+      }
+    }
+  );
+});
+
+//Update profile information
+router.put("/updateProfileInformation", (req, res) => {
+  profileUpdateData = req.body;
+
+  if (
+    Object.values(profileUpdateData).includes("") ||
+    Object.values(profileUpdateData).includes(null) ||
+    Object.values(profileUpdateData).includes(undefined)
+  ) {
+    return res.status(400).json({ message: "All fields are required!" });
+  }
+
+  db.query(
+    "SELECT email FROM users WHERE id = ?",
+    [profileUpdateData.id],
+    (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
+      }
+
+      if (result.length === 0) {
+        return res.status(400).json({ message: "User not found." });
+      }
+
+      const fetchedEmail = result[0].email;
+
+      if (profileUpdateData.email === fetchedEmail) {
+        return res.status(400).json({
+          message: "The email is just the same as the existing",
+        });
+      }
+
+      db.query(
+        "UPDATE users SET email = ? WHERE id = ?",
+        [profileUpdateData.email, profileUpdateData.id],
+        (err, result) => {
+          if (err) {
+            return res
+              .status(500)
+              .json({ message: "Something went wrong", error: err.message });
+          }
+
+          return res
+            .status(200)
+            .json({ message: "Successfully updated profile information!" });
+        }
+      );
+    }
+  );
 });
 
 router.put("/", (req, res) => {});

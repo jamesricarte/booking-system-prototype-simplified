@@ -168,52 +168,6 @@ router.get("/professor/:schoolId", (req, res) => {
   }
 });
 
-//Fetch User
-router.get("/user/:schoolId", (req, res) => {
-  const schoolId = req.params.schoolId;
-
-  db.query(
-    "SELECT * FROM users WHERE school_id = ?",
-    [schoolId],
-    (err, result) => {
-      if (err) {
-        return res
-          .status(500)
-          .json({ message: "Error fetching user", error: err.message });
-      }
-
-      if (result.length === 0) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      const { password, ...userData } = result[0]; // exclude password
-      return res.status(200).json({ user: userData });
-    }
-  );
-});
-
-// Fetch Admin
-router.get("/admin", (req, res) => {
-  db.query(
-    "SELECT id, username, email, school_id FROM users WHERE user_type = 0 LIMIT 1",
-    (err, result) => {
-      if (err) {
-        return res.status(500).json({
-          message: "Error fetching admin",
-          error: err.message,
-        });
-      }
-
-      if (result.length === 0) {
-        return res.status(404).json({ message: "Admin not found" });
-      }
-
-      const { password, ...admin } = result[0];
-      return res.status(200).json({ admin });
-    }
-  );
-});
-
 //Fetch occupancy history
 router.get("/occupancyHistory", (req, res) => {
   try {

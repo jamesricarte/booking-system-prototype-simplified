@@ -2,7 +2,7 @@ const express = require("express");
 const db = require("../config/db");
 const router = express.Router();
 
-//Fetch Bookings
+//Fetch Bookings for specific room and date
 router.get("/bookings/:id", (req, res) => {
   try {
     const roomId = req.params.id;
@@ -10,12 +10,14 @@ router.get("/bookings/:id", (req, res) => {
       `SELECT b.id AS booking_id,
       r.room_number,
       p.professor_name,
+      p.id AS professor_id,
       c.class_name,
       b.start_time AS start_time_id,
       t1.time AS start_time,
       b.end_time AS end_time_id,
       t2.time AS end_time,
       b.purpose,
+      booking_type,
       b.date,
       b.created_at 
       FROM bookings b
@@ -54,156 +56,268 @@ router.get("/bookings/:id", (req, res) => {
   }
 });
 
+//Check availability for all rooms
+router.get("/roomBookingAvailability", (req, res) => {
+  db.query(
+    `SELECT b.id,
+    b.room_id,
+    t1.time AS start_time,
+    t2.time AS end_time,
+    p.professor_name
+    FROM bookings b 
+    JOIN timeslots t1 ON b.start_time = t1.id
+    JOIN timeslots t2 ON b.end_time = t2.id
+    JOIN professors p ON b.professor_id = p.id
+    WHERE b.date = CURRENT_DATE()`,
+    (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
+      }
+
+      if (result.length === 0) {
+        return res.status(400).json({ message: "No bookings found." });
+      }
+
+      const fetchedBookings = result;
+
+      return res.status(200).json({
+        message: "Successfully fetched bookings for all rooms",
+        roomBookings: fetchedBookings,
+      });
+    }
+  );
+});
+
 //bookNow
 router.post("/newBooking", (req, res) => {
-  try {
-    const booking = req.body;
+  const booking = req.body;
 
-    if (
-      Object.values(booking).includes("") ||
-      Object.values(booking).includes(null) ||
-      Object.values(booking).includes(undefined)
-    ) {
-      return res.status(400).json({ message: "All fields are required!" });
-    }
+  if (
+    Object.values(booking).includes("") ||
+    Object.values(booking).includes(null) ||
+    Object.values(booking).includes(undefined)
+  ) {
+    return res.status(400).json({ message: "All fields are required!" });
+  }
 
-    if (parseInt(booking.endTime) <= parseInt(booking.startTime)) {
-      return res
-        .status(400)
-        .json({ message: "Start time must be before end time!" });
-    }
+  if (parseInt(booking.endTime) <= parseInt(booking.startTime)) {
+    return res
+      .status(400)
+      .json({ message: "Start time must be before end time!" });
+  }
 
-    db.query(
-      "SELECT * FROM bookings WHERE date = CURRENT_DATE() AND room_id = ? AND NOT ( ? <= start_time OR ? >= end_time)",
-      [booking.roomId, booking.endTime, booking.startTime],
-      async (err, result) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ message: "Something went wrong", error: err.message });
-        }
+  db.query(
+    "SELECT * FROM bookings WHERE date = CURRENT_DATE() AND room_id = ? AND NOT ( ? <= start_time OR ? >= end_time)",
+    [booking.roomId, booking.endTime, booking.startTime],
+    async (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
+      }
 
-        if (result.length > 0) {
-          return res
-            .status(400)
-            .json({ message: "The selected time period was already booked." });
-        } else {
-          db.query(
-            "INSERT INTO bookings (room_id, professor_id, class_id, start_time, end_time, purpose, date) VALUES (?, ?, ? ,?, ?, ?, NOW())",
-            [
-              booking.roomId,
-              booking.professorId,
-              booking.classId,
-              booking.startTime,
-              booking.endTime,
-              booking.purpose,
-            ],
-            async (err, result) => {
-              if (err) {
-                return res.status(500).json({
-                  message: "Something went wrong",
-                  error: err.message,
-                });
-              }
-
-              if (!result) {
-                return res
-                  .status(500)
-                  .json({ message: "Error adding booking", error: result });
-              }
-
-              res.status(201).json({
-                message: "Your booking has been successfully added!",
-                result,
+      if (result.length > 0) {
+        return res
+          .status(400)
+          .json({ message: "The selected time period was already booked." });
+      } else {
+        db.query(
+          "INSERT INTO bookings (room_id, professor_id, class_id, start_time, end_time, purpose, booking_type, date) VALUES (?, ?, ? ,?, ?, ?, ?, NOW())",
+          [
+            booking.roomId,
+            booking.professorId,
+            booking.classId,
+            booking.startTime,
+            booking.endTime,
+            booking.purpose,
+            booking.booking_type,
+          ],
+          async (err, result) => {
+            if (err) {
+              return res.status(500).json({
+                message: "Something went wrong",
+                error: err.message,
               });
             }
-          );
-        }
+
+            if (!result) {
+              return res
+                .status(500)
+                .json({ message: "Error adding booking", error: result });
+            }
+
+            res.status(201).json({
+              message: "Your booking has been successfully added!",
+              result,
+            });
+          }
+        );
       }
-    );
-  } catch (error) {
-    if (!res.headersSent) {
-      res
-        .status(500)
-        .json({ message: "Internal Server Error", error: error.message });
     }
-  }
+  );
 });
 
 //Reserve Booking
 router.post("/reserveBooking", (req, res) => {
-  try {
-    const booking = req.body;
+  const booking = req.body;
 
-    if (
-      Object.values(booking).includes("") ||
-      Object.values(booking).includes(null) ||
-      Object.values(booking).includes(undefined)
-    ) {
-      return res.status(400).json({ message: "All fields are required!" });
-    }
+  if (
+    Object.values(booking).includes("") ||
+    Object.values(booking).includes(null) ||
+    Object.values(booking).includes(undefined)
+  ) {
+    return res.status(400).json({ message: "All fields are required!" });
+  }
 
-    if (parseInt(booking.endTime) <= parseInt(booking.startTime)) {
-      return res
-        .status(400)
-        .json({ message: "Start time must be before end time!" });
-    }
+  if (parseInt(booking.endTime) <= parseInt(booking.startTime)) {
+    return res
+      .status(400)
+      .json({ message: "Start time must be before end time!" });
+  }
 
-    db.query(
-      "SELECT * FROM bookings WHERE date = CURRENT_DATE() AND room_id = ? AND NOT ( ? <= start_time OR ? >= end_time)",
-      [booking.roomId, booking.endTime, booking.startTime],
-      async (err, result) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ message: "Something went wrong", error: err.message });
-        }
+  db.query(
+    "SELECT * FROM bookings WHERE date = CURRENT_DATE() AND room_id = ? AND NOT ( ? <= start_time OR ? >= end_time)",
+    [booking.roomId, booking.endTime, booking.startTime],
+    async (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
+      }
 
-        if (result.length > 0) {
-          return res
-            .status(400)
-            .json({ message: "The selected time period was already booked." });
-        } else {
-          db.query(
-            "INSERT INTO bookings (room_id, professor_id, class_id, start_time, end_time, purpose, date) VALUES (?, ?, ? ,?, ?, ?, NOW())",
-            [
-              booking.roomId,
-              booking.professorId,
-              booking.classId,
-              booking.startTime,
-              booking.endTime,
-              booking.purpose,
-            ],
-            async (err, result) => {
-              if (err) {
-                return res.status(500).json({
-                  message: "Something went wrong",
-                  error: err.message,
-                });
-              }
-
-              if (!result) {
-                return res
-                  .status(500)
-                  .json({ message: "Error adding booking", error: result });
-              }
-
-              res.status(201).json({
-                message: "Your reservation has been successfully confirmed!",
-                result,
+      if (result.length > 0) {
+        return res
+          .status(400)
+          .json({ message: "The selected time period was already booked." });
+      } else {
+        db.query(
+          "INSERT INTO bookings (room_id, professor_id, class_id, start_time, end_time, purpose, booking_type, date) VALUES (?, ?, ? ,?, ?, ?, ?, NOW())",
+          [
+            booking.roomId,
+            booking.professorId,
+            booking.classId,
+            booking.startTime,
+            booking.endTime,
+            booking.purpose,
+            booking.booking_type,
+          ],
+          async (err, result) => {
+            if (err) {
+              return res.status(500).json({
+                message: "Something went wrong",
+                error: err.message,
               });
             }
-          );
-        }
+
+            if (!result) {
+              return res
+                .status(500)
+                .json({ message: "Error adding booking", error: result });
+            }
+
+            res.status(201).json({
+              message: "Your reservation has been successfully confirmed!",
+              result,
+            });
+          }
+        );
       }
-    );
-  } catch (error) {
-    if (!res.headersSent) {
-      res
-        .status(500)
-        .json({ message: "Internal Server Error", error: error.message });
     }
-  }
+  );
+});
+
+//Update booking type
+router.put("/updateBookingType", (req, res) => {
+  const { toBeUpdated, type, roomId } = req.body;
+  db.query(
+    "UPDATE bookings SET booking_type = 'current_book' WHERE id = ?",
+    [toBeUpdated],
+    (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
+      }
+
+      if (!result) {
+        return res
+          .status(400)
+          .json({ message: "Some problem occured", result });
+      }
+
+      db.query(
+        `UPDATE bookings SET booking_type = 'past' WHERE id ${
+          type === "updatePrevious" ? "<" : "<="
+        } ? AND booking_type = 'current_book' AND room_id = ? AND date = CURRENT_DATE()`,
+        [toBeUpdated, roomId],
+        (err, result) => {
+          if (err) {
+            res
+              .status(500)
+              .json({ message: "Something went wrong", error: err.message });
+          }
+
+          if (!result) {
+            return res
+              .status(400)
+              .json({ message: "Some problem occured", result });
+          }
+
+          return res
+            .status(200)
+            .json({ message: "Successfully updated booking type", result });
+        }
+      );
+    }
+  );
+});
+
+router.get("/checkUserOccupancy/:professorId", (req, res) => {
+  const professorId = req.params.professorId;
+
+  db.query(
+    `SELECT b.id AS booking_id,
+    p.professor_name,
+    c.class_name,
+    t1.time AS start_time,
+    t2.time AS end_time,
+    b.purpose
+    FROM bookings b
+    JOIN professors p ON b.professor_id = p.id
+    JOIN classes c ON b.class_id = c.id
+    JOIN timeslots t1 ON b.start_time = t1.id
+    JOIN timeslots t2 ON b.end_time = t2.id
+    WHERE b.professor_id = ? 
+    AND b.booking_type = 'current_book'
+    AND b.date = CURRENT_DATE()`,
+    [professorId],
+    (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
+      }
+
+      if (result.length === 0) {
+        return res.status(400).json({ message: "No occupancy yet" });
+      }
+
+      if (result.length > 1) {
+        return res.status(200).json({
+          multipleOccupancy: true,
+          message: "Multiple Occupancy detected!",
+          occupancyData: result,
+        });
+      }
+
+      return res.status(200).json({
+        message: "User have occupancy already",
+        occupancyData: result,
+      });
+    }
+  );
 });
 
 module.exports = router;

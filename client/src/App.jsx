@@ -1,6 +1,7 @@
 import React from "react";
 import "./styles/App.css";
 import { Routes, Route } from "react-router-dom";
+import RedirectOnLoad from "./components/RedirectOnLoad";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
 import DashboardProtectedRoute from "./components/DashboardProtectedRoute";
@@ -21,7 +22,7 @@ const App = () => {
   return (
     <Routes>
       {/* Auth */}
-      <Route path="/" element={<Login />}></Route>
+      <Route path="/" element={<RedirectOnLoad />}></Route>
       <Route path="/login" element={<Login />}></Route>
       <Route path="/register" element={<Register />}></Route>
 

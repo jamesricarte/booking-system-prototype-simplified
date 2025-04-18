@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const useRoomPosts = () => {
+const useRoomRequests = () => {
   //Form States
   const [bookNowFormData, setBookNowFormData] = useState({
     startTime: "",
@@ -11,6 +11,7 @@ const useRoomPosts = () => {
     purpose: "",
     roomId: "",
     professorId: "",
+    booking_type: "current_book",
   });
   const [reserveBookingFormData, setReserveBookingFromData] = useState({
     startTime: "",
@@ -19,6 +20,7 @@ const useRoomPosts = () => {
     purpose: "",
     roomId: "",
     professorId: "",
+    booking_type: "reservation",
   });
 
   //Response message states
@@ -151,4 +153,4 @@ const useRoomPosts = () => {
   };
 };
 
-export default useRoomPosts;
+export default useRoomRequests;

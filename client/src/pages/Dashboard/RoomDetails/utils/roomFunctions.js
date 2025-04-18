@@ -3,9 +3,9 @@ export const getNearestTimeSlot = () => {
   let hours = now.getHours();
   let minutes = now.getMinutes();
 
-  if (minutes < 25) {
+  if (minutes < 30) {
     minutes = 0;
-  } else if (minutes >= 55) {
+  } else if (minutes >= 59) {
     hours++;
     minutes = 0;
   } else {
@@ -16,9 +16,9 @@ export const getNearestTimeSlot = () => {
 };
 
 export const nearestTimeInTimeSlotFunction = (hours, minutes) => {
-  if (minutes < 25) {
+  if (minutes < 30) {
     minutes = 0;
-  } else if (minutes >= 55) {
+  } else if (minutes >= 59) {
     hours++;
     minutes = 0;
   } else {

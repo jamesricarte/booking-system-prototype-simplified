@@ -1,13 +1,13 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const AdminDashboard = () => {
   return (
-    <main className="container w-full h-full overflow-y-auto bg-white">
+    <main className="container h-full bg-white">
       <div className="p-4">
         <h1 className="text-xl">Admin Dashboard Section</h1>
       </div>
       <hr />
-      <div className="px-10 py-7">
+      <div className="px-10 py-7 overflow-y-auto h-[78vh]">
         <div className="grid grid-cols-2 gap-8">
           <Link className="shadow-md p-28 bg-[#F5F5F5] flex items-center justify-center rounded-lg text-[27px] text-center">
             System Summary

@@ -74,7 +74,7 @@ const Register = () => {
         if (message.type === "success") {
           setTimeout(() => {
             navigate("/login");
-          }, 1500);
+          }, 2000);
         }
       }, Math.max(0, minimumTime - elapsedTime));
     }
@@ -82,10 +82,14 @@ const Register = () => {
 
   return (
     <main className="flex">
-      <div className="h-screen">
-        <img src={BackGroundBu} alt="" className="object-cover w-full h-full" />
+      <div className="w-[70vw] 2xl:w-[65vw] min-h-screen">
+        <img
+          src={BackGroundBu}
+          alt=""
+          className="object-cover w-full h-full opacity-80"
+        />
       </div>
-      <div className="flex flex-col flex-grow px-4 py-16">
+      <div className="flex flex-col justify-center flex-grow px-4 my-12">
         <div className="flex items-center px-8">
           <img
             src={Logo}
@@ -149,13 +153,13 @@ const Register = () => {
                 response.type === "success" ? "text-green-500" : "text-red-500"
               }`}
             >
-              {response.message}
+              {response.message}... Redirecting to login
             </p>
           )}
           <Input
             type="submit"
-            value="Register Account"
-            className=" bg-[#B3E5FC] p-4 rounded-md"
+            value="Register"
+            className=" bg-[#B3E5FC] p-4 rounded-md cursor-pointer"
           />
         </form>
         <p className="mb-4 text-lg text-center">
@@ -164,8 +168,8 @@ const Register = () => {
             Login
           </Link>
         </p>
-        <div className="mt-auto">
-          <p className="mt-auto text-sm text-center">
+        <div className="mt-12">
+          <p className="text-sm text-center">
             © 2025 BUCENG | All Rights Reserved{" "}
           </p>
         </div>
