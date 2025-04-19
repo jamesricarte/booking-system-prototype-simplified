@@ -51,6 +51,31 @@ const HistoryOfOccupancy = () => {
     }
   };
 
+  const handleSearchChange = (event) => {
+    const searchTerm = event.target.value.toLowerCase();
+    if (searchTerm) {
+      const filteredData = historyData.filter((entry) => {
+        return (
+          String(entry.room_number).toLowerCase().includes(searchTerm) ||
+          entry.class_name.toLowerCase().includes(searchTerm) ||
+          entry.professor_name.toLowerCase().includes(searchTerm) ||
+          convertTimeTo12HourFormat(entry.start_time)
+            .toLowerCase()
+            .includes(searchTerm) ||
+          convertTimeTo12HourFormat(entry.end_time)
+            .toLowerCase()
+            .includes(searchTerm) ||
+          convertUTCDateToSameTimezone(entry.date)
+            .toLowerCase()
+            .includes(searchTerm)
+        );
+      });
+      setHistoryData(filteredData);
+    } else {
+      fetchHistoryOccupancy();
+    }
+  };
+
   useEffect(() => {
     fetchHistoryOccupancy();
   }, []);
@@ -70,6 +95,7 @@ const HistoryOfOccupancy = () => {
                 type="text"
                 className="border-b border-black focus:outline-none w-full"
                 placeholder="Type to search..."
+                onChange={handleSearchChange}
               />
             </div>
             <div className="flex items-center">
