@@ -1,6 +1,6 @@
 import React from "react";
 import "./styles/App.css";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import RedirectOnLoad from "./components/RedirectOnLoad";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
@@ -19,6 +19,8 @@ import Users from "./pages/AdminDashboard/Users/users";
 import AdminProfile from "./pages/AdminDashboard/AdminProfile/AdminProfile";
 
 const App = () => {
+  const location = useLocation();
+
   return (
     <Routes>
       {/* Auth */}
@@ -36,7 +38,10 @@ const App = () => {
       >
         <Route path="/dashboard" element={<Dashboard />}></Route>
         <Route path="/bookings" element={<Bookings />}></Route>
-        <Route path="/room/:id" element={<RoomDetails />}></Route>
+        <Route
+          path="/room/:id"
+          element={<RoomDetails key={location.key} />}
+        ></Route>
         <Route path="/userProfile" element={<UserProfile />}></Route>
       </Route>
 

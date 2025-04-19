@@ -13,7 +13,6 @@ const useRoomFetches = (roomId) => {
   const [bookingsPurposes, setBookingsPurposes] = useState([]);
   const [serverDate, setServerDate] = useState(null);
   const [professor, setProfessor] = useState(null);
-  const [userOccupancyData, setUserOccupancyData] = useState([]);
 
   const { user } = useAuth();
   const schoolId = user.school_id;
@@ -173,25 +172,6 @@ const useRoomFetches = (roomId) => {
     }
   };
 
-  const checkUserOccupancy = async () => {
-    try {
-      const response = await fetch(
-        `${API_URL}/api/checkUserOccupancy/${schoolId}`
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw errorData;
-      }
-
-      const result = await response.json();
-      setUserOccupancyData(result.occupancyData);
-    } catch (error) {
-      setUserOccupancyData([]);
-      console.error(error.message);
-    }
-  };
-
   useEffect(() => {
     const fetchData = async () => {
       await Promise.all([
@@ -202,7 +182,6 @@ const useRoomFetches = (roomId) => {
         fetchBookingPurposes(),
         fetchServerDate(),
         fetchProfessor(),
-        checkUserOccupancy(),
       ]);
     };
     fetchData();
@@ -217,8 +196,6 @@ const useRoomFetches = (roomId) => {
     serverDate,
     professor,
     fetchBookings,
-    userOccupancyData,
-    checkUserOccupancy,
   };
 };
 

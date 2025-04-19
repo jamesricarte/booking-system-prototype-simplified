@@ -17,15 +17,20 @@ import useRoomRequests from "./hooks/useRoomRequests";
 import { IoIosArrowRoundBack } from "react-icons/io";
 import { IoMdTime } from "react-icons/io";
 import { useAuth } from "../../../context/AuthContext";
+import { useBooking } from "../../../context/BookingContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const RoomDetails = () => {
   //React router dom states
   const { id } = useParams();
-  const roomId = id;
-
+  const roomId = parseInt(id);
   const { user } = useAuth();
+  const {
+    userOccupancyData,
+    userOccupancyRemainingTime,
+    findUserOccupancyData,
+  } = useBooking();
 
   const {
     roomDetails,
@@ -36,8 +41,6 @@ const RoomDetails = () => {
     serverDate,
     professor,
     fetchBookings,
-    userOccupancyData,
-    checkUserOccupancy,
   } = useRoomFetches(roomId);
 
   const {
@@ -50,196 +53,6 @@ const RoomDetails = () => {
     bookingMessage,
     loading,
   } = useRoomRequests();
-
-  //Form Spread Operators
-
-  // Modal States
-  const [bookNowModal, setBookNowModal] = useState(false);
-  const [reserveModal, setReserveModal] = useState(false);
-
-  //Response message states
-  const [roomAvailability, setRoomAvailability] = useState({
-    status: true,
-    message: "",
-    type: "",
-  });
-
-  //Other States
-  const [currentTimePosition, setCurrentTimePosition] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [nearestTimeInTimeslot, setNearestTimeInTimeSlot] = useState(null);
-  const [selectedBooking, setSelectedBooking] = useState(null);
-  const [selectedBookingPosition, setSelectedBookingPosition] = useState(null);
-  const [filteredStartTimeSlots, setFilteredStartTimeslots] = useState([]);
-  const [filteredEndTimeSlots, setFilteredEndTimeslots] = useState([]);
-  const [
-    filteredEndTimeSlotsForReservation,
-    setFilteredEndTimeSlotsForReservation,
-  ] = useState([]);
-  const [isTimeSlotAvailableForBookNow, setIsTimeSlotAvailableForBookNow] =
-    useState(true);
-  const [
-    isTimeSlotAvailableForReserveBooking,
-    setIsTimeSlotAvailableForReserveBooking,
-  ] = useState(true);
-  const [isRoomAvailableForBooking, setIsRoomAvailableForBooking] =
-    useState(true);
-  const [occupantBookingDetail, setOccupantBookingDetail] = useState({});
-  const [isOccupantTheUser, setIsOccupantTheUser] = useState(false);
-  const [occupantRemainingTime, setOccupantRemainingTime] = useState({
-    hours: 0,
-    minutes: 0,
-  });
-
-  //Other Declarations
-  const isBookingsFetchedRef = useRef(false);
-  const lastMinuteRef = useRef(null);
-  const scrollableDivRef = useRef(null);
-  const hasScrolledInitially = useRef(false);
-  const initialTimePosition = 22.5;
-  const timeslotDistance = 48;
-
-  //useEffect section
-  useEffect(() => {
-    if (
-      scrollableDivRef.current &&
-      currentTimePosition > 0 &&
-      !hasScrolledInitially.current
-    ) {
-      const container = scrollableDivRef.current;
-      const containerHeight = container.clientHeight;
-
-      setTimeout(() => {
-        container.scrollTop = Math.max(
-          currentTimePosition - containerHeight / 2,
-          0
-        );
-        hasScrolledInitially.current = true;
-      }, 100);
-    }
-  }, [currentTimePosition]);
-
-  useEffect(() => {
-    const scrollableDiv = scrollableDivRef.current;
-    if (scrollableDiv) {
-      scrollableDiv.addEventListener("scroll", updatePosition);
-    }
-
-    return () => {
-      if (scrollableDiv) {
-        scrollableDiv.removeEventListener("scroll", updatePosition);
-      }
-    };
-  });
-
-  useEffect(() => {
-    const filteredTimeSlots = timeslots.filter(
-      (timeslot) => convertTimeToMinutes(timeslot.time) >= getNearestTimeSlot()
-    );
-
-    setFilteredStartTimeslots(
-      filteredTimeSlots.length > 1 ? filteredTimeSlots : timeslots.slice(-2)
-    );
-    setFilteredEndTimeslots(
-      filteredTimeSlots.length > 1
-        ? filteredTimeSlots.slice(1)
-        : timeslots.slice(-1)
-    );
-    setFilteredEndTimeSlotsForReservation(
-      filteredTimeSlots.length > 1
-        ? filteredTimeSlots.slice(1)
-        : timeslots.slice(-1)
-    );
-  }, [timeslots, roomAvailability, nearestTimeInTimeslot]);
-
-  useEffect(() => {
-    setBookNowFormData((prevData) => ({
-      ...prevData,
-      startTime: filteredStartTimeSlots[0]?.id,
-      endTime: filteredEndTimeSlots[0]?.id,
-      classId: classes[0]?.id,
-      purpose: "Lecture",
-      roomId: roomDetails?.id,
-      professorId: professor?.id,
-    }));
-    setReserveBookingFromData((prevData) => ({
-      ...prevData,
-      startTime: filteredStartTimeSlots[0]?.id,
-      endTime: filteredEndTimeSlotsForReservation[0]?.id,
-      classId: classes[0]?.id,
-      purpose: "Lecture",
-      roomId: roomDetails?.id,
-      professorId: professor?.id,
-    }));
-  }, [
-    filteredStartTimeSlots,
-    filteredEndTimeSlots,
-    filteredEndTimeSlotsForReservation,
-    classes,
-    roomDetails,
-  ]);
-
-  useEffect(() => {
-    if (reserveBookingFormData.startTime) {
-      const nextAvailableEndTime = filteredEndTimeSlotsForReservation.find(
-        (timeslot) => timeslot.id > parseInt(reserveBookingFormData.startTime)
-      );
-      if (nextAvailableEndTime) {
-        setReserveBookingFromData((prevData) => ({
-          ...prevData,
-          endTime: nextAvailableEndTime.id,
-        }));
-      }
-    }
-  }, [reserveBookingFormData.startTime]);
-
-  useEffect(() => {
-    checkAvailability("bookNow");
-  }, [bookNowFormData.startTime, bookNowFormData.endTime, bookings]);
-
-  useEffect(() => {
-    checkAvailability("reserveBooking");
-  }, [
-    reserveBookingFormData.startTime,
-    reserveBookingFormData.endTime,
-    bookings,
-  ]);
-
-  useEffect(() => {
-    setRoomAvailability(
-      checkRoomAvailability()
-        ? {
-            status: false,
-            message: "Occupied",
-            type: "occupied",
-          }
-        : { status: true, message: "Vacant", type: "available" }
-    );
-  }, [currentTimePosition, bookings]);
-
-  useEffect(() => {
-    if (
-      (bookingMessage.isBookingMessageAvaialable && bookNowModal) ||
-      (bookingMessage.isBookingMessageAvaialable && reserveModal)
-    ) {
-      setBookNowModal(false);
-      setReserveModal(false);
-      fetchBookings();
-    }
-  }, [bookingMessage, loading]);
-
-  useEffect(() => {
-    updateCurrentTime();
-    const interval = setInterval(updateCurrentTime, 1000);
-
-    return () => clearInterval(interval);
-  }, [isRoomAvailableForBooking, bookings]);
-
-  useEffect(() => {
-    if (bookings.length > 0) {
-      checkBookingTypeChanges();
-    }
-  }, [currentTime]);
 
   //Post Request for updating booking type
   const updateBookingsType = async (updateToCurrentBook, type) => {
@@ -268,37 +81,87 @@ const RoomDetails = () => {
     }
   };
 
-  //Functions
-  const checkBookingTypeChanges = () => {
-    const isBookingTypeCorrect = bookings.some((booking) => {
-      return (
-        currentTime >= convertTimeToMinutes(booking.start_time) &&
-        currentTime < convertTimeToMinutes(booking.end_time) &&
-        booking.booking_type === "current_book"
-      );
-    });
-    const checkPreviousCurrentBook = bookings.find((booking) => {
-      return (
-        currentTime >= convertTimeToMinutes(booking.end_time) &&
-        booking.booking_type === "current_book"
-      );
-    });
-    if (checkPreviousCurrentBook) {
-      updateBookingsType(checkPreviousCurrentBook.booking_id, "updateCurrent");
-    }
-    if (!isBookingTypeCorrect) {
-      const updateToCurrentBook = bookings.find((booking) => {
-        return (
-          currentTime >= convertTimeToMinutes(booking.start_time) &&
-          currentTime < convertTimeToMinutes(booking.end_time) &&
-          booking.booking_type === "reservation"
-        );
-      });
-      if (updateToCurrentBook) {
-        updateBookingsType(updateToCurrentBook.booking_id, "updatePrevious");
-      }
-    }
-  };
+  // Modal States
+  const [bookNowModal, setBookNowModal] = useState(false);
+  const [reserveModal, setReserveModal] = useState(false);
+
+  //Tooltip Hover
+  const [showBookingButtonToolTip, setShowBookingButtonToolTip] =
+    useState(false);
+  const [
+    showBookingReservationButtonToolTip,
+    setShowBookingReservationButtonToolTip,
+  ] = useState(false);
+
+  //States
+  //Data of nearest timeslot in current time
+  const [nearestTimeInTimeslot, setNearestTimeInTimeSlot] = useState(null);
+
+  //For calculating the position of time indicator in scrollable div
+  const [currentTimePosition, setCurrentTimePosition] = useState(0);
+
+  //If booking for all rooms is elligible
+  const [isRoomAvailableForBooking, setIsRoomAvailableForBooking] =
+    useState(true);
+
+  //Current time in total minutes
+  const [currentTime, setCurrentTime] = useState(0);
+
+  //For booking detail popup
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedBookingPosition, setSelectedBookingPosition] = useState(null);
+
+  //If specific room is occupied or not
+  const [roomAvailability, setRoomAvailability] = useState({
+    status: true,
+    message: "",
+    type: "",
+  });
+
+  //For filtering the timeslots based from the current time
+  const [filteredStartTimeSlots, setFilteredStartTimeslots] = useState([]);
+  const [filteredEndTimeSlots, setFilteredEndTimeslots] = useState([]);
+  const [
+    filteredEndTimeSlotsForReservation,
+    setFilteredEndTimeSlotsForReservation,
+  ] = useState([]);
+
+  //If booking now is possible
+  const [isTimeSlotAvailableForBookNow, setIsTimeSlotAvailableForBookNow] =
+    useState(true);
+
+  //if the selected start time and end time is not conflicting with any bookings or reservations
+  const [
+    isTimeSlotAvailableForReserveBooking,
+    setIsTimeSlotAvailableForReserveBooking,
+  ] = useState(true);
+
+  //For getting the detail of occupant of this room
+  const [occupantBookingDetail, setOccupantBookingDetail] = useState(null);
+
+  //Remaining time data of occupant before checkout
+  const [occupantRemainingTime, setOccupantRemainingTime] = useState({
+    hours: 0,
+    minutes: 0,
+  });
+
+  //Other Declarations
+  const isBookingsFetchedRef = useRef(false);
+  const lastMinuteRef = useRef(null);
+  const scrollableDivRef = useRef(null);
+  const hasScrolledInitially = useRef(false);
+  const initialTimePosition = 43;
+  const timeslotDistance = 56;
+
+  // ---------------- useEffect and Functions Section ----------------
+
+  //Running updateCurrentTime function every second to keep the system realtime
+  useEffect(() => {
+    updateCurrentTime();
+    const interval = setInterval(updateCurrentTime, 1000);
+
+    return () => clearInterval(interval);
+  }, [isRoomAvailableForBooking, bookings]);
 
   const updateCurrentTime = () => {
     const now = new Date();
@@ -332,6 +195,87 @@ const RoomDetails = () => {
     }
   };
 
+  //Checking every minute if the type of current booking is correct, then change it in database if not correct
+  useEffect(() => {
+    checkBookingTypeChanges();
+  }, [currentTime]);
+
+  const checkBookingTypeChanges = () => {
+    const isBookingTypeCorrect = bookings.some((booking) => {
+      return (
+        currentTime >= convertTimeToMinutes(booking.start_time) &&
+        currentTime < convertTimeToMinutes(booking.end_time) &&
+        booking.booking_type === "current_book"
+      );
+    });
+    const checkPreviousCurrentBook = bookings.find((booking) => {
+      return (
+        currentTime >= convertTimeToMinutes(booking.end_time) &&
+        booking.booking_type === "current_book"
+      );
+    });
+    if (checkPreviousCurrentBook) {
+      updateBookingsType(checkPreviousCurrentBook.booking_id, "updateCurrent");
+    }
+    if (!isBookingTypeCorrect) {
+      const updateToCurrentBook = bookings.find((booking) => {
+        return (
+          currentTime >= convertTimeToMinutes(booking.start_time) &&
+          currentTime < convertTimeToMinutes(booking.end_time) &&
+          booking.booking_type === "reservation"
+        );
+      });
+      if (updateToCurrentBook) {
+        updateBookingsType(updateToCurrentBook.booking_id, "updatePrevious");
+      }
+    }
+  };
+
+  //Centering the scrollableDiv scroll's position to current time
+  useEffect(() => {
+    if (
+      scrollableDivRef.current &&
+      currentTimePosition > 0 &&
+      !hasScrolledInitially.current
+    ) {
+      const container = scrollableDivRef.current;
+      const containerHeight = container.clientHeight;
+
+      setTimeout(() => {
+        container.scrollTop = Math.max(
+          currentTimePosition - containerHeight / 2,
+          0
+        );
+        hasScrolledInitially.current = true;
+      }, 100);
+    }
+  }, [currentTimePosition]);
+
+  //Linking the position of booking details popup to bookings
+  useEffect(() => {
+    const scrollableDiv = scrollableDivRef.current;
+    if (scrollableDiv) {
+      scrollableDiv.addEventListener("scroll", updatePosition);
+    }
+
+    return () => {
+      if (scrollableDiv) {
+        scrollableDiv.removeEventListener("scroll", updatePosition);
+      }
+    };
+  });
+
+  //Select the clicked booking
+  const handleSelectedBookingClick = (booking, event) => {
+    const bookingRect = event.target.getBoundingClientRect();
+
+    setSelectedBooking(booking);
+    setSelectedBookingPosition({
+      top: bookingRect.top + window.scrollY,
+      left: bookingRect.left + bookingRect.width * 1.9,
+    });
+  };
+
   const updatePosition = () => {
     if (selectedBooking) {
       const bookingElement = document.getElementById(
@@ -358,15 +302,109 @@ const RoomDetails = () => {
     }
   };
 
-  const handleSelectedBookingClick = (booking, event) => {
-    const bookingRect = event.target.getBoundingClientRect();
+  //Checking if room is occupied or not
+  useEffect(() => {
+    setRoomAvailability(
+      checkRoomAvailability()
+        ? {
+            status: false,
+            message: "Occupied",
+            type: "occupied",
+          }
+        : { status: true, message: "Vacant", type: "available" }
+    );
+  }, [currentTimePosition, bookings]);
 
-    setSelectedBooking(booking);
-    setSelectedBookingPosition({
-      top: bookingRect.top + window.scrollY,
-      left: bookingRect.left + bookingRect.width * 1.9,
+  const checkRoomAvailability = () => {
+    const currentMinutes =
+      ((currentTimePosition - initialTimePosition) / timeslotDistance) * 30;
+
+    return bookings.some((booking) => {
+      const startMinutes = convertTimeToMinutes(booking.start_time) - 420;
+      const endMinutes = convertTimeToMinutes(booking.end_time) - 420;
+
+      return currentMinutes >= startMinutes && currentMinutes < endMinutes;
     });
   };
+
+  //Filtering the timeslots from current time
+  useEffect(() => {
+    const filteredTimeSlots = timeslots.filter(
+      (timeslot) => convertTimeToMinutes(timeslot.time) >= getNearestTimeSlot()
+    );
+
+    setFilteredStartTimeslots(
+      filteredTimeSlots.length > 1 ? filteredTimeSlots : timeslots.slice(-2)
+    );
+    setFilteredEndTimeslots(
+      filteredTimeSlots.length > 1
+        ? filteredTimeSlots.slice(1)
+        : timeslots.slice(-1)
+    );
+    setFilteredEndTimeSlotsForReservation(
+      filteredTimeSlots.length > 1
+        ? filteredTimeSlots.slice(1)
+        : timeslots.slice(-1)
+    );
+  }, [timeslots, roomAvailability, nearestTimeInTimeslot]);
+
+  //Initially, setting the values of bookNow and reserveBooking form data from filtered timeslots
+  useEffect(() => {
+    setBookNowFormData((prevData) => ({
+      ...prevData,
+      startTime: filteredStartTimeSlots[0]?.id,
+      endTime: filteredEndTimeSlots[0]?.id,
+      classId: classes[0]?.id,
+      purpose: "Lecture",
+      roomId: roomDetails?.id,
+      professorId: professor?.id,
+    }));
+    setReserveBookingFromData((prevData) => ({
+      ...prevData,
+      startTime: filteredStartTimeSlots[0]?.id,
+      endTime: filteredEndTimeSlotsForReservation[0]?.id,
+      classId: classes[0]?.id,
+      purpose: "Lecture",
+      roomId: roomDetails?.id,
+      professorId: professor?.id,
+    }));
+  }, [
+    filteredStartTimeSlots,
+    filteredEndTimeSlots,
+    filteredEndTimeSlotsForReservation,
+    classes,
+    roomDetails,
+  ]);
+
+  //Detecting if there is changes in reserve Booking start time then filter again the end time for reservation
+  //The filter in the map below doesnt automatically updates the start time
+  useEffect(() => {
+    if (reserveBookingFormData.startTime) {
+      const nextAvailableEndTime = filteredEndTimeSlotsForReservation.find(
+        (timeslot) => timeslot.id > parseInt(reserveBookingFormData.startTime)
+      );
+      if (nextAvailableEndTime) {
+        setReserveBookingFromData((prevData) => ({
+          ...prevData,
+          endTime: nextAvailableEndTime.id,
+        }));
+      }
+    }
+  }, [reserveBookingFormData.startTime]);
+
+  //Checking if booking now is allowed
+  useEffect(() => {
+    checkAvailability("bookNow");
+  }, [bookNowFormData.startTime, bookNowFormData.endTime, bookings]);
+
+  //Checking if the selected start time and end time are not conflicting with previous bookings/reservations
+  useEffect(() => {
+    checkAvailability("reserveBooking");
+  }, [
+    reserveBookingFormData.startTime,
+    reserveBookingFormData.endTime,
+    bookings,
+  ]);
 
   const checkAvailability = (bookingType) => {
     let selectedStart;
@@ -391,26 +429,13 @@ const RoomDetails = () => {
       : setIsTimeSlotAvailableForReserveBooking(!isOverlapping);
   };
 
-  const checkRoomAvailability = () => {
-    const currentMinutes =
-      ((currentTimePosition - initialTimePosition) / timeslotDistance) * 30;
-
-    return bookings.some((booking) => {
-      const startMinutes = convertTimeToMinutes(booking.start_time) - 420;
-      const endMinutes = convertTimeToMinutes(booking.end_time) - 420;
-
-      return currentMinutes >= startMinutes && currentMinutes < endMinutes;
-    });
-  };
-
+  //Getting the data of occupant booking this room
   useEffect(() => {
     if (roomAvailability.type === "occupied") {
       getOccupantBookingDetails();
     } else {
-      setOccupantBookingDetail({});
+      setOccupantBookingDetail(null);
     }
-
-    checkUserOccupancy();
   }, [roomAvailability]);
 
   const getOccupantBookingDetails = () => {
@@ -420,12 +445,12 @@ const RoomDetails = () => {
     setOccupantBookingDetail(occupantBookingDetail);
   };
 
+  //Setting IsOccupantTheUser value everytime currentTime and occupantBookingDetail changes
+  //Then getting the remaining time of user's occupancy before check
   useEffect(() => {
-    if (occupantBookingDetail?.professor_id === user.school_id) {
-      setIsOccupantTheUser(true);
+    if (occupantBookingDetail) {
       checkOccupantRemainingTime();
-    } else {
-      setIsOccupantTheUser(false);
+      findUserOccupancyData();
     }
   }, [occupantBookingDetail, currentTime]);
 
@@ -435,12 +460,19 @@ const RoomDetails = () => {
 
     const hours = remainingTime < 60 ? 0 : Math.floor(remainingTime / 60);
     const minutes = remainingTime % 60;
-
-    setOccupantRemainingTime({
-      hours: hours,
-      minutes: minutes,
-    });
   };
+
+  //Checking if the booking message is available then close all modals and refetchBookings
+  useEffect(() => {
+    if (
+      (bookingMessage.isBookingMessageAvaialable && bookNowModal) ||
+      (bookingMessage.isBookingMessageAvaialable && reserveModal)
+    ) {
+      setBookNowModal(false);
+      setReserveModal(false);
+      fetchBookings();
+    }
+  }, [bookingMessage, loading]);
 
   return (
     <main className="container h-full bg-[#FAFAFA]">
@@ -471,16 +503,16 @@ const RoomDetails = () => {
             {isRoomAvailableForBooking ? (
               <>
                 <div
-                  className="relative px-6 overflow-y-scroll border border-gray-200 h-105"
+                  className="relative px-6 overflow-y-scroll border border-gray-200 h-[55vh]"
                   ref={scrollableDivRef}
                 >
                   <div
-                    className="absolute h-[3px] left-24 right-0 bg-red-500 z-10"
+                    className="absolute h-[3px] left-26 right-0 bg-red-500 z-10"
                     style={{ top: `${currentTimePosition}px` }}
                   />
                   {timeslots.map((timeslot, index) => (
-                    <div key={index} className="flex items-center">
-                      <p className="min-w-[4rem]">
+                    <div key={index} className="flex items-center my-8">
+                      <p className="min-w-20">
                         {convertTimeTo12HourFormat(timeslot.time)}
                       </p>
                       <div className="w-full h-[1px] bg-gray-300"></div>
@@ -490,9 +522,7 @@ const RoomDetails = () => {
                     const start = bookingTimeToMinutes(booking.start_time);
                     const end = bookingTimeToMinutes(booking.end_time);
                     const top =
-                      (start / 30) * timeslotDistance +
-                      initialTimePosition +
-                      1.5;
+                      (start / 30) * timeslotDistance + initialTimePosition + 1;
                     const height = ((end - start) / 30) * timeslotDistance;
 
                     return (
@@ -516,24 +546,69 @@ const RoomDetails = () => {
                   })}
                 </div>
 
-                <div className="flex gap-2 mt-6">
-                  <button
-                    className={`px-4 py-2 text-black rounded cursor-pointer ${
-                      userOccupancyData.length === 0
-                        ? "bg-[#A2DEF9] hover:bg-[#b4e8ff]"
-                        : "bg-gray-300 opacity-60"
-                    }`}
-                    onClick={() => setBookNowModal(!bookNowModal)}
-                    disabled={userOccupancyData.length > 0}
+                <div className="flex items-center gap-2 mt-6">
+                  <div
+                    onMouseEnter={() => setShowBookingButtonToolTip(true)}
+                    onMouseLeave={() => setShowBookingButtonToolTip(false)}
+                    className="relative"
                   >
-                    Book Now
-                  </button>
-                  <button
-                    className="px-4 py-2 text-gray-800 bg-[#FFCC80] rounded hover:bg-[#ffc080] cursor-pointer"
-                    onClick={() => setReserveModal(!reserveModal)}
+                    <button
+                      className={`px-4 py-2 text-black rounded cursor-pointer ${
+                        !userOccupancyData
+                          ? "bg-[#A2DEF9] hover:bg-[#b4e8ff]"
+                          : "bg-gray-300 opacity-60"
+                      }`}
+                      onClick={() => setBookNowModal(!bookNowModal)}
+                      disabled={userOccupancyData}
+                    >
+                      Book Now
+                    </button>
+                    {userOccupancyData && (
+                      <div
+                        className={`absolute w-full p-3 text-xs bg-gray-100 shadow-md rounded-xs -top-18 transition-all duration-500 ${
+                          showBookingButtonToolTip
+                            ? "opacity-100"
+                            : "opacity-0 pointer-events-none"
+                        }`}
+                      >
+                        <p>You are still occupied.</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div
+                    onMouseEnter={() =>
+                      setShowBookingReservationButtonToolTip(true)
+                    }
+                    onMouseLeave={() =>
+                      setShowBookingReservationButtonToolTip(false)
+                    }
+                    className="relative"
                   >
-                    Reserve
-                  </button>
+                    <button
+                      className={`px-4 py-2 text-gray-800 rounded cursor-pointer ${
+                        !userOccupancyData
+                          ? "bg-[#FFCC80] hover:bg-[#ffc080]"
+                          : "bg-gray-300 opacity-60"
+                      }`}
+                      onClick={() => setReserveModal(!reserveModal)}
+                      disabled={userOccupancyData}
+                    >
+                      Reserve
+                    </button>
+
+                    {userOccupancyData && (
+                      <div
+                        className={`absolute p-3 text-xs bg-gray-100 shadow-md rounded-xs -top-18 transition-all duration-500 ${
+                          showBookingReservationButtonToolTip
+                            ? "opacity-100"
+                            : "opacity-0 pointer-events-none"
+                        }`}
+                      >
+                        <p>You are still occupied.</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </>
             ) : (
@@ -545,27 +620,27 @@ const RoomDetails = () => {
           <div>
             <h3 className="mb-2 text-lg font-semibold">Room Details</h3>
 
-            {isOccupantTheUser && (
+            {userOccupancyData?.room_id === roomId && (
               <div className="text-sm text-[#F56C18] mb-4">
                 <p className="font-bold">Notice</p>
                 <div className="flex items-start gap-2">
                   <IoMdTime size={20} />
                   <p>
-                    {occupantRemainingTime.hours > 0 && (
+                    {userOccupancyRemainingTime.hours > 0 && (
                       <>
-                        {occupantRemainingTime.hours === 1
-                          ? occupantRemainingTime.hours + " hour"
-                          : occupantRemainingTime.hours + " hours"}
+                        {userOccupancyRemainingTime.hours === 1
+                          ? userOccupancyRemainingTime.hours + " hour"
+                          : userOccupancyRemainingTime.hours + " hours"}
                       </>
                     )}
-                    {occupantRemainingTime.hours > 0 &&
-                      occupantRemainingTime.minutes > 0 &&
+                    {userOccupancyRemainingTime.hours > 0 &&
+                      userOccupancyRemainingTime.minutes > 0 &&
                       " and "}
-                    {occupantRemainingTime.minutes > 0 && (
+                    {userOccupancyRemainingTime.minutes > 0 && (
                       <>
-                        {occupantRemainingTime.minutes === 1
-                          ? occupantRemainingTime.minutes + " minute"
-                          : occupantRemainingTime.minutes + " minutes"}
+                        {userOccupancyRemainingTime.minutes === 1
+                          ? userOccupancyRemainingTime.minutes + " minute"
+                          : userOccupancyRemainingTime.minutes + " minutes"}
                       </>
                     )}{" "}
                     remaining before checkout
@@ -668,9 +743,34 @@ const RoomDetails = () => {
                       <p>{occupantBookingDetail?.purpose}</p>
                     </div>
                   </>
-                ) : (
+                ) : userOccupancyData &&
+                  roomAvailability.type === "available" ? (
+                  <>
+                    <p className="font-bold text-red-500">
+                      You are still occupying{" "}
+                      <Link
+                        to={`/room/${userOccupancyData.room_id}`}
+                        className="hover:underline"
+                      >
+                        room {userOccupancyData.room_number}
+                      </Link>
+                      .
+                    </p>
+
+                    <div className="flex gap-2">
+                      <p className="text-red-500">Checkout Time:</p>
+                      <p>
+                        {convertTimeTo12HourFormat(userOccupancyData?.end_time)}
+                      </p>
+                    </div>
+                  </>
+                ) : isRoomAvailableForBooking ? (
                   <p className="text-green-500">
                     Room is available for booking, you can book now.
+                  </p>
+                ) : (
+                  <p className="text-red-500 m">
+                    Booking is not available at this time period.
                   </p>
                 )}
               </div>
