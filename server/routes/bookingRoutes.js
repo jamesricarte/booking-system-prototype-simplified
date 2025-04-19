@@ -59,15 +59,19 @@ router.get("/bookings/:id", (req, res) => {
 //Check availability for all rooms
 router.get("/roomBookingAvailability", (req, res) => {
   db.query(
-    `SELECT b.id,
+    `SELECT b.id AS booking_id,
     b.room_id,
     t1.time AS start_time,
     t2.time AS end_time,
-    p.professor_name
+    p.professor_name,
+    p.id AS professor_id,
+    b.booking_type,
+    r.room_number
     FROM bookings b 
     JOIN timeslots t1 ON b.start_time = t1.id
     JOIN timeslots t2 ON b.end_time = t2.id
     JOIN professors p ON b.professor_id = p.id
+    jOIN rooms r ON b.room_id = r.id
     WHERE b.date = CURRENT_DATE()`,
     (err, result) => {
       if (err) {
@@ -274,6 +278,53 @@ router.put("/updateBookingType", (req, res) => {
   );
 });
 
+//Update booking type of user occupancy
+router.put("/updateBookingTypeOfUser", (req, res) => {
+  const { toBeUpdated, type, professorId } = req.body;
+  db.query(
+    "UPDATE bookings SET booking_type = 'current_book' WHERE id = ?",
+    [toBeUpdated],
+    (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
+      }
+
+      if (!result) {
+        return res
+          .status(400)
+          .json({ message: "Some problem occured", result });
+      }
+
+      db.query(
+        `UPDATE bookings SET booking_type = 'past' WHERE id ${
+          type === "updatePrevious" ? "<" : "<="
+        } ? AND booking_type = 'current_book' AND professor_id = ? AND date = CURRENT_DATE()`,
+        [toBeUpdated, professorId],
+        (err, result) => {
+          if (err) {
+            res
+              .status(500)
+              .json({ message: "Something went wrong", error: err.message });
+          }
+
+          if (!result) {
+            return res
+              .status(400)
+              .json({ message: "Some problem occured", result });
+          }
+
+          return res
+            .status(200)
+            .json({ message: "Successfully updated booking type", result });
+        }
+      );
+    }
+  );
+});
+
+//Check User Occupancy (NOT USED)
 router.get("/checkUserOccupancy/:professorId", (req, res) => {
   const professorId = req.params.professorId;
 
@@ -283,12 +334,15 @@ router.get("/checkUserOccupancy/:professorId", (req, res) => {
     c.class_name,
     t1.time AS start_time,
     t2.time AS end_time,
-    b.purpose
+    b.purpose,
+    r.room_number,
+    r.id AS room_id
     FROM bookings b
     JOIN professors p ON b.professor_id = p.id
     JOIN classes c ON b.class_id = c.id
     JOIN timeslots t1 ON b.start_time = t1.id
     JOIN timeslots t2 ON b.end_time = t2.id
+    JOIN rooms r ON b.room_id = r.id
     WHERE b.professor_id = ? 
     AND b.booking_type = 'current_book'
     AND b.date = CURRENT_DATE()`,
@@ -301,7 +355,9 @@ router.get("/checkUserOccupancy/:professorId", (req, res) => {
       }
 
       if (result.length === 0) {
-        return res.status(400).json({ message: "No occupancy yet" });
+        return res
+          .status(200)
+          .json({ message: "No occupancy yet", occupancyData: [] });
       }
 
       if (result.length > 1) {
