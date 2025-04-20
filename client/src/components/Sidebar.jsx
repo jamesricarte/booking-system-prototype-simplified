@@ -6,9 +6,6 @@ import { FaRegCalendarAlt } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { formatUTCDateWithOrdinal, getDayName } from "../utils/timeUtils";
-import { FiX } from "react-icons/fi";
-import { MdLocalPhone } from "react-icons/md";
-import { FaPlus } from "react-icons/fa";
 import SettingsModal from "./SettingsModal";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -56,8 +53,6 @@ const Sidebar = ({ isAdmin }) => {
     e.preventDefault(); // Stop NavLink from navigating
     setIsSettingsOpen(true);
   };
-
-  const closeModal = () => setIsSettingsOpen(false);
 
   return (
     <aside className="w-[372px] min-h-screen p-4 shadow-lg flex flex-col justify-between">
@@ -169,15 +164,13 @@ const Sidebar = ({ isAdmin }) => {
               </NavLink>
             </div>
           </div>
-          <NavLink to="/Settings" onClick={handleClick}>
-            {({ isActive }) => (
-              <RiSettings5Fill
-                className={`text-[41px] transition-colors ${
-                  isActive ? "text-[#B3E5FC]" : "text-[#757575]"
-                }`}
-              />
-            )}
-          </NavLink>
+          <button onClick={handleClick}>
+            <RiSettings5Fill
+              className={`text-[41px] transition-colors cursor-pointer ${
+                isSettingsOpen ? "text-[#B3E5FC]" : "text-[#757575]"
+              }`}
+            />
+          </button>
         </div>
       </div>
 
