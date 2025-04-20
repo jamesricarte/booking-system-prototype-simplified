@@ -46,7 +46,7 @@ const SettingsModal = ({ isOpen, closeModal }) => {
             </div>
           </aside>
 
-          <div className="w-2/3 p-6">
+          <div className="w-2/3 h-full p-6 overflow-y-auto">
             <div className="flex justify-between ">
               <h1 className="text-2xl">Help Center</h1>
 
@@ -76,7 +76,7 @@ const SettingsModal = ({ isOpen, closeModal }) => {
               <h1 className="text-xl">FAQ's</h1>
               <ul className="flex flex-col gap-2 text-base">
                 <li className="px-4 py-2 text-black transition-colors flex items-center justify-between bg-[#EFEFEF] rounded-sm cursor-pointer">
-                  Is the system okay?
+                  How do I create an account?
                   <FaPlus className="text-[#A9ADAB]" />
                 </li>
                 <li className="px-4 flex items-center justify-between py-2 text-black transition-colors bg-[#EFEFEF] rounded-sm cursor-pointer">
@@ -84,7 +84,15 @@ const SettingsModal = ({ isOpen, closeModal }) => {
                   <FaPlus className="text-[#A9ADAB]" />
                 </li>
                 <li className="px-4 py-2 text-black transition-colors flex items-center justify-between bg-[#EFEFEF] rounded-sm cursor-pointer">
-                  What is its main purpose?
+                  I forgot my password. How can I reset it?
+                  <FaPlus className="text-[#A9ADAB]" />
+                </li>
+                <li className="px-4 py-2 text-black transition-colors flex items-center justify-between bg-[#EFEFEF] rounded-sm cursor-pointer">
+                  Is my personal information safe?
+                  <FaPlus className="text-[#A9ADAB]" />
+                </li>
+                <li className="px-4 py-2 text-black transition-colors flex items-center justify-between bg-[#EFEFEF] rounded-sm cursor-pointer">
+                  How do I contact customer support?
                   <FaPlus className="text-[#A9ADAB]" />
                 </li>
               </ul>
