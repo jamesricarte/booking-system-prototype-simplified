@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import BlankProfile from '../../../assets/image/elipse.png';
-import { useAuth } from '../../../context/AuthContext';
+import React, { useEffect, useState } from "react";
+import BlankProfile from "../../../assets/image/elipse.png";
+import { useAuth } from "../../../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -50,7 +50,7 @@ const AdminProfile = () => {
                 </label>
                 <input
                   type="text"
-                  value={user.username || ''}
+                  value={user.username || ""}
                   readOnly
                   className="block w-full p-2 mt-1 border border-gray-300 rounded-md"
                 />
@@ -62,7 +62,7 @@ const AdminProfile = () => {
                 </label>
                 <input
                   type="email"
-                  value={user.email || ''}
+                  value={user.email || ""}
                   readOnly
                   className="block w-full p-2 mt-1 border border-gray-300 rounded-md"
                 />
