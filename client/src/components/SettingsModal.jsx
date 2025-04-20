@@ -2,8 +2,11 @@ import { FiX } from "react-icons/fi";
 import { MdLocalPhone } from "react-icons/md";
 import { FaPlus } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const SettingsModal = ({ isOpen, closeModal }) => {
+  const { logout } = useAuth();
+
   if (!isOpen) {
     return null;
   }
@@ -34,7 +37,10 @@ const SettingsModal = ({ isOpen, closeModal }) => {
               <NavLink className="p-2">Report a Bug</NavLink>
             </nav>
             <div className="flex items-center justify-center">
-              <button className="px-4 py-2 text-white bg-red-500 rounded cursor-pointer hover:bg-red-600">
+              <button
+                onClick={logout}
+                className="px-4 py-2 text-white bg-red-500 rounded cursor-pointer hover:bg-red-600"
+              >
                 Logout User
               </button>
             </div>
