@@ -5,7 +5,7 @@ import { useAuth } from "../../../context/AuthContext";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const AdminProfile = () => {
-  const { logout, user } = useAuth();
+  const { user } = useAuth();
 
   return (
     <main className="container h-full overflow-y-auto bg-white">
@@ -31,13 +31,6 @@ const AdminProfile = () => {
               <br />
               File extension: PNG/JPG
             </p>
-
-            <button
-              onClick={logout}
-              className="px-4 py-2 mt-auto mb-[20%] text-white bg-red-500 rounded hover:bg-red-600"
-            >
-              Logout
-            </button>
           </div>
 
           <div className="border border-gray-200" />

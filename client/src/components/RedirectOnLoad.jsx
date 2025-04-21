@@ -5,6 +5,7 @@ import { Navigate } from "react-router-dom";
 const RedirectOnLoad = () => {
   const { user } = useAuth();
 
+  //Should fetch first the user in database if matching
   if (!user) {
     return <Navigate to="/login" />;
   } else {

@@ -10,7 +10,7 @@ import { handleFormChange } from "../../../utils/formHandlers";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const UserProfile = () => {
-  const { user, login, logout } = useAuth();
+  const { user, login } = useAuth();
 
   const [changePassswordModal, setChangePasswordModal] = useState(false);
   const [changePasswordData, setChangePasswordData] = useState({
@@ -218,13 +218,6 @@ const UserProfile = () => {
               <br />
               File extension: PNG/JPG
             </p>
-
-            <button
-              onClick={logout}
-              className="px-4 py-2 mt-auto text-white bg-red-500 rounded mb-[20%] hover:bg-red-600 cursor-pointer"
-            >
-              Logout
-            </button>
           </div>
 
           <div className="border border-gray-200" />

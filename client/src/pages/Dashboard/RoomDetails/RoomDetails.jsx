@@ -620,34 +620,35 @@ const RoomDetails = () => {
           <div>
             <h3 className="mb-2 text-lg font-semibold">Room Details</h3>
 
-            {userOccupancyData?.room_id === roomId && (
-              <div className="text-sm text-[#F56C18] mb-4">
-                <p className="font-bold">Notice</p>
-                <div className="flex items-start gap-2">
-                  <IoMdTime size={20} />
-                  <p>
-                    {userOccupancyRemainingTime.hours > 0 && (
-                      <>
-                        {userOccupancyRemainingTime.hours === 1
-                          ? userOccupancyRemainingTime.hours + " hour"
-                          : userOccupancyRemainingTime.hours + " hours"}
-                      </>
-                    )}
-                    {userOccupancyRemainingTime.hours > 0 &&
-                      userOccupancyRemainingTime.minutes > 0 &&
-                      " and "}
-                    {userOccupancyRemainingTime.minutes > 0 && (
-                      <>
-                        {userOccupancyRemainingTime.minutes === 1
-                          ? userOccupancyRemainingTime.minutes + " minute"
-                          : userOccupancyRemainingTime.minutes + " minutes"}
-                      </>
-                    )}{" "}
-                    remaining before checkout
-                  </p>
+            {userOccupancyData?.room_id === roomId &&
+              userOccupancyData?.professor_id === user.school_id && (
+                <div className="text-sm text-[#F56C18] mb-4">
+                  <p className="font-bold">Notice</p>
+                  <div className="flex items-start gap-2">
+                    <IoMdTime size={20} />
+                    <p>
+                      {userOccupancyRemainingTime.hours > 0 && (
+                        <>
+                          {userOccupancyRemainingTime.hours === 1
+                            ? userOccupancyRemainingTime.hours + " hour"
+                            : userOccupancyRemainingTime.hours + " hours"}
+                        </>
+                      )}
+                      {userOccupancyRemainingTime.hours > 0 &&
+                        userOccupancyRemainingTime.minutes > 0 &&
+                        " and "}
+                      {userOccupancyRemainingTime.minutes > 0 && (
+                        <>
+                          {userOccupancyRemainingTime.minutes === 1
+                            ? userOccupancyRemainingTime.minutes + " minute"
+                            : userOccupancyRemainingTime.minutes + " minutes"}
+                        </>
+                      )}{" "}
+                      remaining before checkout
+                    </p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             <table className="min-w-full bg-white border-collapse">
               <tbody>
@@ -774,6 +775,33 @@ const RoomDetails = () => {
                   </p>
                 )}
               </div>
+              {userOccupancyData?.room_id === roomId &&
+                userOccupancyData?.professor_id === user.school_id && (
+                  <div className="flex gap-3">
+                    <button
+                      className={`px-4 py-2 text-white text-sm rounded cursor-pointer mt-4
+                  
+                     bg-[#EF5350] hover:bg-[#ff9292]
+                     
+                `}
+                      onClick={() => setBookNowModal(!bookNowModal)}
+                      disabled={userOccupancyData}
+                    >
+                      Cancel booking
+                    </button>
+                    <button
+                      className={`px-4 py-2 text-white text-sm rounded cursor-pointer mt-4
+                  
+                     bg-[#ffac28] hover:bg-[#c7a877]
+                     
+                `}
+                      onClick={() => setBookNowModal(!bookNowModal)}
+                      disabled={userOccupancyData}
+                    >
+                      End now
+                    </button>
+                  </div>
+                )}
             </div>
           </div>
         </div>
