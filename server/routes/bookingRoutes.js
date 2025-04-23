@@ -57,6 +57,7 @@ router.get("/bookings/:id", (req, res) => {
 });
 
 //Check availability for all rooms
+//Fetch bookings for all room at current date
 router.get("/roomBookingAvailability", (req, res) => {
   db.query(
     `SELECT b.id AS booking_id,
@@ -66,7 +67,9 @@ router.get("/roomBookingAvailability", (req, res) => {
     p.professor_name,
     p.id AS professor_id,
     b.booking_type,
-    r.room_number
+    r.room_number,
+    b.start_time AS start_time_id,
+    b.end_time AS end_time_id
     FROM bookings b 
     JOIN timeslots t1 ON b.start_time = t1.id
     JOIN timeslots t2 ON b.end_time = t2.id

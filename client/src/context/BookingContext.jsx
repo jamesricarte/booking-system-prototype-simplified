@@ -26,6 +26,7 @@ export const BookingProvider = ({ children }) => {
     hours: 0,
     minutes: 0,
   });
+  const [userReservationData, setUserReservationData] = useState(null);
 
   const lastMinuteRef = useRef(null);
   const isBookingsFetchedRef = useRef(false);
@@ -81,7 +82,7 @@ export const BookingProvider = ({ children }) => {
 
   useEffect(() => {
     checkUserOccupancyBookingType();
-  }, [currentTime]);
+  }, [bookingsForAllRoom, currentTime]);
 
   const checkUserOccupancyBookingType = () => {
     const isBookingTypeCorrect = bookingsForAllRoom.some(
@@ -132,22 +133,23 @@ export const BookingProvider = ({ children }) => {
     );
 
     setUserOccupancyData(foundUserOccupancyData || null);
-  }, [bookingsForAllRoom]);
 
-  const findUserOccupancyData = () => {
-    fetchBookingsForAllRoom();
-    const foundUserOccupancyData = bookingsForAllRoom.find(
+    const foundUserReservationData = bookingsForAllRoom.find(
       (booking) =>
-        booking.booking_type === "current_book" &&
+        booking.booking_type === "reservation" &&
         booking.professor_id === user?.school_id
     );
 
-    setUserOccupancyData(foundUserOccupancyData || null);
+    setUserReservationData(foundUserReservationData || null);
+  }, [bookingsForAllRoom]);
+
+  const refreshUserOccupancyAndReservationData = () => {
+    fetchBookingsForAllRoom();
   };
 
   useEffect(() => {
     if (userOccupancyData) {
-      checkOccupantRemainingTime();
+      checkUserOccupancyRemainingTime();
     } else {
       setUserOccupancyRemainingTime({
         hours: 0,
@@ -156,7 +158,7 @@ export const BookingProvider = ({ children }) => {
     }
   }, [userOccupancyData, currentTime]);
 
-  const checkOccupantRemainingTime = () => {
+  const checkUserOccupancyRemainingTime = () => {
     if (userOccupancyData) {
       const remainingTime =
         convertTimeToMinutes(userOccupancyData.end_time) - currentTime;
@@ -176,7 +178,8 @@ export const BookingProvider = ({ children }) => {
       value={{
         userOccupancyData,
         userOccupancyRemainingTime,
-        findUserOccupancyData,
+        userReservationData,
+        refreshUserOccupancyAndReservationData,
       }}
     >
       {children}

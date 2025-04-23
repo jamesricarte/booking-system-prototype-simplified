@@ -3,7 +3,7 @@ import Logo from "../assets/logo/Logo.png";
 import BlankProfile from "../assets/image/elipse.png";
 import { RiSettings5Fill } from "react-icons/ri";
 import { FaRegCalendarAlt } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { formatUTCDateWithOrdinal, getDayName } from "../utils/timeUtils";
 import SettingsModal from "./SettingsModal";
@@ -12,6 +12,10 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const Sidebar = ({ isAdmin }) => {
   const { user } = useAuth();
+
+  const location = useLocation();
+  const isBookingActive =
+    location.pathname === "/bookings" || location.pathname.startsWith("/room/");
 
   const [serverDate, setServerDate] = useState({
     day: "",
@@ -132,11 +136,11 @@ const Sidebar = ({ isAdmin }) => {
 
                 <NavLink
                   to="/bookings"
-                  className={({ isActive }) =>
-                    `p-2 transition-colors text-2xl rounded-sm ${
-                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
-                    }`
-                  }
+                  className={`p-2 transition-colors text-2xl rounded-sm ${
+                    isBookingActive
+                      ? "bg-[#B3E5FC]"
+                      : "text-black hover:bg-white/20"
+                  }`}
                 >
                   Bookings
                 </NavLink>

@@ -142,32 +142,32 @@ const SettingsModal = ({ isOpen, closeModal }) => {
 
       {isLogoutConfirmOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60">
-          <div className="w-full max-w-sm p-6 bg-white rounded-md shadow-xl">
-            <div className="items-center gap-2 mb-10">
-              <div className="flex m-1">
-                <IoIosAlert className="text-lg mb-0.2" size={30} />
-                <h1 className="ml-3 text-xl ">Confirm Logout</h1>
+          <div className="w-full max-w-sm bg-white rounded-md shadow-xl">
+            <div className="items-center gap-2">
+              <div className="flex p-4">
+                <h1 className="text-lg ">Confirm Logout</h1>
               </div>
-
-              <hr className="mb-4" />
-              <h2 className="text-lg font-normal">
-                Are you sure you want to logout?
-              </h2>
             </div>
 
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setIsLogoutConfirmOpen(false)}
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmLogout}
-                className="px-4 py-2 text-white bg-red-500 rounded hover:bg-red-600"
-              >
-                Ok
-              </button>
+            <hr />
+
+            <div className="flex flex-col gap-5 p-5">
+              <h2 className="font-normal ">Are you sure you want to logout?</h2>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setIsLogoutConfirmOpen(false)}
+                  className="px-4 py-2 bg-[#B3E5FC] rounded cursor-pointer hover:bg-[#99d3ee]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmLogout}
+                  className="px-4 py-2 text-white bg-red-500 rounded cursor-pointer hover:bg-red-600"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
         </div>

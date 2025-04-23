@@ -19,6 +19,7 @@ const ReserveModal = ({
   bookingsPurposes,
   loading,
   bookingMessage,
+  conflictWithUserOccupancy,
 }) => {
   const { user } = useAuth();
   const handleReserveBookingFormData = handleFormChange(
@@ -52,11 +53,18 @@ const ReserveModal = ({
             <p>{serverDate?.split("T")[0]}</p>
           </div>
 
-          {!isTimeSlotAvailableForReserveBooking && (
+          {!isTimeSlotAvailableForReserveBooking ? (
             <p className="text-red-500">
               This time period is already booked. Please select a different
               time.
             </p>
+          ) : (
+            conflictWithUserOccupancy && (
+              <p className="text-red-500">
+                You already have a booking during this time in another room.
+                Please select a different time slot.
+              </p>
+            )
           )}
 
           <form className="flex flex-col gap-4" onSubmit={reserveBooking}>
@@ -140,12 +148,16 @@ const ReserveModal = ({
               </div>
               <Button
                 className={`px-8 py-2 rounded-sm cursor-pointer ${
-                  isTimeSlotAvailableForReserveBooking
-                    ? "bg-[#A2DEF9] hover:bg-[#b4e8ff]"
-                    : "bg-gray-300 opacity-60"
+                  !isTimeSlotAvailableForReserveBooking ||
+                  conflictWithUserOccupancy
+                    ? "bg-gray-300 opacity-60"
+                    : "bg-[#A2DEF9] hover:bg-[#b4e8ff]"
                 }`}
                 type="submit"
-                disabled={!isTimeSlotAvailableForReserveBooking}
+                disabled={
+                  !isTimeSlotAvailableForReserveBooking ||
+                  conflictWithUserOccupancy
+                }
               >
                 Reserve Booking
               </Button>
