@@ -2,8 +2,31 @@ const express = require("express");
 const db = require("../config/db");
 const bcrypt = require("bcryptjs");
 const router = express.Router();
+const multer = require("multer");
+const path = require("path");
 
 router.get("/", (req, res) => {});
+
+// multer
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) =>
+    cb(null, path.join(__dirname, "../../uploads")),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    cb(null, filename);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = ["image/jpeg", "image/png"];
+  allowedTypes.includes(file.mimetype)
+    ? cb(null, true)
+    : cb(new Error("Invalid file type"), false);
+};
+
+const upload = multer({ storage, fileFilter });
 
 //login
 router.post("/login", async (req, res) => {
@@ -334,6 +357,37 @@ router.put("/updateProfileInformation", (req, res) => {
       );
     }
   );
+});
+
+// Upload Profile
+
+router.post("/uploadProfile", upload.single("file"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  const filePath = `/uploads/${req.file.filename}`;
+
+  const userId = req.body.id;
+
+  if (!userId) {
+    return res.status(400).json({ message: "Missing User Id" });
+  }
+
+  const updateQuery = "UPDATE users SET profile_image = ? WHERE id = ?";
+
+  db.query(updateQuery, [filePath, userId], (err, result) => {
+    if (err) {
+      console.error("Failed to update profile image:", err);
+      return res
+        .status(500)
+        .json({ message: "Failed to update profile image" });
+    }
+    return res.status(200).json({
+      message: "Upload successful and profile image updated",
+      filePath,
+    });
+  });
 });
 
 router.put("/", (req, res) => {});
