@@ -1,32 +1,58 @@
-import React, { useState } from "react";
-import Input from "../../components/Input";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import { handleFormChange } from "../../utils/formHandlers";
-import BackGroundBu from "../../assets/background/Background_bu.png";
-import Logo from "../../assets/logo/Logo.png";
+import React, { useState } from 'react';
+import Input from '../../components/Input';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { handleFormChange } from '../../utils/formHandlers';
+import BackGroundBu from '../../assets/background/Background_bu.png';
+import Logo from '../../assets/logo/Logo.png';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
   const [user, setUser] = useState({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   });
 
   const { login } = useAuth();
 
   const [response, setResponse] = useState({
     isResponseAvailable: false,
-    message: "",
-    type: "",
+    message: '',
+    type: '',
   });
 
   const [loading, setLoading] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
 
   const navigate = useNavigate();
 
   const handleUserInput = handleFormChange(user, setUser);
+
+  const openForgotPasswordModal = () => setIsForgotPasswordOpen(true);
+  const closeForgotPasswordModal = () => setIsForgotPasswordOpen(false);
+
+  const handleForgotPassword = async (email) => {
+    try {
+      const response = await fetch(`${API_URL}/api/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to send reset email.');
+      }
+
+      alert('Password reset email sent successfully.');
+    } catch (error) {
+      console.error(error.message);
+      alert('Error sending password reset email.');
+    }
+  };
 
   const loginUser = async (e) => {
     e.preventDefault();
@@ -34,13 +60,13 @@ const Login = () => {
     setLoading(true);
     const startTime = Date.now();
     let result;
-    let message = { isResponseAvailable: false, message: "", type: "" };
+    let message = { isResponseAvailable: false, message: '', type: '' };
 
     try {
       const response = await fetch(`${API_URL}/api/login`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(user),
       });
@@ -56,18 +82,18 @@ const Login = () => {
       message = {
         isResponseAvailable: true,
         message: result.message,
-        type: "success",
+        type: 'success',
       };
     } catch (error) {
       console.log(error);
       const errorMessage =
-        error.message === "Failed to fetch"
-          ? "Something went wrong with the server."
+        error.message === 'Failed to fetch'
+          ? 'Something went wrong with the server.'
           : error.message;
       message = {
         isResponseAvailable: true,
         message: errorMessage,
-        type: "error",
+        type: 'error',
       };
     } finally {
       const elapsedTime = Date.now() - startTime;
@@ -76,9 +102,9 @@ const Login = () => {
       setTimeout(() => {
         setLoading(false);
         if (result?.fetchedUser.user_type === 0) {
-          navigate("/admin");
+          navigate('/admin');
         } else if (result?.fetchedUser.user_type === 1) {
-          navigate("/dashboard");
+          navigate('/dashboard');
         }
         setResponse({
           isResponseAvailable: message.isResponseAvailable,
@@ -138,7 +164,7 @@ const Login = () => {
           {response.isResponseAvailable && (
             <p
               className={`mb-4 ${
-                response.type === "success" ? "text-green-500" : "text-red-500"
+                response.type === 'success' ? 'text-green-500' : 'text-red-500'
               }`}
             >
               {response.message}
@@ -151,7 +177,12 @@ const Login = () => {
                 Remember me
               </label>
             </div>
-            <Link className="text-lg text-[#FFA726]">Forget password?</Link>
+            <Link
+              className="text-lg text-[#FFA726]"
+              onClick={openForgotPasswordModal}
+            >
+              Forgot password?
+            </Link>
           </div>
           <Input
             type="submit"
@@ -160,14 +191,14 @@ const Login = () => {
           />
         </form>
         <p className="mb-4 text-lg text-center">
-          Don't have an account?{" "}
+          Don't have an account?{' '}
           <Link to="/register" className="text-[#FFA726]">
             Register
           </Link>
         </p>
         <div className="mt-12">
           <p className="text-sm text-center">
-            © 2025 BUCENG | All Rights Reserved{" "}
+            © 2025 BUCENG | All Rights Reserved{' '}
           </p>
         </div>
       </div>
@@ -175,16 +206,61 @@ const Login = () => {
       {/* Loading spinner */}
       <div
         className={`absolute z-10 w-8 h-8 transform -translate-x-1/2 -translate-y-1/2 rounded-full border-6 rounded-1/2 border-t-transparent border-cyan-500 left-1/2 top-1/2 ${
-          loading ? "block animate-spin" : "hidden"
+          loading ? 'block animate-spin' : 'hidden'
         }`}
       ></div>
 
       {/* Background */}
       <div
         className={`fixed top-0 left-0 w-full h-full bg-white opacity-60 pointer-events-auto ${
-          loading ? "block" : "hidden"
+          loading ? 'block' : 'hidden'
         }`}
       ></div>
+
+      {isForgotPasswordOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/30">
+          <div className="bg-white py-4 rounded-md shadow-lg w-[35vw] h-[35vh] relative flex flex-col">
+            <div className="flex justify-between items-center px-6 pb-2 border-b border-black">
+              <h2 className="text-lg">Forgot Password</h2>
+              <button
+                onClick={closeForgotPasswordModal}
+                className="w-5 h-5 bg-red-500 text-white font-bold text-lg rounded-full flex items-center justify-center"
+              >
+                ×
+              </button>
+            </div>
+            <div className="flex flex-col px-14 flex-grow justify-center">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const email = e.target.forgotEmail.value;
+                  handleForgotPassword(email);
+                  closeForgotPasswordModal();
+                }}
+              >
+                <label htmlFor="forgotEmail" className="block mb-2">
+                  Enter your email address:
+                </label>
+                <Input
+                  type="email"
+                  id="forgotEmail"
+                  name="forgotEmail"
+                  required
+                  className="w-[100%] mx-auto mb-10 p-4 bg-gray-100 rounded-md block"
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="submit"
+                    className="px-10 py-3 bg-[#B3E5FC] rounded-md"
+                  >
+                    Send Code
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
