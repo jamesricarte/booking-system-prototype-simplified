@@ -151,7 +151,15 @@ const Sidebar = ({ isAdmin }) => {
         <div className="flex items-center justify-between p-5">
           <div className="flex items-center gap-4">
             <NavLink to={`${isAdmin ? "/AdminProfile" : "/UserProfile"}`}>
-              <img src={BlankProfile} alt="" className="w-12 h-12" />
+              <img
+                src={
+                  user?.profile_image
+                    ? `http://localhost:3000${user.profile_image}`
+                    : BlankProfile
+                }
+                alt="User profile"
+                className="w-12 h-12 border border-gray-300 rounded-full"
+              />
             </NavLink>
             <div>
               <NavLink to={`${isAdmin ? "/AdminProfile" : "/UserProfile"}`}>

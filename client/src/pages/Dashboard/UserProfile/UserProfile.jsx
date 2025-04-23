@@ -11,6 +11,13 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const UserProfile = () => {
   const { user, login } = useAuth();
+  // file upload
+  const [file, setFile] = useState(null);
+
+  const [imagePreview, setImagePreview] = useState(BlankProfile);
+  const fileInputRef = useRef();
+
+  //auth
 
   const [changePassswordModal, setChangePasswordModal] = useState(false);
   const [changePasswordData, setChangePasswordData] = useState({
@@ -194,6 +201,17 @@ const UserProfile = () => {
     }
   };
 
+  // upload profile useEffect
+
+  useEffect(() => {
+    console.log("Full user object →", user);
+    if (user?.profile_image && user.profile_image.trim() !== "") {
+      setImagePreview(`http://localhost:3000${user.profile_image}`);
+    } else {
+      setImagePreview(BlankProfile);
+    }
+  }, [user?.profile_image]);
+
   return (
     <main className="w-full h-full overflow-y-auto bg-white ccontainer">
       <div className="p-4">
@@ -204,14 +222,73 @@ const UserProfile = () => {
         <div className="relative flex">
           <div className="flex flex-col items-center w-[280px] mr-6">
             <img
-              src={BlankProfile}
+              src={imagePreview || `http://localhost:3000${user.profile_image}`}
               alt="Profile"
               className="object-cover mb-4 rounded-full w-36 h-36"
             />
 
-            <button className="px-4 py-2 mb-2 text-black bg-[#B3E5FC] rounded hover:bg-blue-300 cursor-pointer">
+            <input
+              type="file"
+              accept="image/png, image/jpeg"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={(e) => {
+                const selectedFile = e.target.files[0];
+                if (!selectedFile) return;
+
+                if (selectedFile.size > 2 * 1024 * 1024) {
+                  return alert("File size exceeds 2MB");
+                }
+
+                const allowedTypes = ["image/png", "image/jpeg"];
+
+                if (!allowedTypes.includes(selectedFile.type)) {
+                  return alert("Only PNG and JPG are allowed");
+                }
+
+                setFile(selectedFile);
+                setImagePreview(URL.createObjectURL(selectedFile));
+              }}
+            />
+
+            <button
+              className="px-4 py-2 mb-2 text-black bg-[#B3E5FC] rounded hover:bg-blue-300 cursor-pointer"
+              onClick={() => fileInputRef.current.click()}
+            >
               Select Image
             </button>
+
+            {file && (
+              <button
+                className="px-4 py-2 mb-2 text-black bg-[#FFA726] rounded hover:bg-[#FFA720] cursor-pointer"
+                onClick={async () => {
+                  const formData = new FormData();
+                  formData.append("file", file);
+                  formData.append("id", user.id);
+
+                  try {
+                    const res = await fetch(`${API_URL}/api/uploadProfile`, {
+                      method: "POST",
+                      body: formData,
+                    });
+
+                    const result = await res.json();
+                    setImagePreview(
+                      `http://localhost:3000/${result.filePath.replace(
+                        /^\/?/,
+                        ""
+                      )}`
+                    );
+                    login({ ...user, profile_image: result.filePath });
+                    setFile(null);
+                  } catch (error) {
+                    console.error("Upload Failed", error);
+                  }
+                }}
+              >
+                Upload
+              </button>
+            )}
 
             <p className="text-sm text-center text-gray-500">
               File size maximum: 2MB
