@@ -1,13 +1,15 @@
-import { FiX } from "react-icons/fi";
-import { MdLocalPhone } from "react-icons/md";
-import { FaPlus } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { useState } from "react";
+import { FiX } from 'react-icons/fi';
+import { MdLocalPhone } from 'react-icons/md';
+import { FaPlus } from 'react-icons/fa';
+import { NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
+import { IoIosAlert } from 'react-icons/io';
 
 const SettingsModal = ({ isOpen, closeModal }) => {
   const { logout } = useAuth();
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('terms');
 
   if (!isOpen) return null;
 
@@ -17,40 +19,13 @@ const SettingsModal = ({ isOpen, closeModal }) => {
     closeModal(); // close settings modal too if you want
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="relative w-[70%] h-[80%] bg-white rounded-lg shadow-lg">
-        <div className="flex justify-between px-6 py-4">
-          <h1 className="text-xl">User Settings Section</h1>
-          <button
-            onClick={closeModal}
-            className="flex items-center justify-center w-6 h-6 text-white bg-red-500 rounded-full cursor-pointer"
-          >
-            <FiX />
-          </button>
-        </div>
-
-        <hr className="mb-4" />
-
-        <div className="flex h-[80%]">
-          <aside className="flex flex-col justify-between w-1/4 h-full p-6 border-r border-gray-300">
-            <nav className="flex flex-col gap-2 text-xl font-medium">
-              <NavLink className="p-2">Terms & Condition</NavLink>
-              <NavLink className="p-2 text-black bg-[#B3E5FC] rounded-sm">
-                Help & Support
-              </NavLink>
-              <NavLink className="p-2">Report a Bug</NavLink>
-            </nav>
-            <div className="flex items-center justify-center">
-              <button
-                onClick={() => setIsLogoutConfirmOpen(true)}
-                className="px-4 py-2 text-white bg-red-500 rounded cursor-pointer hover:bg-red-600"
-              >
-                Logout User
-              </button>
-            </div>
-          </aside>
-          <div className="w-2/3 h-full p-6 overflow-y-auto">
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'terms':
+        return <p> </p>; // James
+      case 'help':
+        return (
+          <div>
             <div className="flex justify-between mb-7">
               <h1 className="text-2xl">Help Center</h1>
               <div className="flex items-center gap-2 text-[#FFA726]">
@@ -76,11 +51,11 @@ const SettingsModal = ({ isOpen, closeModal }) => {
               <h1 className="text-xl">FAQ's</h1>
               <ul className="flex flex-col gap-2 text-base">
                 {[
-                  "How do I create an account?",
-                  "What is its main purpose?",
-                  "I forgot my password. How can I reset it?",
-                  "Is my personal information safe?",
-                  "How do I contact customer support?",
+                  'How do I create an account?',
+                  'What is its main purpose?',
+                  'I forgot my password. How can I reset it?',
+                  'Is my personal information safe?',
+                  'How do I contact customer support?',
                 ].map((faq, index) => (
                   <li
                     key={index}
@@ -92,6 +67,75 @@ const SettingsModal = ({ isOpen, closeModal }) => {
                 ))}
               </ul>
             </div>
+          </div>
+        );
+      case 'report':
+        return <p></p>; // James
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="relative w-[70%] h-[80%] bg-white rounded-lg shadow-lg">
+        <div className="flex justify-between px-6 py-4">
+          <h1 className="text-xl">User Settings Section</h1>
+          <button
+            onClick={closeModal}
+            className="flex items-center justify-center w-6 h-6 text-white bg-red-500 rounded-full cursor-pointer"
+          >
+            <FiX />
+          </button>
+        </div>
+
+        <hr className="mb-4" />
+
+        <div className="flex h-[80%]">
+          <aside className="flex flex-col justify-between w-1/4 h-full p-6 border-r border-gray-300">
+            <nav className="flex flex-col gap-2 text-xl font-medium">
+              <button
+                onClick={() => setActiveTab('terms')}
+                className={`p-2 text-left ${
+                  activeTab === 'terms'
+                    ? 'text-black bg-[#B3E5FC] rounded-sm'
+                    : ''
+                }`}
+              >
+                Terms & Condition
+              </button>
+              <button
+                onClick={() => setActiveTab('help')}
+                className={`p-2 text-left ${
+                  activeTab === 'help'
+                    ? 'text-black bg-[#B3E5FC] rounded-sm'
+                    : ''
+                }`}
+              >
+                Help & Support
+              </button>
+              <button
+                onClick={() => setActiveTab('report')}
+                className={`p-2 text-left ${
+                  activeTab === 'report'
+                    ? 'text-black bg-[#B3E5FC] rounded-sm'
+                    : ''
+                }`}
+              >
+                Report a Bug
+              </button>
+            </nav>
+            <div className="flex items-center justify-center">
+              <button
+                onClick={() => setIsLogoutConfirmOpen(true)}
+                className="px-4 py-2 text-white bg-red-500 rounded cursor-pointer hover:bg-red-600"
+              >
+                Logout User
+              </button>
+            </div>
+          </aside>
+          <div className="w-2/3 h-full p-6 overflow-y-auto">
+            {renderTabContent()}
           </div>
         </div>
       </div>
