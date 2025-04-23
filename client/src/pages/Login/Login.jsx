@@ -5,10 +5,12 @@ import { useAuth } from "../../context/AuthContext";
 import { handleFormChange } from "../../utils/formHandlers";
 import BackGroundBu from "../../assets/background/Background_bu.png";
 import Logo from "../../assets/logo/Logo.png";
+import { useBooking } from "../../context/BookingContext";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
+  const { refreshUserOccupancyAndReservationData } = useBooking();
   const [user, setUser] = useState({
     email: "",
     password: "",
@@ -52,6 +54,7 @@ const Login = () => {
 
       result = await response.json();
       login(result.fetchedUser);
+      refreshUserOccupancyAndReservationData();
       result = result;
       message = {
         isResponseAvailable: true,

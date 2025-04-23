@@ -4,6 +4,8 @@ import { convertTimeTo12HourFormat } from "../../../../../utils/timeUtils";
 import { handleFormChange } from "../../../../../utils/formHandlers";
 import Button from "../../../../../components/Button";
 import { useAuth } from "../../../../../context/AuthContext";
+import { useBooking } from "../../../../../context/BookingContext";
+import { Link } from "react-router-dom";
 
 const BookNowModal = ({
   bookNowModal,
@@ -20,8 +22,10 @@ const BookNowModal = ({
   loading,
   bookingMessage,
   setBookNowModal,
+  conflictWithUserReservation,
 }) => {
   const { user } = useAuth();
+  const { userReservationData } = useBooking();
   const handleBookNowFormData = handleFormChange(
     bookNowFormData,
     setBookNowFormData
@@ -58,6 +62,18 @@ const BookNowModal = ({
             <p className="text-red-500">
               Sorry, this room is occupied at this current time. You can reserve
               for another time.
+            </p>
+          ) : conflictWithUserReservation ? (
+            <p className="text-red-500">
+              You already have a reservation at{" "}
+              {convertTimeTo12HourFormat(userReservationData?.start_time)} in{" "}
+              <Link
+                className="hover:underline"
+                to={`/room/${userReservationData?.room_id}`}
+              >
+                room {userReservationData?.room_number}
+              </Link>
+              . Please choose a different time.
             </p>
           ) : (
             <div className="flex">
@@ -138,12 +154,14 @@ const BookNowModal = ({
               </div>
               <Button
                 className={` px-8 py-2 rounded-sm cursor-pointer ${
-                  isTimeSlotAvailableForBookNow
-                    ? "bg-[#A2DEF9] hover:bg-[#b4e8ff]"
-                    : "bg-gray-300 opacity-60"
+                  !isTimeSlotAvailableForBookNow || conflictWithUserReservation
+                    ? "bg-gray-300 opacity-60"
+                    : "bg-[#A2DEF9] hover:bg-[#b4e8ff]"
                 }`}
                 type="submit"
-                disabled={!isTimeSlotAvailableForBookNow}
+                disabled={
+                  !isTimeSlotAvailableForBookNow || conflictWithUserReservation
+                }
               >
                 Book Now
               </Button>
