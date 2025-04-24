@@ -23,36 +23,10 @@ const Login = () => {
   });
 
   const [loading, setLoading] = useState(false);
-  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
 
   const navigate = useNavigate();
 
   const handleUserInput = handleFormChange(user, setUser);
-
-  const openForgotPasswordModal = () => setIsForgotPasswordOpen(true);
-  const closeForgotPasswordModal = () => setIsForgotPasswordOpen(false);
-
-  const handleForgotPassword = async (email) => {
-    try {
-      const response = await fetch(`${API_URL}/api/forgot-password`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to send reset email.');
-      }
-
-      alert('Password reset email sent successfully.');
-    } catch (error) {
-      console.error(error.message);
-      alert('Error sending password reset email.');
-    }
-  };
 
   const loginUser = async (e) => {
     e.preventDefault();
@@ -177,10 +151,7 @@ const Login = () => {
                 Remember me
               </label>
             </div>
-            <Link
-              className="text-lg text-[#FFA726]"
-              onClick={openForgotPasswordModal}
-            >
+            <Link to="/password-reset" className="text-lg text-[#FFA726]">
               Forgot password?
             </Link>
           </div>
@@ -216,51 +187,6 @@ const Login = () => {
           loading ? 'block' : 'hidden'
         }`}
       ></div>
-
-      {isForgotPasswordOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/30">
-          <div className="bg-white py-4 rounded-md shadow-lg w-[35vw] h-[35vh] relative flex flex-col">
-            <div className="flex justify-between items-center px-6 pb-2 border-b border-black">
-              <h2 className="text-lg">Forgot Password</h2>
-              <button
-                onClick={closeForgotPasswordModal}
-                className="w-5 h-5 bg-red-500 text-white font-bold text-lg rounded-full flex items-center justify-center"
-              >
-                ×
-              </button>
-            </div>
-            <div className="flex flex-col px-14 flex-grow justify-center">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const email = e.target.forgotEmail.value;
-                  handleForgotPassword(email);
-                  closeForgotPasswordModal();
-                }}
-              >
-                <label htmlFor="forgotEmail" className="block mb-2">
-                  Enter your email address:
-                </label>
-                <Input
-                  type="email"
-                  id="forgotEmail"
-                  name="forgotEmail"
-                  required
-                  className="w-[100%] mx-auto mb-10 p-4 bg-gray-100 rounded-md block"
-                />
-                <div className="flex justify-end gap-2">
-                  <button
-                    type="submit"
-                    className="px-10 py-3 bg-[#B3E5FC] rounded-md"
-                  >
-                    Send Code
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
     </main>
   );
 };
