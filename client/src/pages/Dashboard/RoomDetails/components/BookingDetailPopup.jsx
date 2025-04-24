@@ -1,5 +1,7 @@
 import React from "react";
 import { IoIosClose } from "react-icons/io";
+import { MdEdit } from "react-icons/md";
+import { TbClockCancel } from "react-icons/tb";
 import { convertTimeTo12HourFormat } from "../../../../utils/timeUtils";
 
 const BookingDetailPopup = ({
@@ -12,13 +14,23 @@ const BookingDetailPopup = ({
       {/* Booking Detail Popup */}
       {selectedBooking && (
         <div
-          className="absolute z-10 p-3 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg left-1/2 top-1/2"
+          className="absolute z-10 p-3 transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 rounded-md shadow-lg left-1/2 top-1/2"
           style={{
             top: `${selectedBookingPosition?.top}px`,
             left: `${selectedBookingPosition?.left}px`,
           }}
         >
-          <div className="text-right">
+          <div className="flex items-center justify-end">
+            <TbClockCancel
+              size={25}
+              className="p-1 cursor-pointer hover:bg-gray-200"
+              title="cancel"
+            />
+            <MdEdit
+              size={25}
+              className="p-1 cursor-pointer hover:bg-gray-200"
+              title="edit"
+            />
             <IoIosClose
               size={30}
               className="cursor-pointer hover:bg-gray-200"

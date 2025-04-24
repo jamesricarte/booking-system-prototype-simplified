@@ -31,6 +31,8 @@ const RoomDetails = () => {
     userOccupancyRemainingTime,
     userReservationData,
     refreshUserOccupancyAndReservationData,
+    setTimeWhenBooked,
+    timePassedAfterBooking,
   } = useBooking();
 
   const {
@@ -53,10 +55,12 @@ const RoomDetails = () => {
     setReserveBookingFromData,
     bookingMessage,
     loading,
+    cancelBooking,
+    endBooking,
   } = useRoomRequests();
 
   //Post Request for updating booking type
-  const updateBookingsType = async (updateToCurrentBook, type) => {
+  const updateBookingsType = async (updateToCurrentBook, startTime) => {
     try {
       const response = await fetch(`${API_URL}/api/updateBookingType`, {
         method: "PUT",
@@ -66,7 +70,7 @@ const RoomDetails = () => {
         body: JSON.stringify({
           toBeUpdated: updateToCurrentBook,
           roomId: roomId,
-          type: type,
+          startTime: startTime,
         }),
       });
 
@@ -76,7 +80,7 @@ const RoomDetails = () => {
       }
 
       const result = await response.json();
-      fetchBookings();
+      fetchBookings(result);
     } catch (error) {
       console.error(error);
     }
@@ -152,8 +156,12 @@ const RoomDetails = () => {
     minutes: 0,
   });
 
-  //Remaining time for cancel button
-  const [cancelButtonRemainingTime, setCancelButtonRemainingTime] = useState(0);
+  //Checking if cancelButton had timeout
+  const [isCancelButtonTimeout, setIsCancelButtonTimeout] = useState(false);
+
+  //Checking if end now button is allowed to show
+  const [isEndNowButtonAllowedToShow, setIsEndNowButtonAllowedToShow] =
+    useState(false);
 
   //Other Declarations
   const isBookingsFetchedRef = useRef(false);
@@ -171,7 +179,7 @@ const RoomDetails = () => {
     const interval = setInterval(updateCurrentTime, 1000);
 
     return () => clearInterval(interval);
-  }, [isRoomAvailableForBooking, bookings]);
+  }, []);
 
   const updateCurrentTime = () => {
     const now = new Date();
@@ -218,15 +226,21 @@ const RoomDetails = () => {
         booking.booking_type === "current_book"
       );
     });
+
     const checkPreviousCurrentBook = bookings.find((booking) => {
       return (
         currentTime >= convertTimeToMinutes(booking.end_time) &&
         booking.booking_type === "current_book"
       );
     });
+
     if (checkPreviousCurrentBook) {
-      updateBookingsType(checkPreviousCurrentBook.booking_id, "updateCurrent");
+      updateBookingsType(
+        checkPreviousCurrentBook.booking_id,
+        checkPreviousCurrentBook.start_time_id
+      );
     }
+
     if (!isBookingTypeCorrect) {
       const updateToCurrentBook = bookings.find((booking) => {
         return (
@@ -235,8 +249,13 @@ const RoomDetails = () => {
           booking.booking_type === "reservation"
         );
       });
+
       if (updateToCurrentBook) {
-        updateBookingsType(updateToCurrentBook.booking_id, "updatePrevious");
+        updateBookingsType(
+          updateToCurrentBook.booking_id,
+          updateToCurrentBook.start_time_id
+        );
+        setTimeWhenBooked(currentTime);
       }
     }
   };
@@ -282,7 +301,7 @@ const RoomDetails = () => {
     setSelectedBooking(booking);
     setSelectedBookingPosition({
       top: bookingRect.top + window.scrollY,
-      left: bookingRect.left + bookingRect.width * 1.9,
+      left: bookingRect.left + bookingRect.width * 1.8,
     });
   };
 
@@ -295,7 +314,7 @@ const RoomDetails = () => {
 
       setSelectedBookingPosition({
         top: bookingElementRect.top + window.scrollY,
-        left: bookingElementRect.left + bookingElementRect.width * 1.9,
+        left: bookingElementRect.left + bookingElementRect.width * 1.8,
       });
 
       const scrollableDivRect =
@@ -430,6 +449,46 @@ const RoomDetails = () => {
     const minutes = remainingTime % 60;
   };
 
+  //Changing Cancel button timeout depending on when it was booked
+  //Checking if end now button is allowed to show
+  useEffect(() => {
+    if (timePassedAfterBooking && userOccupancyRemainingTime) {
+      const totalMinutes =
+        userOccupancyRemainingTime.hours * 60 +
+        userOccupancyRemainingTime.minutes;
+
+      if (totalMinutes <= 15) {
+        if (timePassedAfterBooking >= 5) setIsCancelButtonTimeout(true);
+      }
+
+      if (totalMinutes <= 5) {
+        if (timePassedAfterBooking > 2) setIsCancelButtonTimeout(true);
+      }
+
+      if (totalMinutes < 3) {
+        setIsCancelButtonTimeout(true);
+      }
+
+      if (totalMinutes >= 15) {
+        if (timePassedAfterBooking >= 15) setIsCancelButtonTimeout(true);
+      }
+
+      if (timePassedAfterBooking >= 15 && totalMinutes > 5) {
+        setIsEndNowButtonAllowedToShow(true);
+      } else if (totalMinutes <= 5) {
+        setIsEndNowButtonAllowedToShow(true);
+      }
+    }
+
+    if (
+      userOccupancyRemainingTime.hours === 0 &&
+      userOccupancyRemainingTime.minutes === 0
+    ) {
+      setIsCancelButtonTimeout(false);
+      setIsEndNowButtonAllowedToShow(false);
+    }
+  }, [timePassedAfterBooking, userOccupancyRemainingTime, userOccupancyData]);
+
   //Checking if the booking message is available then close all modals, refetchBookings, refreshUserOccupancyAndReservationData
   useEffect(() => {
     if (
@@ -438,10 +497,13 @@ const RoomDetails = () => {
     ) {
       setBookNowModal(false);
       setReserveModal(false);
+    }
+
+    if (bookingMessage.isBookingMessageAvaialable) {
       fetchBookings();
       refreshUserOccupancyAndReservationData();
     }
-  }, [bookingMessage, loading, roomAvailability]);
+  }, [bookingMessage]);
 
   //-----------------------------------------------------------
   //JUST FILTERING TIMESLOT DROPDOWNS--------------------------
@@ -566,7 +628,7 @@ const RoomDetails = () => {
                       <div
                         key={index}
                         id={`booking-${booking.booking_id}`}
-                        className={`absolute w-[50%] p-2 text-sm text-white bg-blue-500 rounded cursor-pointer left-28 ${
+                        className={`absolute w-[50%] p-2 text-sm text-white bg-blue-500 rounded-md cursor-pointer left-28 ${
                           booking.booking_type === "current_book"
                             ? ""
                             : "opacity-60"
@@ -748,7 +810,7 @@ const RoomDetails = () => {
             </table>
 
             <div className="mt-4">
-              {roomAvailability.type === "occupied" ? (
+              {roomAvailability.type === "occupied" && occupantBookingDetail ? (
                 <div className="mb-4">
                   <h3
                     className={`text-lg font-semibold ${
@@ -763,13 +825,7 @@ const RoomDetails = () => {
                   <p>{occupantBookingDetail?.professor_name}</p>
                 </div>
               ) : (
-                <h3
-                  className={`mb-2 text-lg font-semibold ${
-                    roomAvailability.type === "available"
-                      ? "text-black"
-                      : "text-red-500"
-                  }`}
-                >
+                <h3 className="mb-2 text-lg font-semibold text-black ">
                   Room Occupant details
                 </h3>
               )}
@@ -802,7 +858,8 @@ const RoomDetails = () => {
                 )}
 
               <div className="border border-[#BDBDBD] p-4 flex flex-col gap-1">
-                {roomAvailability.type === "occupied" ? (
+                {roomAvailability.type === "occupied" &&
+                occupantBookingDetail ? (
                   <>
                     <div className="flex gap-2">
                       <p className="text-red-500">Class & Block:</p>
@@ -832,6 +889,11 @@ const RoomDetails = () => {
                       <p>{occupantBookingDetail?.purpose}</p>
                     </div>
                   </>
+                ) : !occupantBookingDetail &&
+                  roomAvailability.type === "occupied" ? (
+                  <p className="text-sm font-semibold text-green-500">
+                    Booking will be available once the current occupancy ends.
+                  </p>
                 ) : userOccupancyData &&
                   roomAvailability.type === "available" ? (
                   <>
@@ -854,11 +916,11 @@ const RoomDetails = () => {
                     </div>
                   </>
                 ) : isRoomAvailableForBooking ? (
-                  <p className="text-green-500">
+                  <p className="text-sm font-semibold text-green-500">
                     Room is available for booking, you can book now.
                   </p>
                 ) : (
-                  <p className="text-red-500 m">
+                  <p className="text-sm text-red-500">
                     Booking is not available at this time period.
                   </p>
                 )}
@@ -867,28 +929,31 @@ const RoomDetails = () => {
               {userOccupancyData?.room_id === roomId &&
                 userOccupancyData?.professor_id === user.school_id && (
                   <div className="flex gap-3">
-                    <button
-                      className={`px-4 py-2 text-white text-sm rounded cursor-pointer mt-4
+                    {!isCancelButtonTimeout && (
+                      <button
+                        className={`px-4 py-2 text-white text-sm rounded cursor-pointer mt-4
                   
                      bg-[#EF5350] hover:bg-[#ff9292]
                      
                 `}
-                      onClick={() => setBookNowModal(!bookNowModal)}
-                      disabled={userOccupancyData}
-                    >
-                      Cancel booking
-                    </button>
-                    <button
-                      className={`px-4 py-2 text-white text-sm rounded cursor-pointer mt-4
+                        onClick={cancelBooking}
+                      >
+                        Cancel booking
+                      </button>
+                    )}
+
+                    {isEndNowButtonAllowedToShow && (
+                      <button
+                        className={`px-4 py-2 text-white text-sm rounded cursor-pointer mt-4
                   
                      bg-[#ffac28] hover:bg-[#c7a877]
                      
                 `}
-                      onClick={() => setBookNowModal(!bookNowModal)}
-                      disabled={userOccupancyData}
-                    >
-                      End now
-                    </button>
+                        onClick={endBooking}
+                      >
+                        End now
+                      </button>
+                    )}
                   </div>
                 )}
             </div>
@@ -944,7 +1009,8 @@ const RoomDetails = () => {
         className={`fixed top-0 left-0 w-full h-full bg-black ${
           bookNowModal ||
           reserveModal ||
-          bookingMessage.isBookingMessageAvaialable
+          bookingMessage.isBookingMessageAvaialable ||
+          loading
             ? "opacity-30 pointer-events-auto"
             : "opacity-0 pointer-events-none"
         }`}
@@ -952,7 +1018,7 @@ const RoomDetails = () => {
 
       {/* Booking Response Message */}
       <div
-        className={`fixed z-10 p-3 m-0 transform -translate-x-1/2 bg-white left-1/2 shadow-xl transition-all duration-500 ease ${
+        className={`fixed z-10 p-4 m-0 transform -translate-x-1/2 bg-white left-1/2 shadow-xl transition-all duration-500 ease font-semibold text-sm rounded ${
           bookingMessage.isBookingMessageAvaialable
             ? "top-12 opacity-100"
             : "-top-10 opacity-0"

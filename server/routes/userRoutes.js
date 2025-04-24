@@ -32,21 +32,20 @@ const upload = multer({ storage, fileFilter });
 router.post("/login", async (req, res) => {
   const user = req.body;
 
-  try {
-    if (
-      Object.values(user).includes("") ||
-      Object.values(user).includes(null) ||
-      Object.values(user).includes(undefined)
-    ) {
-      return res.status(400).json({ message: "All fields are required!" });
-    }
+  if (
+    Object.values(user).includes("") ||
+    Object.values(user).includes(null) ||
+    Object.values(user).includes(undefined)
+  ) {
+    return res.status(400).json({ message: "All fields are required!" });
+  }
 
-    let query;
+  let query;
 
-    if (user.email === "admin") {
-      query = "SELECT * FROM users WHERE email = ?";
-    } else {
-      query = `SELECT u.id,
+  if (user.email === "admin") {
+    query = "SELECT * FROM users WHERE email = ?";
+  } else {
+    query = `SELECT u.id,
       u.school_id,
       p.school_id AS professor_school_id,
       u.email, p.professor_name AS name,
@@ -55,161 +54,146 @@ router.post("/login", async (req, res) => {
       FROM users u
       JOIN professors p ON u.school_id = p.id
       WHERE u.email = ?`;
-    }
-
-    db.query(query, [user.email], async (err, result) => {
-      if (err) {
-        return res
-          .status(500)
-          .json({ message: "Something went wrong.", error: err.message });
-      }
-
-      if (result.length === 0) {
-        return res.status(400).json({ message: "Invalid email or password" });
-      }
-
-      const fetchedUser = result[0];
-
-      const passwordMatch =
-        user.email !== "admin"
-          ? await bcrypt.compare(user.password, fetchedUser.password)
-          : user.password === fetchedUser.password;
-
-      if (passwordMatch) {
-        const { password, ...userWithoutPass } = fetchedUser;
-        res.status(200).json({
-          message: "Login successfull.",
-          fetchedUser: userWithoutPass,
-        });
-      } else {
-        res.status(400).json({ message: "Incorrect password." });
-      }
-    });
-  } catch (error) {
-    if (!res.headersSent) {
-      res
-        .status(500)
-        .json({ message: "Internal server error", error: error.message });
-    }
   }
+
+  db.query(query, [user.email], async (err, result) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ message: "Something went wrong.", error: err.message });
+    }
+
+    if (result.length === 0) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    const fetchedUser = result[0];
+
+    const passwordMatch =
+      user.email !== "admin"
+        ? await bcrypt.compare(user.password, fetchedUser.password)
+        : user.password === fetchedUser.password;
+
+    if (passwordMatch) {
+      const { password, ...userWithoutPass } = fetchedUser;
+      res.status(200).json({
+        message: "Login successfull.",
+        fetchedUser: userWithoutPass,
+      });
+    } else {
+      res.status(400).json({ message: "Incorrect password." });
+    }
+  });
 });
 
 //register
 router.post("/register", async (req, res) => {
   const user = req.body;
-  try {
-    if (
-      Object.values(user).includes("") ||
-      Object.values(user).includes(null) ||
-      Object.values(user).includes(undefined)
-    ) {
-      return res.status(400).json({ message: "All fields are required!" });
-    }
-
-    if (user.password !== user.confirmPassword) {
-      return res
-        .status(400)
-        .json({ message: "Your confirmation password does not match" });
-    }
-
-    if (
-      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
-        user.password
-      )
-    ) {
-      return res.status(400).json({
-        message:
-          "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.",
-      });
-    }
-
-    db.query(
-      "SELECT * FROM users WHERE email = ?",
-      [user.email],
-      async (err, result) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ message: "Something went wrong.", error: err.message });
-        }
-        if (result.length > 0) {
-          return res.status(400).json({
-            exists: true,
-            message: "Email is already registered",
-          });
-        }
-
-        db.query(
-          "SELECT * FROM professors WHERE school_id = ?",
-          [user.schoolId],
-          async (err, result) => {
-            if (err) {
-              return res.status(500).json({
-                message: "Something went wrong.",
-                error: err.message,
-              });
-            }
-
-            if (result.length === 0) {
-              return res.status(400).json({
-                message:
-                  "Sorry, this school ID is not allowed for registration in our system",
-              });
-            }
-
-            const school_id = result[0].id;
-            db.query(
-              "SELECT * FROM users WHERE school_id = ?",
-              [school_id],
-              async (err, result) => {
-                if (err) {
-                  return res.status(500).json({
-                    message: "Something went wrong.",
-                    error: err.message,
-                  });
-                }
-
-                if (result.length > 0) {
-                  return res.status(400).json({
-                    message: "This school Id was already registered.",
-                  });
-                }
-
-                const hashedPassword = await bcrypt.hash(user.password, 10);
-
-                db.query(
-                  "INSERT INTO users (email, school_id, password, user_type) VALUES(?,?,?,?)",
-                  [user.email, school_id, hashedPassword, 1],
-                  (err, result) => {
-                    if (err) {
-                      return res.status(500).json({
-                        message: "Something went wrong.",
-                        error: err.message,
-                      });
-                    }
-
-                    res.status(201).json({
-                      message: "Account was registered successfully.",
-                      id: result.insertId,
-                    });
-                    console.log(
-                      `${user.schoolId} account was registered successfully.`
-                    );
-                  }
-                );
-              }
-            );
-          }
-        );
-      }
-    );
-  } catch (error) {
-    if (!res.headersSent) {
-      res
-        .status(500)
-        .json({ message: "Internal server error", error: error.message });
-    }
+  if (
+    Object.values(user).includes("") ||
+    Object.values(user).includes(null) ||
+    Object.values(user).includes(undefined)
+  ) {
+    return res.status(400).json({ message: "All fields are required!" });
   }
+
+  if (user.password !== user.confirmPassword) {
+    return res
+      .status(400)
+      .json({ message: "Your confirmation password does not match" });
+  }
+
+  if (
+    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+      user.password
+    )
+  ) {
+    return res.status(400).json({
+      message:
+        "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.",
+    });
+  }
+
+  db.query(
+    "SELECT * FROM users WHERE email = ?",
+    [user.email],
+    async (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong.", error: err.message });
+      }
+      if (result.length > 0) {
+        return res.status(400).json({
+          exists: true,
+          message: "Email is already registered",
+        });
+      }
+
+      db.query(
+        "SELECT * FROM professors WHERE school_id = ?",
+        [user.schoolId],
+        async (err, result) => {
+          if (err) {
+            return res.status(500).json({
+              message: "Something went wrong.",
+              error: err.message,
+            });
+          }
+
+          if (result.length === 0) {
+            return res.status(400).json({
+              message:
+                "Sorry, this school ID is not allowed for registration in our system",
+            });
+          }
+
+          const school_id = result[0].id;
+          db.query(
+            "SELECT * FROM users WHERE school_id = ?",
+            [school_id],
+            async (err, result) => {
+              if (err) {
+                return res.status(500).json({
+                  message: "Something went wrong.",
+                  error: err.message,
+                });
+              }
+
+              if (result.length > 0) {
+                return res.status(400).json({
+                  message: "This school Id was already registered.",
+                });
+              }
+
+              const hashedPassword = await bcrypt.hash(user.password, 10);
+
+              db.query(
+                "INSERT INTO users (email, school_id, password, user_type) VALUES(?,?,?,?)",
+                [user.email, school_id, hashedPassword, 1],
+                (err, result) => {
+                  if (err) {
+                    return res.status(500).json({
+                      message: "Something went wrong.",
+                      error: err.message,
+                    });
+                  }
+
+                  res.status(201).json({
+                    message: "Account was registered successfully.",
+                    id: result.insertId,
+                  });
+                  console.log(
+                    `${user.schoolId} account was registered successfully.`
+                  );
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
 });
 
 //Change password
@@ -360,7 +344,6 @@ router.put("/updateProfileInformation", (req, res) => {
 });
 
 // Upload Profile
-
 router.post("/uploadProfile", upload.single("file"), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });

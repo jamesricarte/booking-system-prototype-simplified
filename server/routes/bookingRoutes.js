@@ -4,10 +4,9 @@ const router = express.Router();
 
 //Fetch Bookings for specific room and date
 router.get("/bookings/:id", (req, res) => {
-  try {
-    const roomId = req.params.id;
-    db.query(
-      `SELECT b.id AS booking_id,
+  const roomId = req.params.id;
+  db.query(
+    `SELECT b.id AS booking_id,
       r.room_number,
       p.professor_name,
       p.id AS professor_id,
@@ -27,33 +26,32 @@ router.get("/bookings/:id", (req, res) => {
       JOIN timeslots t1 ON b.start_time = t1.id
       JOIN timeslots t2 ON b.end_time = t2.id
       WHERE b.date = CURRENT_DATE() AND b.room_id = ?;`,
-      [roomId],
-      async (err, result) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ message: "Something went wrong", error: err.message });
-        }
-
-        if (result.length === 0) {
-          return res
-            .status(200)
-            .json({ message: "No bookings were found", bookings: result });
-        }
-
-        res.status(200).json({
-          message: "Bookings were succesfully fetched!",
-          bookings: result,
-        });
+    [roomId],
+    async (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
       }
-    );
-  } catch (error) {
-    if (!res.headersSent) {
-      res
-        .status(500)
-        .json({ message: "Internal Server Error", error: error.message });
+
+      if (!result) {
+        return res
+          .status(400)
+          .json({ message: "Some problem occured", result });
+      }
+
+      if (result.length === 0) {
+        return res
+          .status(200)
+          .json({ message: "No bookings were found", bookings: result });
+      }
+
+      res.status(200).json({
+        message: "Bookings were succesfully fetched!",
+        bookings: result,
+      });
     }
-  }
+  );
 });
 
 //Check availability for all rooms
@@ -83,11 +81,20 @@ router.get("/roomBookingAvailability", (req, res) => {
           .json({ message: "Something went wrong", error: err.message });
       }
 
-      if (result.length === 0) {
-        return res.status(400).json({ message: "No bookings found." });
+      const fetchedBookings = result;
+
+      if (!result) {
+        return res
+          .status(400)
+          .json({ message: "Some problem occured", result });
       }
 
-      const fetchedBookings = result;
+      if (result.length === 0) {
+        return res.status(200).json({
+          message: "No bookings found.",
+          roomBookings: fetchedBookings,
+        });
+      }
 
       return res.status(200).json({
         message: "Successfully fetched bookings for all rooms",
@@ -237,7 +244,7 @@ router.post("/reserveBooking", (req, res) => {
 
 //Update booking type
 router.put("/updateBookingType", (req, res) => {
-  const { toBeUpdated, type, roomId } = req.body;
+  const { toBeUpdated, startTime, roomId } = req.body;
   db.query(
     "UPDATE bookings SET booking_type = 'current_book' WHERE id = ?",
     [toBeUpdated],
@@ -255,10 +262,8 @@ router.put("/updateBookingType", (req, res) => {
       }
 
       db.query(
-        `UPDATE bookings SET booking_type = 'past' WHERE id ${
-          type === "updatePrevious" ? "<" : "<="
-        } ? AND booking_type = 'current_book' AND room_id = ? AND date = CURRENT_DATE()`,
-        [toBeUpdated, roomId],
+        `UPDATE bookings SET booking_type = 'past' WHERE end_time <= ? AND booking_type = 'current_book' AND room_id = ? AND date = CURRENT_DATE()`,
+        [startTime, roomId],
         (err, result) => {
           if (err) {
             res
@@ -283,7 +288,7 @@ router.put("/updateBookingType", (req, res) => {
 
 //Update booking type of user occupancy
 router.put("/updateBookingTypeOfUser", (req, res) => {
-  const { toBeUpdated, type, professorId } = req.body;
+  const { toBeUpdated, startTime, professorId } = req.body;
   db.query(
     "UPDATE bookings SET booking_type = 'current_book' WHERE id = ?",
     [toBeUpdated],
@@ -301,10 +306,8 @@ router.put("/updateBookingTypeOfUser", (req, res) => {
       }
 
       db.query(
-        `UPDATE bookings SET booking_type = 'past' WHERE id ${
-          type === "updatePrevious" ? "<" : "<="
-        } ? AND booking_type = 'current_book' AND professor_id = ? AND date = CURRENT_DATE()`,
-        [toBeUpdated, professorId],
+        `UPDATE bookings SET booking_type = 'past' WHERE end_time <= ? AND booking_type = 'current_book' AND professor_id = ? AND date = CURRENT_DATE()`,
+        [startTime, professorId],
         (err, result) => {
           if (err) {
             res
@@ -377,6 +380,132 @@ router.get("/checkUserOccupancy/:professorId", (req, res) => {
       });
     }
   );
+});
+
+//Delete userOccupancy booking
+router.delete("/deleteUserOccupancyBooking", (req, res) => {
+  const { booking_id } = req.body;
+
+  db.query("DELETE FROM bookings WHERE id = ?", [booking_id], (err, result) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ message: "Something went wrong", error: err.message });
+    }
+
+    if (Object.values(result).every((val) => val === 0)) {
+      return res.status(400).json({
+        message: "The booking you were trying to delete was not found",
+        result: result,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Booking was canceled.",
+      result: result,
+    });
+  });
+});
+
+const convertTimeToMinutes = (hours, minutes) => {
+  return hours * 60 + minutes;
+};
+
+//End current booking
+router.put("/endUserOccupancyBooking", (req, res) => {
+  const userOccupancyData = req.body;
+
+  const now = new Date();
+  let hours = now.getHours();
+  let minutes = now.getMinutes();
+
+  const userOccupancyStartTimeHours = userOccupancyData.start_time
+    .split(":")
+    .map(Number)[0];
+  const userOccupancyStartTimeMinutes = userOccupancyData.start_time
+    .split(":")
+    .map(Number)[1];
+  const userOccupancyEndTimeHours = userOccupancyData.end_time
+    .split(":")
+    .map(Number)[0];
+  const userOccupancyEndTimeMinutes = userOccupancyData.end_time
+    .split(":")
+    .map(Number)[1];
+
+  const totalCurrentTimeMinutes = convertTimeToMinutes(hours, minutes);
+  const totalUserOccupancyStartTimeMinutes = convertTimeToMinutes(
+    userOccupancyStartTimeHours,
+    userOccupancyStartTimeMinutes
+  );
+  const totalUserOccupancyEndTimeMinutes = convertTimeToMinutes(
+    userOccupancyEndTimeHours,
+    userOccupancyEndTimeMinutes
+  );
+
+  function endBooking(selectedEndTimeId) {
+    db.query(
+      "UPDATE bookings SET end_time = ?, booking_type = ? WHERE id = ?",
+      [selectedEndTimeId, "past", userOccupancyData.booking_id],
+      (err, result) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ message: "Something went wrong", error: err.message });
+        }
+
+        if (Object.values(result).every((val) => val === 0)) {
+          return res.status(400).json({
+            message:
+              "Error ending! The booking we were trying to cancel was not found.",
+            result: result,
+          });
+        }
+
+        return res.status(200).json({ message: "Ended your booking" });
+      }
+    );
+  }
+
+  let selectedEndTimeId;
+  let nearestTimeSlotForCancel;
+  if (totalCurrentTimeMinutes - totalUserOccupancyStartTimeMinutes < 30) {
+    selectedEndTimeId = parseInt(++userOccupancyData.start_time_id);
+
+    endBooking(selectedEndTimeId);
+  } else {
+    if (minutes > 15 && minutes < 45) {
+      minutes = 30;
+    } else if (minutes >= 45) {
+      hours++;
+      minutes = 0;
+    } else {
+      minutes = 0;
+    }
+    nearestTimeSlotForCancel = `${hours.toString().padStart(2, "0")}:${minutes
+      .toString(nearestTimeSlotForCancel)
+      .padStart(2, "0")}:00`;
+    db.query(
+      "SELECT * FROM timeslots WHERE time = ?",
+      [nearestTimeSlotForCancel],
+      (err, result) => {
+        if (err) {
+          return res
+            .status(500)
+            .json({ message: "Something went wrong", error: err.message });
+        }
+
+        if (result.length === 0) {
+          return res
+            .status(400)
+            .json("Error finding right timeslot for cancelation.");
+        }
+
+        selectedEndTimeId = result[0].id;
+
+        endBooking(selectedEndTimeId);
+      }
+    );
+  }
 });
 
 module.exports = router;

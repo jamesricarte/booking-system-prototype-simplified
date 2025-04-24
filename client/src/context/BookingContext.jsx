@@ -26,12 +26,14 @@ export const BookingProvider = ({ children }) => {
     hours: 0,
     minutes: 0,
   });
+  const [timePassedAfterBooking, setTimePassedAfterBooking] = useState(0);
+
   const [userReservationData, setUserReservationData] = useState(null);
 
   const lastMinuteRef = useRef(null);
   const isBookingsFetchedRef = useRef(false);
 
-  const updateBookingsTypeOfUser = async (updateToCurrentBook, type) => {
+  const updateBookingsTypeOfUser = async (updateToCurrentBook, startTime) => {
     try {
       const response = await fetch(`${API_URL}/api/updateBookingTypeOfUser`, {
         method: "PUT",
@@ -41,7 +43,7 @@ export const BookingProvider = ({ children }) => {
         body: JSON.stringify({
           toBeUpdated: updateToCurrentBook,
           professorId: user?.school_id,
-          type: type,
+          startTime: startTime,
         }),
       });
 
@@ -103,7 +105,7 @@ export const BookingProvider = ({ children }) => {
     if (checkPreviousCurrentBook) {
       updateBookingsTypeOfUser(
         checkPreviousCurrentBook.booking_id,
-        "updateCurrent"
+        checkPreviousCurrentBook.start_time_id
       );
     }
 
@@ -119,8 +121,9 @@ export const BookingProvider = ({ children }) => {
       if (updateToCurrentBook) {
         updateBookingsTypeOfUser(
           updateToCurrentBook.booking_id,
-          "updatePrevious"
+          updateToCurrentBook.start_time_id
         );
+        setTimeWhenBooked(currentTime);
       }
     }
   };
@@ -150,6 +153,7 @@ export const BookingProvider = ({ children }) => {
   useEffect(() => {
     if (userOccupancyData) {
       checkUserOccupancyRemainingTime();
+      checkCancelButtonRemainingTime();
     } else {
       setUserOccupancyRemainingTime({
         hours: 0,
@@ -173,6 +177,19 @@ export const BookingProvider = ({ children }) => {
     }
   };
 
+  const checkCancelButtonRemainingTime = () => {
+    if (userOccupancyData) {
+      const timeWhenBooked = JSON.parse(localStorage.getItem("timeWhenBooked"));
+      const timePassed = currentTime - timeWhenBooked.time;
+
+      setTimePassedAfterBooking(timePassed);
+    }
+  };
+
+  const setTimeWhenBooked = (time) => {
+    localStorage.setItem("timeWhenBooked", JSON.stringify({ time: time }));
+  };
+
   return (
     <BookingContext.Provider
       value={{
@@ -180,6 +197,9 @@ export const BookingProvider = ({ children }) => {
         userOccupancyRemainingTime,
         userReservationData,
         refreshUserOccupancyAndReservationData,
+        setTimeWhenBooked,
+        currentTime,
+        timePassedAfterBooking,
       }}
     >
       {children}

@@ -5,18 +5,19 @@ import {
   convertTimeToMinutes,
   convertTimeTo12HourFormat,
 } from "../../../utils/timeUtils";
+import useFetchBookingsForAllRoom from "../../../hooks/useFetchBookingsForAllRoom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const Bookings = () => {
+  const { bookingsForAllRoom } = useFetchBookingsForAllRoom();
+
   const [rooms, setRooms] = useState([]);
-  const [roomBookings, setRoomBookings] = useState([]);
   const [currentTime, setCurrentTime] = useState(null);
   const [lastMinutes, setLastMinutes] = useState(null);
 
   useEffect(() => {
     fetchRooms();
-    fetchRoomBookings();
   }, []);
 
   useEffect(() => {
@@ -59,22 +60,6 @@ const Bookings = () => {
     }
   };
 
-  const fetchRoomBookings = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/roomBookingAvailability`);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw errorData;
-      }
-
-      const result = await response.json();
-      setRoomBookings(result.roomBookings);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   return (
     <>
       <main className="container h-full mx-auto bg-white">
@@ -106,11 +91,12 @@ const Bookings = () => {
               </thead>
               <tbody className="bg-[#EFEFEF]">
                 {rooms.map((room, index) => {
-                  const activeBooking = roomBookings.find((booking) => {
+                  const activeBooking = bookingsForAllRoom.find((booking) => {
                     return (
                       booking.room_id === room.id &&
                       currentTime >= convertTimeToMinutes(booking.start_time) &&
-                      currentTime < convertTimeToMinutes(booking.end_time)
+                      currentTime < convertTimeToMinutes(booking.end_time) &&
+                      booking.booking_type !== "past"
                     );
                   });
 

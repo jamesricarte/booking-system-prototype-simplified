@@ -1,24 +1,24 @@
-import React, { useState } from 'react';
-import Input from '../../components/Input';
-import { Link, useNavigate } from 'react-router-dom';
-import { handleFormChange } from '../../utils/formHandlers';
-import BackGroundBu from '../../assets/background/Background_bu.png';
-import Logo from '../../assets/logo/Logo.png';
+import React, { useState } from "react";
+import Input from "../../components/Input";
+import { Link, useNavigate } from "react-router-dom";
+import { handleFormChange } from "../../utils/formHandlers";
+import BackGroundBu from "../../assets/background/Background_bu.png";
+import Logo from "../../assets/logo/Logo.png";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const Register = () => {
   const [user, setUser] = useState({
-    email: '',
-    schoolId: '',
-    password: '',
-    confirmPassword: '',
+    email: "",
+    schoolId: "",
+    password: "",
+    confirmPassword: "",
   });
 
   const [response, setResponse] = useState({
     isResponseAvailable: false,
-    message: '',
-    type: '',
+    message: "",
+    type: "",
   });
 
   const [loading, setLoading] = useState(false);
@@ -32,13 +32,13 @@ const Register = () => {
 
     setLoading(true);
     const startTime = Date.now();
-    let message = { isResponseAvailable: false, message: '', type: '' };
+    let message = { isResponseAvailable: false, message: "", type: "" };
 
     try {
       const response = await fetch(`${API_URL}/api/register`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(user),
       });
@@ -52,13 +52,17 @@ const Register = () => {
       message = {
         isResponseAvailable: true,
         message: result.message,
-        type: 'success',
+        type: "success",
       };
     } catch (error) {
+      const errorMessage =
+        error.message === "Failed to fetch"
+          ? "Something went wrong with the server."
+          : error.message;
       message = {
         isResponseAvailable: true,
-        message: error.message,
-        type: 'error',
+        message: errorMessage,
+        type: "error",
       };
     } finally {
       const elapsedTime = Date.now() - startTime;
@@ -71,9 +75,9 @@ const Register = () => {
           message: message.message,
           type: message.type,
         });
-        if (message.type === 'success') {
+        if (message.type === "success") {
           setTimeout(() => {
-            navigate('/login');
+            navigate("/login");
           }, 2000);
         }
       }, Math.max(0, minimumTime - elapsedTime));
@@ -150,11 +154,11 @@ const Register = () => {
           {response.isResponseAvailable && (
             <p
               className={`mb-4 ${
-                response.type === 'success' ? 'text-green-500' : 'text-red-500'
+                response.type === "success" ? "text-green-500" : "text-red-500"
               }`}
             >
               {response.message}
-              {response.type === 'success' && '... Redirecting to login'}
+              {response.type === "success" && "... Redirecting to login"}
             </p>
           )}
           <Input
@@ -164,14 +168,14 @@ const Register = () => {
           />
         </form>
         <p className="mb-4 text-lg text-center">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link to="/login" className="text-[#FFA726]">
             Login
           </Link>
         </p>
         <div className="mt-12">
           <p className="text-sm text-center">
-            © 2025 BUCENG | All Rights Reserved{' '}
+            © 2025 BUCENG | All Rights Reserved{" "}
           </p>
         </div>
       </div>
@@ -179,14 +183,14 @@ const Register = () => {
       {/* Loading spinner */}
       <div
         className={`absolute z-10 w-8 h-8 transform -translate-x-1/2 -translate-y-1/2 rounded-full border-6 rounded-1/2 border-t-transparent border-cyan-500 left-1/2 top-1/2 ${
-          loading ? 'block animate-spin' : 'hidden'
+          loading ? "block animate-spin" : "hidden"
         }`}
       ></div>
 
       {/* Background */}
       <div
         className={`fixed top-0 left-0 w-full h-full bg-white opacity-60 pointer-events-auto ${
-          loading ? 'block' : 'hidden'
+          loading ? "block" : "hidden"
         }`}
       ></div>
     </main>

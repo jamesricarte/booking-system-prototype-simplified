@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import BlankProfile from "../../../assets/image/elipse.png";
 import { useAuth } from "../../../context/AuthContext";
-import Button from "../../../components/Button";
 import Input from "../../../components/Input";
 import { RiCloseCircleFill } from "react-icons/ri";
 import { FiEdit } from "react-icons/fi";
@@ -11,6 +10,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const UserProfile = () => {
   const { user, login } = useAuth();
+
   // file upload
   const [file, setFile] = useState(null);
 
@@ -18,7 +18,6 @@ const UserProfile = () => {
   const fileInputRef = useRef();
 
   //auth
-
   const [changePassswordModal, setChangePasswordModal] = useState(false);
   const [changePasswordData, setChangePasswordData] = useState({
     id: user.id,
@@ -202,9 +201,8 @@ const UserProfile = () => {
   };
 
   // upload profile useEffect
-
   useEffect(() => {
-    console.log("Full user object →", user);
+    // console.log("Full user object →", user);
     if (user?.profile_image && user.profile_image.trim() !== "") {
       setImagePreview(`http://localhost:3000${user.profile_image}`);
     } else {
