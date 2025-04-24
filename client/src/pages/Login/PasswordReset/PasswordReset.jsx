@@ -16,16 +16,16 @@ const PasswordReset = ({ onSubmit = () => {} }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     switch (stage) {
-      case 'email':
+      case 'email': // placeholder sa email submission logic
         onSubmit(email);
         setStage('verify');
         break;
-      case 'verify':
+      case 'verify': //pa edit nalang nung backend logic here placeholder lang to 6 digit code
         verificationCode === '123456'
           ? setStage('reset')
           : console.error('Invalid verification code');
         break;
-      case 'reset':
+      case 'reset': //same here sa password reset logic
         newPassword === confirmPassword
           ? console.log('Password reset successful')
           : console.error('Passwords do not match');
