@@ -212,19 +212,22 @@ const UserProfile = () => {
     }
   }, [user?.profile_image]);
 
-  return (
-    <main className="w-full h-full overflow-y-auto bg-white ccontainer">
-      <div className="p-4">
-        <h1 className="text-xl">Account Settings Section</h1>
-      </div>
-      <hr />
-      <div className="py-7 px-14">
-        <div className="relative flex">
-          <div className="flex flex-col items-center w-[280px] mr-6">
+
+  
+
+  const [activeTab, setActiveTab] = useState('basic-info');
+
+  const renderTabContent = () => {
+      switch (activeTab) {
+        case 'basic-info':
+          return (<>
+          
+          <div className="flex flex-col w-full ml-2 mr-7">
+            <div className="flex flex-row items-center w-full m-6">
             <img
               src={imagePreview || `http://localhost:3000${user.profile_image}`}
               alt="Profile"
-              className="object-cover mb-4 rounded-full w-36 h-36"
+              className="object-cover mb-4 rounded-full mr-20 w-36 h-36"
             />
 
             <input
@@ -250,9 +253,10 @@ const UserProfile = () => {
                 setImagePreview(URL.createObjectURL(selectedFile));
               }}
             />
-
+            <div className="flex flex-col">
+              <div>
             <button
-              className="px-4 py-2 mb-2 text-black bg-[#B3E5FC] rounded hover:bg-blue-300 cursor-pointer"
+              className="px-4 py-2 mb-5 mr-5 text-black bg-[#B3E5FC] rounded hover:bg-blue-300 cursor-pointer"
               onClick={() => fileInputRef.current.click()}
             >
               Select Image
@@ -289,19 +293,25 @@ const UserProfile = () => {
                 Upload
               </button>
             )}
-
-            <p className="text-sm text-center text-gray-500">
+            <button
+              className="px-4 py-2 mb-5 mr-5 text-red-400 bg-gray-300 rounded cursor-pointer hover:bg-gray-400"
+            >
+              Delete Image
+            </button>
+            </div>
+            
+              <p className="text-sm text-center text-gray-500">
               File size maximum: 2MB
               <br />
               File extension: PNG/JPG
-            </p>
-          </div>
-
-          <div className="border border-gray-200" />
-
-          <div className="relative flex-1 pl-6">
+              </p>
+            </div>
+            </div>
+          
+            <div className="relative flex-1 pl-6">
             <form className="space-y-4" onSubmit={updateProfileInformation}>
-              <div className="flex justify-end">
+              <div className="flex justify-between">
+                <h1 className="text-xl">Edit Profile</h1>
                 <div
                   className="flex items-center gap-2 cursor-pointer"
                   onClick={() => {
@@ -319,6 +329,7 @@ const UserProfile = () => {
                   <p className="text-sm text-orange-500">Edit Information</p>
                 </div>
               </div>
+              
               <div>
                 <label
                   htmlFor="name"
@@ -375,13 +386,6 @@ const UserProfile = () => {
               </div>
 
               <div className="flex items-center justify-between gap-2 mt-8">
-                <button
-                  type="button"
-                  onClick={() => setChangePasswordModal(true)}
-                  className="px-4 py-2 text-black bg-[#EFEFEF] rounded hover:bg-gray-300 cursor-pointer"
-                >
-                  Change password
-                </button>
 
                 <div className="flex gap-2">
                   {editProfileForm.isEditable && (
@@ -417,57 +421,29 @@ const UserProfile = () => {
                 </div>
               </div>
             </form>
-          </div>
+            </div>
 
-          {/*Profile Loading spinner */}
-          <div
+            {/*Profile Loading spinner */}
+            <div
             className={`absolute z-10 w-8 h-8 transform -translate-x-1/2 -translate-y-1/2 rounded-full border-6 rounded-1/2 border-t-transparent border-cyan-500 left-1/2 top-1/2 ${
               profileUpdateLoading ? "block animate-spin" : "hidden"
             }`}
-          ></div>
+            ></div>
 
-          {/* White background */}
-          <div
+            {/* White background */}
+            <div
             className={`absolute top-0 left-0 w-full h-full bg-white opacity-50 pointer-events-auto z-10 ${
               profileUpdateLoading ? "block" : "hidden"
             }`}
-          ></div>
-        </div>
-      </div>
-
-      {/* Change Password Modal */}
-      <div
-        className={`fixed z-10 w-[30vw] transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-sm shadow-lg top-1/2 left-1/2 ${
-          changePassswordModal ? "block" : "hidden"
-        }`}
-      >
-        <div className="flex items-center justify-between p-4">
-          <h2 className="text-lg">Change password</h2>
-          <RiCloseCircleFill
-            onClick={() => {
-              setChangePasswordModal(false);
-              setChangePasswordResponse((prev) => ({
-                ...prev,
-                message: "",
-              }));
-              setChangePasswordData((prev) =>
-                Object.fromEntries(
-                  Object.keys(prev).map((key) => [
-                    key,
-                    key === "id" ? prev[key] : "",
-                  ])
-                )
-              );
-            }}
-            className="cursor-pointer"
-            color="red"
-            size={18}
-          />
-        </div>
-
-        <hr className="border-gray-500" />
-
-        <form className="flex flex-col gap-3 p-5" onSubmit={changePassword}>
+               ></div>
+               </div>
+               {/* end */}
+          </>); 
+        case 'change-password':
+          return (
+            <>
+            <h1 className="text-xl p-2">Change Password</h1>
+            <form className="flex flex-col gap-3 p-5" onSubmit={changePassword}>
           <div>
             <label
               htmlFor="currentPassword"
@@ -544,6 +520,146 @@ const UserProfile = () => {
             }`}
           ></div>
         </form>
+            </>
+          );
+        case 'calendarprefs':
+          return (<>
+          <div className="flex flex-col w-full">
+        <h1 className="text-xl mb-4">Choose Your Theme Color</h1>
+        
+        <div className=" p-4 rounded-md mb-6">
+          <p className="text-sm text-gray-600 mb-4">
+          Note: This change will only affect the appearance of the calendar for your selected booking time. It will not impact the overall system.
+          </p>
+          
+          {/* Color picker grid */}
+          <div className="grid grid-cols-6 gap-3 md:grid-cols-12 mb-6">
+            {/* First row */}
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#ff6b6b" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#ff9e7d" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#ffbe76" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#4ecdc4" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#1abc9c" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#7851a9" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#ff7675" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#a4b0be" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#2f3542" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#a55eea" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#8854d0" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#303952" }}></div>
+            
+            {/* Second row */}
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#e74c3c" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#3498db" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#1e90ff" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#2ecc71" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#f1c40f" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#9b59b6" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#ff5252" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#e67e22" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#8b0000" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#6ab04c" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#b71540" }}></div>
+            <div className="w-full h-8 rounded cursor-pointer" style={{ backgroundColor: "#badc58" }}></div>
+          </div>
+
+          <div className="flex justify-end">
+            <button className="px-4 py-2 bg-[#B3E5FC] text-black rounded hover:bg-blue-300">
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+          </>); 
+        default:
+          return null;
+      }
+    }
+  return (
+    <main className="container w-full h-full overflow-y-auto bg-white">
+      <div className="p-4">
+        <h1 className="text-xl">Account Settings Section</h1>
+      </div>
+      <hr />
+      <div className="py-7 px-7">
+        <div className="relative flex">
+              <div className="flex flex-col mr-5 w-md">
+              <button
+                onClick={() => setActiveTab('basic-info')}
+                className={`p-2 text-left ${
+                  activeTab === 'basic-info'
+                    ? 'text-black bg-[#B3E5FC] rounded-sm'
+                    : ''
+                }`}
+              >
+                Basic Info
+              </button>
+              <button
+                onClick={() => setActiveTab('change-password')}
+                className={`p-2 text-left ${
+                  activeTab === 'change-password'
+                    ? 'text-black bg-[#B3E5FC] rounded-sm'
+                    : ''
+                }`}
+              >
+                Change Password
+              </button>
+              <button
+                onClick={() => setActiveTab('calendarprefs')}
+                className={`p-2 text-left ${
+                  activeTab === 'calendarprefs'
+                    ? 'text-black bg-[#B3E5FC] rounded-sm'
+                    : ''
+                }`}
+              >
+                Calendar Preferences
+              </button>
+              
+              </div>
+             
+                
+          <div className="border border-gray-200" />
+          
+          <div className="w-2/3 h-full p-6 overflow-y-auto">
+            {renderTabContent()}
+          </div>
+          
+              </div>
+            </div>
+
+                {/* Change Password Modal */}
+                <div
+                  className={`fixed z-10 w-[30vw] transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-sm shadow-lg top-1/2 left-1/2 ${
+                    changePassswordModal ? "block" : "hidden"
+                  }`}
+                >
+                  <div className="flex items-center justify-between p-4">
+                    <h2 className="text-lg">Change password</h2>
+                    <RiCloseCircleFill
+                      onClick={() => {
+                        setChangePasswordModal(false);
+                        setChangePasswordResponse((prev) => ({
+                          ...prev,
+                          message: "",
+                        }));
+                        setChangePasswordData((prev) =>
+                          Object.fromEntries(
+                            Object.keys(prev).map((key) => [
+                              key,
+                              key === "id" ? prev[key] : "",
+                            ])
+                          )
+                        );
+                      }}
+                      className="cursor-pointer"
+                      color="red"
+                      size={18}
+                    />
+                  </div>
+
+        <hr className="border-gray-500" />
+
+        
       </div>
 
       {/* Loading spinner */}

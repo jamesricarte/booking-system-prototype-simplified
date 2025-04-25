@@ -82,7 +82,7 @@ const Register = () => {
 
   return (
     <main className="flex">
-      <div className="w-[70vw] 2xl:w-[65vw] min-h-screen">
+      <div className="w-[70vw] 2xl:w-[65vw] min-h-screen bg-white">
         <img
           src={BackGroundBu}
           alt=""
