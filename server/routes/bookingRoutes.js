@@ -550,7 +550,7 @@ router.put("/updateBooking", (req, res) => {
 
       return res
         .status(200)
-        .json({ message: "Updated your reservation successfully!" });
+        .json({ message: "Updated your booking successfully!" });
     }
   );
 });
