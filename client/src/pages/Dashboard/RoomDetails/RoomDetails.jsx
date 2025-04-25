@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import BookNowModal from "./components/modals/BookNowModal";
 import ReserveModal from "./components/modals/ReserveModal";
 import BookingDetailPopup from "./components/BookingDetailPopup";
+import EditBookingModal from "./components/modals/EditBookingModal";
 import useRoomFetches from "./hooks/useRoomFetches";
 import {
   convertTimeTo12HourFormat,
@@ -57,6 +58,10 @@ const RoomDetails = () => {
     loading,
     cancelBooking,
     endBooking,
+    editBookingFormData,
+    setEditBookingFormData,
+    editBooking,
+    cancelReservation,
   } = useRoomRequests();
 
   //Post Request for updating booking type
@@ -96,6 +101,7 @@ const RoomDetails = () => {
   // Modal States
   const [bookNowModal, setBookNowModal] = useState(false);
   const [reserveModal, setReserveModal] = useState(false);
+  const [editBookingModal, setEditBookingModal] = useState(false);
 
   //Tooltip Hover
   const [showBookingButtonToolTip, setShowBookingButtonToolTip] =
@@ -367,7 +373,7 @@ const RoomDetails = () => {
     });
   };
 
-  //Checking if booking start time and end time is interferring with other bookings
+  // Checking if booking start time and end time is interferring with other bookings
   useEffect(() => {
     checkAvailability("bookNow");
   }, [bookNowFormData.startTime, bookNowFormData.endTime, bookings]);
@@ -504,10 +510,14 @@ const RoomDetails = () => {
   useEffect(() => {
     if (
       (bookingMessage.isBookingMessageAvaialable && bookNowModal) ||
-      (bookingMessage.isBookingMessageAvaialable && reserveModal)
+      (bookingMessage.isBookingMessageAvaialable && reserveModal) ||
+      (bookingMessage.isBookingMessageAvaialable && editBookingModal) ||
+      (bookingMessage.isBookingMessageAvaialable && selectedBooking)
     ) {
       setBookNowModal(false);
       setReserveModal(false);
+      setEditBookingModal(false);
+      setSelectedBooking(null);
     }
 
     if (bookingMessage.isBookingMessageAvaialable) {
@@ -572,14 +582,20 @@ const RoomDetails = () => {
   //The filter in the map below doesnt automatically updates the start time
   useEffect(() => {
     if (reserveBookingFormData.startTime) {
-      const nextAvailableEndTime = filteredEndTimeSlotsForReservation.find(
-        (timeslot) => timeslot.id > parseInt(reserveBookingFormData.startTime)
-      );
-      if (nextAvailableEndTime) {
-        setReserveBookingFromData((prevData) => ({
-          ...prevData,
-          endTime: nextAvailableEndTime.id,
-        }));
+      if (
+        parseInt(reserveBookingFormData.endTime) -
+          parseInt(reserveBookingFormData.startTime) <=
+        1
+      ) {
+        const nextAvailableEndTime = filteredEndTimeSlotsForReservation.find(
+          (timeslot) => timeslot.id > parseInt(reserveBookingFormData.startTime)
+        );
+        if (nextAvailableEndTime) {
+          setReserveBookingFromData((prevData) => ({
+            ...prevData,
+            endTime: nextAvailableEndTime.id,
+          }));
+        }
       }
     }
   }, [reserveBookingFormData.startTime]);
@@ -947,6 +963,7 @@ const RoomDetails = () => {
                      bg-[#EF5350] hover:bg-[#ff9292]
                      
                 `}
+                        title="Cancel this booking "
                         onClick={cancelBooking}
                       >
                         Cancel booking
@@ -960,6 +977,7 @@ const RoomDetails = () => {
                      bg-[#ffac28] hover:bg-[#c7a877]
                      
                 `}
+                        title="End this booking now"
                         onClick={endBooking}
                       >
                         End now
@@ -976,6 +994,9 @@ const RoomDetails = () => {
         selectedBooking={selectedBooking}
         selectedBookingPosition={selectedBookingPosition}
         setSelectedBooking={setSelectedBooking}
+        setEditBookingModal={setEditBookingModal}
+        editBookingModal={editBookingModal}
+        cancelReservation={cancelReservation}
       />
 
       <BookNowModal
@@ -1015,11 +1036,30 @@ const RoomDetails = () => {
         bookingMessage={bookingMessage}
       />
 
+      <EditBookingModal
+        editBookingModal={editBookingModal}
+        setEditBookingModal={setEditBookingModal}
+        setSelectedBooking={setSelectedBooking}
+        selectedBooking={selectedBooking}
+        serverDate={serverDate}
+        filteredStartTimeSlots={filteredStartTimeSlots}
+        filteredEndTimeSlotsForReservation={filteredEndTimeSlotsForReservation}
+        classes={classes}
+        bookingsPurposes={bookingsPurposes}
+        editBookingFormData={editBookingFormData}
+        setEditBookingFormData={setEditBookingFormData}
+        editBooking={editBooking}
+        loading={loading}
+        bookingMessage={bookingMessage}
+        bookings={bookings}
+      />
+
       {/* Background Overlay */}
       <div
-        className={`fixed top-0 left-0 w-full h-full bg-black ${
+        className={`fixed top-0 left-0 w-full h-full bg-black z-10 ${
           bookNowModal ||
           reserveModal ||
+          editBookingModal ||
           bookingMessage.isBookingMessageAvaialable ||
           loading
             ? "opacity-30 pointer-events-auto"
@@ -1042,7 +1082,7 @@ const RoomDetails = () => {
 
       {/* Loading spinner */}
       <div
-        className={`fixed z-10 w-8 h-8 transform -translate-x-1/2 -translate-y-1/2 rounded-full border-6 rounded-1/2 border-t-transparent border-cyan-500 left-1/2 top-1/2 ${
+        className={`fixed z-20 w-8 h-8 transform -translate-x-1/2 -translate-y-1/2 rounded-full border-6 rounded-1/2 border-t-transparent border-cyan-500 left-1/2 top-1/2 ${
           loading ? "block animate-spin" : "hidden"
         }`}
       ></div>

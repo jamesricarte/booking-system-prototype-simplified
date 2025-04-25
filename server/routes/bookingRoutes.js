@@ -462,7 +462,7 @@ router.put("/endUserOccupancyBooking", (req, res) => {
         if (Object.values(result).every((val) => val === 0)) {
           return res.status(400).json({
             message:
-              "Error ending! The booking we were trying to cancel was not found.",
+              "Error ending! The booking you were trying to cancel was not found.",
             result: result,
           });
         }
@@ -512,6 +512,76 @@ router.put("/endUserOccupancyBooking", (req, res) => {
       }
     );
   }
+});
+
+//Update booking
+router.put("/updateBooking", (req, res) => {
+  const editBooking = req.body;
+
+  db.query(
+    "UPDATE bookings SET start_time = ?, end_time = ?, class_id = ?, purpose = ? WHERE id = ?",
+    [
+      editBooking.startTime,
+      editBooking.endTime,
+      editBooking.classId,
+      editBooking.purpose,
+      editBooking.bookingId,
+    ],
+    (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
+      }
+
+      if (!result) {
+        return res
+          .status(400)
+          .json({ message: "Some problem occured", result });
+      }
+
+      if (Object.values(result).every((val) => val === 0)) {
+        return res.status(400).json({
+          message:
+            "Error updating! The booking you were trying to update was unfortunately not found.",
+          result: result,
+        });
+      }
+
+      return res
+        .status(200)
+        .json({ message: "Updated your reservation successfully!" });
+    }
+  );
+});
+
+//Cancel Reservation
+router.delete("/cancelReservation/:bookingId", (req, res) => {
+  const bookingId = req.params.bookingId;
+
+  db.query("DELETE FROM bookings WHERE id = ?", [bookingId], (err, result) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ message: "Something went wrong", error: err.message });
+    }
+
+    if (!result) {
+      return res.status(400).json({ message: "Some problem occured", result });
+    }
+
+    if (Object.values(result).every((val) => val === 0)) {
+      return res.status(400).json({
+        message:
+          "Cancel error! The booking you were trying to cancel was unfortunately not found.",
+        result: result,
+      });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Your reservation has been cancelled." });
+  });
 });
 
 module.exports = router;
