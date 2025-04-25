@@ -30,7 +30,7 @@ const ReserveModal = ({
     <>
       {/* Reserve Modal */}
       <div
-        className={`fixed transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg top-1/2 left-1/2 rounded-xs z-10 w-[35vw] ${
+        className={`fixed transform -translate-x-1/2 -translate-y-1/2 bg-white border border-gray-300 shadow-lg top-1/2 left-1/2 rounded-xs z-20 w-[35vw] ${
           reserveModal && !bookingMessage.isBookingMessageAvaialable
             ? "block"
             : "hidden"

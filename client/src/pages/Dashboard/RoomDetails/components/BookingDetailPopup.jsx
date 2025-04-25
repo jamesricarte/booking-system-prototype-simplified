@@ -3,12 +3,17 @@ import { IoIosClose } from "react-icons/io";
 import { MdEdit } from "react-icons/md";
 import { TbClockCancel } from "react-icons/tb";
 import { convertTimeTo12HourFormat } from "../../../../utils/timeUtils";
+import { useAuth } from "../../../../context/AuthContext";
 
 const BookingDetailPopup = ({
   selectedBooking,
   selectedBookingPosition,
   setSelectedBooking,
+  setEditBookingModal,
+  editBookingModal,
+  cancelReservation,
 }) => {
+  const { user } = useAuth();
   return (
     <>
       {/* Booking Detail Popup */}
@@ -21,19 +26,32 @@ const BookingDetailPopup = ({
           }}
         >
           <div className="flex items-center justify-end">
-            <TbClockCancel
-              size={25}
-              className="p-1 cursor-pointer hover:bg-gray-200"
-              title="cancel"
-            />
-            <MdEdit
-              size={25}
-              className="p-1 cursor-pointer hover:bg-gray-200"
-              title="edit"
-            />
+            {selectedBooking.booking_type === "reservation" &&
+              selectedBooking.professor_id === user.school_id && (
+                <TbClockCancel
+                  size={25}
+                  className="p-1 cursor-pointer hover:bg-gray-200"
+                  title="Cancel Reservation"
+                  onClick={() => cancelReservation(selectedBooking.booking_id)}
+                />
+              )}
+            {selectedBooking.booking_type !== "past" &&
+              selectedBooking.professor_id === user.school_id && (
+                <MdEdit
+                  size={25}
+                  className="p-1 cursor-pointer hover:bg-gray-200"
+                  title={`${
+                    selectedBooking.booking_type === "reservation"
+                      ? "Edit Reservation"
+                      : "Edit Booking"
+                  }`}
+                  onClick={() => setEditBookingModal(!editBookingModal)}
+                />
+              )}
             <IoIosClose
               size={30}
               className="cursor-pointer hover:bg-gray-200"
+              title="Close"
               onClick={() => setSelectedBooking(null)}
             />
           </div>
@@ -66,6 +84,15 @@ const BookingDetailPopup = ({
             <p>Purpose:</p>
             <p>{selectedBooking.purpose}</p>
           </div>
+          {selectedBooking.booking_type === "reservation" && (
+            <div className="flex gap-1">
+              <p>Booking Type:</p>
+              <p>
+                {selectedBooking.booking_type.charAt(0).toUpperCase() +
+                  selectedBooking.booking_type.slice(1)}
+              </p>
+            </div>
+          )}
         </div>
       )}
     </>

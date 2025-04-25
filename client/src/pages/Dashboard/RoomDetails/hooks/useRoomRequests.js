@@ -26,6 +26,14 @@ const useRoomRequests = () => {
     booking_type: "reservation",
   });
 
+  const [editBookingFormData, setEditBookingFormData] = useState({
+    bookingId: 0,
+    startTime: "",
+    endTime: "",
+    classId: "",
+    purpose: "",
+  });
+
   //Response message states
   const [bookingMessage, setBookingMessage] = useState({
     isBookingMessageAvaialable: false,
@@ -272,6 +280,124 @@ const useRoomRequests = () => {
     }
   };
 
+  const editBooking = async (e) => {
+    e.preventDefault();
+
+    setLoading(true);
+    const startTime = Date.now();
+    let message = { isBookingMessageAvaialable: false, message: "", type: "" };
+
+    try {
+      const response = await fetch(`${API_URL}/api/updateBooking`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editBookingFormData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      const result = await response.json();
+      message = {
+        isBookingMessageAvaialable: true,
+        message: result.message,
+        type: "success",
+      };
+    } catch (error) {
+      const errorMessage =
+        error.message === "Failed to fetch"
+          ? "Something went wrong with the server."
+          : error.message;
+
+      message = {
+        isBookingMessageAvaialable: true,
+        message: errorMessage,
+        type: "error",
+      };
+    } finally {
+      const elapsedTime = Date.now() - startTime;
+      const minimumTime = 1000;
+
+      setTimeout(() => {
+        setLoading(false);
+        setBookingMessage({
+          isBookingMessageAvaialable: message.isBookingMessageAvaialable,
+          message: message.message,
+          type: message.type,
+        });
+        setTimeout(() => {
+          setBookingMessage((prev) => ({
+            ...prev,
+            isBookingMessageAvaialable: false,
+          }));
+        }, 2000);
+      }, Math.max(0, minimumTime - elapsedTime));
+    }
+  };
+
+  const cancelReservation = async (bookingId) => {
+    setLoading(true);
+    const startTime = Date.now();
+    let message = { isBookingMessageAvaialable: false, message: "", type: "" };
+
+    try {
+      const response = await fetch(
+        `${API_URL}/api/cancelReservation/${bookingId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      const result = await response.json();
+      message = {
+        isBookingMessageAvaialable: true,
+        message: result.message,
+        type: "error",
+      };
+    } catch (error) {
+      const errorMessage =
+        error.message === "Failed to fetch"
+          ? "Something went wrong with the server."
+          : error.message;
+
+      message = {
+        isBookingMessageAvaialable: true,
+        message: errorMessage,
+        type: "error",
+      };
+    } finally {
+      const elapsedTime = Date.now() - startTime;
+      const minimumTime = 1000;
+
+      setTimeout(() => {
+        setLoading(false);
+        setBookingMessage({
+          isBookingMessageAvaialable: message.isBookingMessageAvaialable,
+          message: message.message,
+          type: message.type,
+        });
+        setTimeout(() => {
+          setBookingMessage((prev) => ({
+            ...prev,
+            isBookingMessageAvaialable: false,
+          }));
+        }, 2000);
+      }, Math.max(0, minimumTime - elapsedTime));
+    }
+  };
+
   return {
     reserveBookingFormData,
     bookNowFormData,
@@ -283,6 +409,10 @@ const useRoomRequests = () => {
     loading,
     cancelBooking,
     endBooking,
+    editBookingFormData,
+    setEditBookingFormData,
+    editBooking,
+    cancelReservation,
   };
 };
 

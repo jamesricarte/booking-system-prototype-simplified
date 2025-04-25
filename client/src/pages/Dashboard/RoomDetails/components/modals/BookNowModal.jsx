@@ -35,7 +35,7 @@ const BookNowModal = ({
     <>
       {/* Book Now Modal */}
       <div
-        className={`fixed transform -translate-x-1/2 -translate-y-1/2 bg-[#FAFAFA] border border-gray-300 shadow-lg top-1/2 left-1/2 z-10 rounded-xs w-[35vw] ${
+        className={`fixed transform -translate-x-1/2 -translate-y-1/2 bg-[#FAFAFA] border border-gray-300 shadow-lg top-1/2 left-1/2 z-20 rounded-xs w-[35vw] ${
           bookNowModal && !bookingMessage.isBookingMessageAvaialable
             ? "block"
             : "hidden"
