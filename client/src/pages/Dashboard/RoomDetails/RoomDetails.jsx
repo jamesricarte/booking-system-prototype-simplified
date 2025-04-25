@@ -60,7 +60,12 @@ const RoomDetails = () => {
   } = useRoomRequests();
 
   //Post Request for updating booking type
-  const updateBookingsType = async (updateToCurrentBook, startTime) => {
+  const updateBookingsType = async (
+    updateToCurrentBook,
+    startTime,
+    endTime,
+    type
+  ) => {
     try {
       const response = await fetch(`${API_URL}/api/updateBookingType`, {
         method: "PUT",
@@ -71,6 +76,8 @@ const RoomDetails = () => {
           toBeUpdated: updateToCurrentBook,
           roomId: roomId,
           startTime: startTime,
+          endTime: endTime,
+          type: type,
         }),
       });
 
@@ -237,7 +244,9 @@ const RoomDetails = () => {
     if (checkPreviousCurrentBook) {
       updateBookingsType(
         checkPreviousCurrentBook.booking_id,
-        checkPreviousCurrentBook.start_time_id
+        checkPreviousCurrentBook.start_time_id,
+        checkPreviousCurrentBook.end_time_id,
+        "checkPreviousCurrent"
       );
     }
 
@@ -253,7 +262,9 @@ const RoomDetails = () => {
       if (updateToCurrentBook) {
         updateBookingsType(
           updateToCurrentBook.booking_id,
-          updateToCurrentBook.start_time_id
+          updateToCurrentBook.start_time_id,
+          updateToCurrentBook.end_time_id,
+          "updateReservationToCurrent"
         );
         setTimeWhenBooked(currentTime);
       }
@@ -628,7 +639,7 @@ const RoomDetails = () => {
                       <div
                         key={index}
                         id={`booking-${booking.booking_id}`}
-                        className={`absolute w-[50%] p-2 text-sm text-white bg-blue-500 rounded-md cursor-pointer left-28 ${
+                        className={`absolute w-[50%] p-2 text-sm text-white bg-blue-500 rounded-md cursor-pointer left-28 overflow-hidden ${
                           booking.booking_type === "current_book"
                             ? ""
                             : "opacity-60"

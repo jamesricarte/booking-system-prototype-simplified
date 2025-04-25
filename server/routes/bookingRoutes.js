@@ -244,7 +244,7 @@ router.post("/reserveBooking", (req, res) => {
 
 //Update booking type
 router.put("/updateBookingType", (req, res) => {
-  const { toBeUpdated, startTime, roomId } = req.body;
+  const { toBeUpdated, startTime, endTime, roomId, type } = req.body;
   db.query(
     "UPDATE bookings SET booking_type = 'current_book' WHERE id = ?",
     [toBeUpdated],
@@ -261,9 +261,12 @@ router.put("/updateBookingType", (req, res) => {
           .json({ message: "Some problem occured", result });
       }
 
+      const idToFindPrevious =
+        type === "updateReservationToCurrent" ? startTime : endTime;
+
       db.query(
-        `UPDATE bookings SET booking_type = 'past' WHERE end_time <= ? AND booking_type = 'current_book' AND room_id = ? AND date = CURRENT_DATE()`,
-        [startTime, roomId],
+        "UPDATE bookings SET booking_type = 'past' WHERE (end_time <= ?  AND booking_type = 'current_book' AND room_id = ?) OR (date < CURRENT_DATE() AND booking_type = 'current_book' AND room_id = ?)",
+        [idToFindPrevious, roomId, roomId],
         (err, result) => {
           if (err) {
             res
@@ -288,7 +291,7 @@ router.put("/updateBookingType", (req, res) => {
 
 //Update booking type of user occupancy
 router.put("/updateBookingTypeOfUser", (req, res) => {
-  const { toBeUpdated, startTime, professorId } = req.body;
+  const { toBeUpdated, startTime, endTime, professorId, type } = req.body;
   db.query(
     "UPDATE bookings SET booking_type = 'current_book' WHERE id = ?",
     [toBeUpdated],
@@ -305,9 +308,12 @@ router.put("/updateBookingTypeOfUser", (req, res) => {
           .json({ message: "Some problem occured", result });
       }
 
+      const idToFindPrevious =
+        type === "updateReservationToCurrent" ? startTime : endTime;
+
       db.query(
-        `UPDATE bookings SET booking_type = 'past' WHERE end_time <= ? AND booking_type = 'current_book' AND professor_id = ? AND date = CURRENT_DATE()`,
-        [startTime, professorId],
+        "UPDATE bookings SET booking_type = 'past' WHERE (end_time <= ?  AND booking_type = 'current_book' AND professor_id = ?) OR (date < CURRENT_DATE() AND booking_type = 'current_book' AND professor_id = ?)",
+        [idToFindPrevious, professorId, professorId],
         (err, result) => {
           if (err) {
             res

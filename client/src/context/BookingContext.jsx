@@ -33,7 +33,12 @@ export const BookingProvider = ({ children }) => {
   const lastMinuteRef = useRef(null);
   const isBookingsFetchedRef = useRef(false);
 
-  const updateBookingsTypeOfUser = async (updateToCurrentBook, startTime) => {
+  const updateBookingsTypeOfUser = async (
+    updateToCurrentBook,
+    startTime,
+    endTime,
+    type
+  ) => {
     try {
       const response = await fetch(`${API_URL}/api/updateBookingTypeOfUser`, {
         method: "PUT",
@@ -44,6 +49,8 @@ export const BookingProvider = ({ children }) => {
           toBeUpdated: updateToCurrentBook,
           professorId: user?.school_id,
           startTime: startTime,
+          endTime: endTime,
+          type: type,
         }),
       });
 
@@ -105,7 +112,9 @@ export const BookingProvider = ({ children }) => {
     if (checkPreviousCurrentBook) {
       updateBookingsTypeOfUser(
         checkPreviousCurrentBook.booking_id,
-        checkPreviousCurrentBook.start_time_id
+        checkPreviousCurrentBook.start_time_id,
+        checkPreviousCurrentBook.end_time_id,
+        "checkPreviousCurrent"
       );
     }
 
@@ -121,7 +130,9 @@ export const BookingProvider = ({ children }) => {
       if (updateToCurrentBook) {
         updateBookingsTypeOfUser(
           updateToCurrentBook.booking_id,
-          updateToCurrentBook.start_time_id
+          updateToCurrentBook.start_time_id,
+          updateToCurrentBook.end_time_id,
+          "updateReservationToCurrent"
         );
         setTimeWhenBooked(currentTime);
       }
