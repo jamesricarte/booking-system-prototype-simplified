@@ -171,25 +171,19 @@ const RoomDetails = () => {
     minutes: 0,
   });
 
-
   // MODAL
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showEndNowModal, setShowEndNowModal] = useState(false);
-  const [bookingTime, setBookingTime] = useState({
-    startTime: "",
-    endTime: "",
-    formattedDuration: ""
-  });
-  
+
   // Modify these functions to show the modals instead of executing directly
   const handleCancelBooking = () => {
     setShowCancelModal(true);
   };
-  
+
   const handleEndBookingNow = () => {
     setShowEndNowModal(true);
   };
-  
+
   //Checking if cancelButton had timeout
   const [isCancelButtonTimeout, setIsCancelButtonTimeout] = useState(false);
 
@@ -197,39 +191,39 @@ const RoomDetails = () => {
   const [isEndNowButtonAllowedToShow, setIsEndNowButtonAllowedToShow] =
     useState(false);
 
-    //Checking if cancel button should be shown or hidden
-//Checking if end now button should be shown or hidden
-useEffect(() => {
-  if (timePassedAfterBooking && userOccupancyRemainingTime) {
-    const totalMinutesRemaining = 
-      userOccupancyRemainingTime.hours * 60 + 
-      userOccupancyRemainingTime.minutes;
-    
-    // Show cancel button only during the first 15 minutes after booking
-    if (timePassedAfterBooking <= 15) {
-      setIsCancelButtonTimeout(false); // Allow cancel button to show
-    } else {
-      setIsCancelButtonTimeout(true); // Hide cancel button after 15 minutes
+  //Checking if cancel button should be shown or hidden
+  //Checking if end now button should be shown or hidden
+  useEffect(() => {
+    if (timePassedAfterBooking && userOccupancyRemainingTime) {
+      const totalMinutesRemaining =
+        userOccupancyRemainingTime.hours * 60 +
+        userOccupancyRemainingTime.minutes;
+
+      // Show cancel button only during the first 15 minutes after booking
+      if (timePassedAfterBooking <= 15) {
+        setIsCancelButtonTimeout(false); // Allow cancel button to show
+      } else {
+        setIsCancelButtonTimeout(true); // Hide cancel button after 15 minutes
+      }
+
+      // Show end now button when 15 minutes or less remain
+      if (totalMinutesRemaining <= 15) {
+        setIsEndNowButtonAllowedToShow(true);
+      } else {
+        setIsEndNowButtonAllowedToShow(false);
+      }
     }
-    
-    // Show end now button when 15 minutes or less remain
-    if (totalMinutesRemaining <= 15) {
-      setIsEndNowButtonAllowedToShow(true);
-    } else {
+
+    // Reset buttons when occupancy ends
+    if (
+      !userOccupancyData ||
+      (userOccupancyRemainingTime.hours === 0 &&
+        userOccupancyRemainingTime.minutes === 0)
+    ) {
+      setIsCancelButtonTimeout(false);
       setIsEndNowButtonAllowedToShow(false);
     }
-  }
-
-  // Reset buttons when occupancy ends
-  if (
-    !userOccupancyData ||
-    (userOccupancyRemainingTime.hours === 0 &&
-    userOccupancyRemainingTime.minutes === 0)
-  ) {
-    setIsCancelButtonTimeout(false);
-    setIsEndNowButtonAllowedToShow(false);
-  }
-}, [timePassedAfterBooking, userOccupancyRemainingTime, userOccupancyData]);
+  }, [timePassedAfterBooking, userOccupancyRemainingTime, userOccupancyData]);
 
   //Other Declarations
   const isBookingsFetchedRef = useRef(false);
@@ -892,25 +886,22 @@ useEffect(() => {
             </table>
 
             <div className="mt-4">
-              {roomAvailability.type === "occupied" && occupantBookingDetail ? (
-                <div className="mb-4">
-                  <h3
-                    className={`text-lg font-semibold ${
-                      roomAvailability.type === "available"
-                        ? "text-black"
-                        : "text-red-500"
-                    }`}
-                  >
-                    Faculty in charge:
-                  </h3>
+              {roomAvailability.type === "occupied" &&
+                occupantBookingDetail && (
+                  <div className="mb-4">
+                    <h3
+                      className={`text-lg font-semibold ${
+                        roomAvailability.type === "available"
+                          ? "text-black"
+                          : "text-red-500"
+                      }`}
+                    >
+                      Faculty in charge:
+                    </h3>
 
-                  <p>{occupantBookingDetail?.professor_name}</p>
-                </div>
-              ) : (
-                <h3 className="mb-2 text-lg font-semibold text-black ">
-                  Room Occupant details
-                </h3>
-              )}
+                    <p>{occupantBookingDetail?.professor_name}</p>
+                  </div>
+                )}
 
               {userReservationData &&
                 roomAvailability.type === "available" &&
@@ -939,7 +930,8 @@ useEffect(() => {
                   </div>
                 )}
 
-              <div className="border border-[#BDBDBD] p-4 flex flex-col gap-1">
+              <div className="border border-[#BDBDBD] p-4 flex flex-col gap-1 rounded-md">
+                <h4 className="font-semibold">Current Booking Information</h4>
                 {roomAvailability.type === "occupied" &&
                 occupantBookingDetail ? (
                   <>
@@ -1011,24 +1003,6 @@ useEffect(() => {
               {userOccupancyData?.room_id === roomId &&
                 userOccupancyData?.professor_id === user.school_id && (
                   <>
-                    <div className="mt-4 p-4 bg-[#f9f9f9] border border-[#e0e0e0] rounded-md">
-                      <h4 className="mb-2 font-semibold">Current Booking Information</h4>
-                      <div className="text-sm">
-                        <div className="flex gap-2 mb-1">
-                          <p className="text-gray-600">Booking Start:</p>
-                          <p>{bookingTime.startTime}</p>
-                        </div>
-                        <div className="flex gap-2 mb-1">
-                          <p className="text-gray-600">Booking End:</p>
-                          <p>{bookingTime.endTime}</p>
-                        </div>
-                        <div className="flex gap-2 mb-1">
-                          <p className="text-gray-600">Duration:</p>
-                          <p>{bookingTime.formattedDuration}</p>
-                        </div>
-                      </div>
-                    </div>
-                    
                     <div className="flex gap-3 mt-4">
                       {!isCancelButtonTimeout && (
                         <button
@@ -1053,8 +1027,7 @@ useEffect(() => {
                       )}
                     </div>
                   </>
-                )
-              }
+                )}
             </div>
           </div>
         </div>
@@ -1124,26 +1097,26 @@ useEffect(() => {
         bookings={bookings}
       />
 
-        {/* MODAL */}
-        <CancelModal
-          isOpen={showCancelModal}
-          onClose={() => setShowCancelModal(false)}
-          onConfirm={() => {
-            cancelBooking();
-            setShowCancelModal(false);
-          }}
-          loading={loading}
-        />
-        
-        <EndNowModal
-          isOpen={showEndNowModal}
-          onClose={() => setShowEndNowModal(false)}
-          onConfirm={() => {
-            endBooking();
-            setShowEndNowModal(false);
-          }}
-          loading={loading}
-        />
+      {/* MODAL */}
+      <CancelModal
+        isOpen={showCancelModal}
+        onClose={() => setShowCancelModal(false)}
+        onConfirm={() => {
+          cancelBooking();
+          setShowCancelModal(false);
+        }}
+        loading={loading}
+      />
+
+      <EndNowModal
+        isOpen={showEndNowModal}
+        onClose={() => setShowEndNowModal(false)}
+        onConfirm={() => {
+          endBooking();
+          setShowEndNowModal(false);
+        }}
+        loading={loading}
+      />
 
       {/* Background Overlay */}
       <div
