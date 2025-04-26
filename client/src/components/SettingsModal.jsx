@@ -1,15 +1,15 @@
-import { FiX } from 'react-icons/fi';
-import { MdLocalPhone } from 'react-icons/md';
-import { FaPlus } from 'react-icons/fa';
-import { NavLink } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { useState } from 'react';
-import { IoIosAlert } from 'react-icons/io';
+import { FiX } from "react-icons/fi";
+import { MdLocalPhone } from "react-icons/md";
+import { FaPlus } from "react-icons/fa";
+import { NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useState } from "react";
+import { IoIosAlert } from "react-icons/io";
 
 const SettingsModal = ({ isOpen, closeModal }) => {
   const { logout } = useAuth();
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('terms');
+  const [activeTab, setActiveTab] = useState("terms");
 
   if (!isOpen) return null;
 
@@ -21,9 +21,9 @@ const SettingsModal = ({ isOpen, closeModal }) => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'terms':
+      case "terms":
         return <p> </p>; // James
-      case 'help':
+      case "help":
         return (
           <div>
             <div className="flex justify-between mb-7">
@@ -51,11 +51,11 @@ const SettingsModal = ({ isOpen, closeModal }) => {
               <h1 className="text-xl">FAQ's</h1>
               <ul className="flex flex-col gap-2 text-base">
                 {[
-                  'How do I create an account?',
-                  'What is its main purpose?',
-                  'I forgot my password. How can I reset it?',
-                  'Is my personal information safe?',
-                  'How do I contact customer support?',
+                  "How do I create an account?",
+                  "What is its main purpose?",
+                  "I forgot my password. How can I reset it?",
+                  "Is my personal information safe?",
+                  "How do I contact customer support?",
                 ].map((faq, index) => (
                   <li
                     key={index}
@@ -69,7 +69,7 @@ const SettingsModal = ({ isOpen, closeModal }) => {
             </div>
           </div>
         );
-      case 'report':
+      case "report":
         return <p></p>; // James
       default:
         return null;
@@ -95,31 +95,31 @@ const SettingsModal = ({ isOpen, closeModal }) => {
           <aside className="flex flex-col justify-between w-1/4 h-full p-6 border-r border-gray-300">
             <nav className="flex flex-col gap-2 text-xl font-medium">
               <button
-                onClick={() => setActiveTab('terms')}
-                className={`p-2 text-left ${
-                  activeTab === 'terms'
-                    ? 'text-black bg-[#B3E5FC] rounded-sm'
-                    : ''
+                onClick={() => setActiveTab("terms")}
+                className={`p-2 text-left cursor-pointer ${
+                  activeTab === "terms"
+                    ? "text-black bg-[#B3E5FC] rounded-sm"
+                    : ""
                 }`}
               >
                 Terms & Condition
               </button>
               <button
-                onClick={() => setActiveTab('help')}
-                className={`p-2 text-left ${
-                  activeTab === 'help'
-                    ? 'text-black bg-[#B3E5FC] rounded-sm'
-                    : ''
+                onClick={() => setActiveTab("help")}
+                className={`p-2 text-left cursor-pointer ${
+                  activeTab === "help"
+                    ? "text-black bg-[#B3E5FC] rounded-sm"
+                    : ""
                 }`}
               >
                 Help & Support
               </button>
               <button
-                onClick={() => setActiveTab('report')}
-                className={`p-2 text-left ${
-                  activeTab === 'report'
-                    ? 'text-black bg-[#B3E5FC] rounded-sm'
-                    : ''
+                onClick={() => setActiveTab("report")}
+                className={`p-2 text-left cursor-pointer ${
+                  activeTab === "report"
+                    ? "text-black bg-[#B3E5FC] rounded-sm"
+                    : ""
                 }`}
               >
                 Report a Bug
