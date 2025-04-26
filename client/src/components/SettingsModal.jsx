@@ -144,10 +144,10 @@ const SettingsModal = ({ isOpen, closeModal }) => {
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60">
           <div className="w-full max-w-sm bg-white rounded-md shadow-xl">
             <div className="items-center gap-2">
-              <div className="flex p-4">
-                <h1 className="text-lg ">Confirm Logout</h1>
+                <div className="flex p-4">
+                  <h1 className="text-lg ">Confirm Logout</h1>
+                </div>
               </div>
-            </div>
 
             <hr />
 
