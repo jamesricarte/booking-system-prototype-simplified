@@ -36,7 +36,7 @@ const useRoomRequests = () => {
 
   //Response message states
   const [bookingMessage, setBookingMessage] = useState({
-    isBookingMessageAvaialable: false,
+    isBookingMessageAvailable: false,
     message: "",
     type: "",
   });
@@ -49,7 +49,7 @@ const useRoomRequests = () => {
 
     setLoading(true);
     const startTime = Date.now();
-    let message = { isBookingMessageAvaialable: false, message: "", type: "" };
+    let message = { isBookingMessageAvailable: false, message: "", type: "" };
 
     try {
       const response = await fetch(`${API_URL}/api/newBooking`, {
@@ -68,7 +68,7 @@ const useRoomRequests = () => {
       const result = await response.json();
       setTimeWhenBooked(currentTime);
       message = {
-        isBookingMessageAvaialable: true,
+        isBookingMessageAvailable: true,
         message: result.message,
         type: "success",
       };
@@ -79,7 +79,7 @@ const useRoomRequests = () => {
           : error.message;
 
       message = {
-        isBookingMessageAvaialable: true,
+        isBookingMessageAvailable: true,
         message: errorMessage,
         type: "error",
       };
@@ -90,14 +90,14 @@ const useRoomRequests = () => {
       setTimeout(() => {
         setLoading(false);
         setBookingMessage({
-          isBookingMessageAvaialable: message.isBookingMessageAvaialable,
+          isBookingMessageAvailable: message.isBookingMessageAvailable,
           message: message.message,
           type: message.type,
         });
         setTimeout(() => {
           setBookingMessage((prev) => ({
             ...prev,
-            isBookingMessageAvaialable: false,
+            isBookingMessageAvailable: false,
           }));
         }, 2000);
       }, Math.max(0, minimumTime - elapsedTime));
@@ -109,7 +109,7 @@ const useRoomRequests = () => {
 
     setLoading(true);
     const startTime = Date.now();
-    let message = { isBookingMessageAvaialable: false, message: "", type: "" };
+    let message = { isBookingMessageAvailable: false, message: "", type: "" };
 
     try {
       const response = await fetch(`${API_URL}/api/reserveBooking`, {
@@ -127,7 +127,7 @@ const useRoomRequests = () => {
 
       const result = await response.json();
       message = {
-        isBookingMessageAvaialable: true,
+        isBookingMessageAvailable: true,
         message: result.message,
         type: "success",
       };
@@ -138,7 +138,7 @@ const useRoomRequests = () => {
           : error.message;
 
       message = {
-        isBookingMessageAvaialable: true,
+        isBookingMessageAvailable: true,
         message: errorMessage,
         type: "error",
       };
@@ -149,14 +149,14 @@ const useRoomRequests = () => {
       setTimeout(() => {
         setLoading(false);
         setBookingMessage({
-          isBookingMessageAvaialable: message.isBookingMessageAvaialable,
+          isBookingMessageAvailable: message.isBookingMessageAvailable,
           message: message.message,
           type: message.type,
         });
         setTimeout(() => {
           setBookingMessage((prev) => ({
             ...prev,
-            isBookingMessageAvaialable: false,
+            isBookingMessageAvailable: false,
           }));
         }, 2000);
       }, Math.max(0, minimumTime - elapsedTime));
@@ -166,7 +166,7 @@ const useRoomRequests = () => {
   const cancelBooking = async () => {
     setLoading(true);
     const startTime = Date.now();
-    let message = { isBookingMessageAvaialable: false, message: "", type: "" };
+    let message = { isBookingMessageAvailable: false, message: "", type: "" };
 
     try {
       const response = await fetch(
@@ -187,7 +187,7 @@ const useRoomRequests = () => {
 
       const result = await response.json();
       message = {
-        isBookingMessageAvaialable: true,
+        isBookingMessageAvailable: true,
         message: result.message,
         type: "error",
       };
@@ -198,7 +198,7 @@ const useRoomRequests = () => {
           : error.message;
 
       message = {
-        isBookingMessageAvaialable: true,
+        isBookingMessageAvailable: true,
         message: errorMessage,
         type: "error",
       };
@@ -209,14 +209,14 @@ const useRoomRequests = () => {
       setTimeout(() => {
         setLoading(false);
         setBookingMessage({
-          isBookingMessageAvaialable: message.isBookingMessageAvaialable,
+          isBookingMessageAvailable: message.isBookingMessageAvailable,
           message: message.message,
           type: message.type,
         });
         setTimeout(() => {
           setBookingMessage((prev) => ({
             ...prev,
-            isBookingMessageAvaialable: false,
+            isBookingMessageAvailable: false,
           }));
         }, 2000);
       }, Math.max(0, minimumTime - elapsedTime));
@@ -226,7 +226,7 @@ const useRoomRequests = () => {
   const endBooking = async () => {
     setLoading(true);
     const startTime = Date.now();
-    let message = { isBookingMessageAvaialable: false, message: "", type: "" };
+    let message = { isBookingMessageAvailable: false, message: "", type: "" };
 
     try {
       const response = await fetch(`${API_URL}/api/endUserOccupancyBooking`, {
@@ -244,7 +244,7 @@ const useRoomRequests = () => {
 
       const result = await response.json();
       message = {
-        isBookingMessageAvaialable: true,
+        isBookingMessageAvailable: true,
         message: result.message,
         type: "success",
       };
@@ -255,7 +255,7 @@ const useRoomRequests = () => {
           : error.message;
 
       message = {
-        isBookingMessageAvaialable: true,
+        isBookingMessageAvailable: true,
         message: errorMessage,
         type: "error",
       };
@@ -266,14 +266,14 @@ const useRoomRequests = () => {
       setTimeout(() => {
         setLoading(false);
         setBookingMessage({
-          isBookingMessageAvaialable: message.isBookingMessageAvaialable,
+          isBookingMessageAvailable: message.isBookingMessageAvailable,
           message: message.message,
           type: message.type,
         });
         setTimeout(() => {
           setBookingMessage((prev) => ({
             ...prev,
-            isBookingMessageAvaialable: false,
+            isBookingMessageAvailable: false,
           }));
         }, 2000);
       }, Math.max(0, minimumTime - elapsedTime));
@@ -285,7 +285,7 @@ const useRoomRequests = () => {
 
     setLoading(true);
     const startTime = Date.now();
-    let message = { isBookingMessageAvaialable: false, message: "", type: "" };
+    let message = { isBookingMessageAvailable: false, message: "", type: "" };
 
     try {
       const response = await fetch(`${API_URL}/api/updateBooking`, {
@@ -303,7 +303,7 @@ const useRoomRequests = () => {
 
       const result = await response.json();
       message = {
-        isBookingMessageAvaialable: true,
+        isBookingMessageAvailable: true,
         message: result.message,
         type: "success",
       };
@@ -314,7 +314,7 @@ const useRoomRequests = () => {
           : error.message;
 
       message = {
-        isBookingMessageAvaialable: true,
+        isBookingMessageAvailable: true,
         message: errorMessage,
         type: "error",
       };
@@ -325,14 +325,14 @@ const useRoomRequests = () => {
       setTimeout(() => {
         setLoading(false);
         setBookingMessage({
-          isBookingMessageAvaialable: message.isBookingMessageAvaialable,
+          isBookingMessageAvailable: message.isBookingMessageAvailable,
           message: message.message,
           type: message.type,
         });
         setTimeout(() => {
           setBookingMessage((prev) => ({
             ...prev,
-            isBookingMessageAvaialable: false,
+            isBookingMessageAvailable: false,
           }));
         }, 2000);
       }, Math.max(0, minimumTime - elapsedTime));
@@ -342,7 +342,7 @@ const useRoomRequests = () => {
   const cancelReservation = async (bookingId) => {
     setLoading(true);
     const startTime = Date.now();
-    let message = { isBookingMessageAvaialable: false, message: "", type: "" };
+    let message = { isBookingMessageAvailable: false, message: "", type: "" };
 
     try {
       const response = await fetch(
@@ -362,7 +362,7 @@ const useRoomRequests = () => {
 
       const result = await response.json();
       message = {
-        isBookingMessageAvaialable: true,
+        isBookingMessageAvailable: true,
         message: result.message,
         type: "error",
       };
@@ -373,7 +373,7 @@ const useRoomRequests = () => {
           : error.message;
 
       message = {
-        isBookingMessageAvaialable: true,
+        isBookingMessageAvailable: true,
         message: errorMessage,
         type: "error",
       };
@@ -384,14 +384,14 @@ const useRoomRequests = () => {
       setTimeout(() => {
         setLoading(false);
         setBookingMessage({
-          isBookingMessageAvaialable: message.isBookingMessageAvaialable,
+          isBookingMessageAvailable: message.isBookingMessageAvailable,
           message: message.message,
           type: message.type,
         });
         setTimeout(() => {
           setBookingMessage((prev) => ({
             ...prev,
-            isBookingMessageAvaialable: false,
+            isBookingMessageAvailable: false,
           }));
         }, 2000);
       }, Math.max(0, minimumTime - elapsedTime));

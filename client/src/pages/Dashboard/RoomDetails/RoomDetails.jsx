@@ -509,10 +509,10 @@ const RoomDetails = () => {
   //Checking if the booking message is available then close all modals, refetchBookings, refreshUserOccupancyAndReservationData
   useEffect(() => {
     if (
-      (bookingMessage.isBookingMessageAvaialable && bookNowModal) ||
-      (bookingMessage.isBookingMessageAvaialable && reserveModal) ||
-      (bookingMessage.isBookingMessageAvaialable && editBookingModal) ||
-      (bookingMessage.isBookingMessageAvaialable && selectedBooking)
+      (bookingMessage.isBookingMessageAvailable && bookNowModal) ||
+      (bookingMessage.isBookingMessageAvailable && reserveModal) ||
+      (bookingMessage.isBookingMessageAvailable && editBookingModal) ||
+      (bookingMessage.isBookingMessageAvailable && selectedBooking)
     ) {
       setBookNowModal(false);
       setReserveModal(false);
@@ -520,7 +520,7 @@ const RoomDetails = () => {
       setSelectedBooking(null);
     }
 
-    if (bookingMessage.isBookingMessageAvaialable) {
+    if (bookingMessage.isBookingMessageAvailable) {
       fetchBookings();
       refreshUserOccupancyAndReservationData();
     }
@@ -1060,7 +1060,7 @@ const RoomDetails = () => {
           bookNowModal ||
           reserveModal ||
           editBookingModal ||
-          bookingMessage.isBookingMessageAvaialable ||
+          bookingMessage.isBookingMessageAvailable ||
           loading
             ? "opacity-30 pointer-events-auto"
             : "opacity-0 pointer-events-none"
@@ -1070,7 +1070,7 @@ const RoomDetails = () => {
       {/* Booking Response Message */}
       <div
         className={`fixed z-10 p-4 m-0 transform -translate-x-1/2 bg-white left-1/2 shadow-xl transition-all duration-500 ease font-semibold text-sm rounded ${
-          bookingMessage.isBookingMessageAvaialable
+          bookingMessage.isBookingMessageAvailable
             ? "top-12 opacity-100"
             : "-top-10 opacity-0"
         } ${

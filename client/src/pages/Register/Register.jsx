@@ -90,22 +90,18 @@ const Register = () => {
         <img
           src={BackGroundBu}
           alt=""
-          className="object-cover w-full h-full opacity-80"
+          className="object-cover w-full h-full opacity-90"
         />
       </div>
       <div className="flex flex-col justify-center flex-grow px-4 my-12">
-        <div className="flex items-center px-8">
-          <img
-            src={Logo}
-            alt="Bicol University Logo"
-            className="w-[91px] h-[91px]"
-          />
+        <div className="flex flex-col items-center gap-2 px-8">
+          <img src={Logo} alt="Bicol University Logo" className="w-[80px]" />
           <h2 className="text-[22px]">
             Bicol University College of Engineering
           </h2>
         </div>
         <form className="flex flex-col p-6 px-13" onSubmit={registerUser}>
-          <h1 className="mb-5 text-2xl">Sign Up</h1>
+          <h1 className="mb-5 text-xl">Sign Up</h1>
           <div className="flex flex-col gap-4 mb-3">
             <label htmlFor="email">Email Address</label>
             <Input
@@ -167,7 +163,7 @@ const Register = () => {
             className=" bg-[#B3E5FC] p-4 rounded-md cursor-pointer"
           />
         </form>
-        <p className="mb-4 text-lg text-center">
+        <p className="mb-4 text-center">
           Already have an account?{" "}
           <Link to="/login" className="text-[#FFA726]">
             Login
