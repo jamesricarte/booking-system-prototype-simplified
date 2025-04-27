@@ -1,19 +1,19 @@
 import React from "react";
 
-const CancelModal = ({ isOpen, onClose, onConfirm, loading }) => {
+const DeleteImageModal = ({ isOpen, onClose, onConfirm, loading }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60">
       <div className="w-full max-w-sm bg-white rounded-md shadow-xl">
         <div className="flex p-4">
-          <h1 className="text-lg ">Cancel Booking</h1>
+          <h1 className="text-lg ">Delete Image</h1>
         </div>
 
         <hr />
         <div className="flex flex-col gap-5 p-5">
           <h2 className="font-normal">
-            Are you sure you want to cancel this booking?
+            Are you sure you want to delete this image?
           </h2>
 
           <div className="flex justify-end gap-3">
@@ -38,4 +38,4 @@ const CancelModal = ({ isOpen, onClose, onConfirm, loading }) => {
   );
 };
 
-export default CancelModal;
+export default DeleteImageModal;

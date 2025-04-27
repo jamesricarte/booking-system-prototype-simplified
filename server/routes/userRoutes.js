@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const path = require("path");
 const nodemailer = require("nodemailer");
+const { error } = require("console");
 require("dotenv").config();
 
 const router = express.Router();
@@ -649,6 +650,54 @@ router.put("/resetPassword", async (req, res) => {
           });
         }
       );
+    }
+  );
+});
+
+//Delete image in profile
+router.put("/deleteImageProfile", (req, res) => {
+  const { userId, userProfileImage } = req.body;
+
+  if (!userId) {
+    return res
+      .status(400)
+      .json({ message: "No user ID was received. Something went wrong." });
+  }
+
+  if (!userProfileImage) {
+    return res.status(400).json({
+      message:
+        "There is no image available to delete. Please upload a profile picture first.",
+    });
+  }
+
+  db.query(
+    "UPDATE users SET profile_image = null WHERE id = ?",
+    [userId],
+    (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
+      }
+
+      if (!result) {
+        return res
+          .status(400)
+          .json({ message: "Some problem occured", result });
+      }
+
+      if (Object.values(result).every((val) => val === 0)) {
+        return res.status(400).json({
+          message:
+            "Error deleting image! The image you were trying to delete was unfortunately not found.",
+          result: result,
+        });
+      }
+
+      return res
+        .status(200)
+        .json({ message: "Deleted image successfully.", success: true });
     }
   );
 });

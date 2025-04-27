@@ -6,6 +6,7 @@ import { RiCloseCircleFill } from "react-icons/ri";
 import { FiEdit } from "react-icons/fi";
 import { handleFormChange } from "../../../utils/formHandlers";
 import { HiMiniEyeSlash } from "react-icons/hi2";
+import DeleteImageModal from "./components/modals/DeleteImageModal";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -22,6 +23,7 @@ const UserProfile = () => {
   const [changePassswordModal, setChangePasswordModal] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showDeleteImageModal, setShowDeleteImageModal] = useState(false);
   const [changePasswordData, setChangePasswordData] = useState({
     id: user.id,
     currentPassword: "",
@@ -108,9 +110,13 @@ const UserProfile = () => {
         type: "success",
       };
     } catch (error) {
+      const errorMessage =
+        error.message === "Failed to fetch"
+          ? "Unable to connect to the server. Check your internet connection"
+          : error.message;
       message = {
         isChangePasswordMessage: true,
-        message: error.message,
+        message: errorMessage,
         type: "error",
       };
     } finally {
@@ -182,9 +188,13 @@ const UserProfile = () => {
         type: "success",
       };
     } catch (error) {
+      const errorMessage =
+        error.message === "Failed to fetch"
+          ? "Unable to connect to the server. Check your internet connection"
+          : error.message;
       message = {
         isEditProfileResponseAvailable: true,
-        message: error.message,
+        message: errorMessage,
         type: "error",
       };
     } finally {
@@ -233,7 +243,7 @@ const UserProfile = () => {
       });
 
       if (!res.ok) {
-        const errorData = await response.json();
+        const errorData = await res.json();
         throw errorData;
       }
 
@@ -244,9 +254,13 @@ const UserProfile = () => {
         type: "success",
       };
     } catch (error) {
+      const errorMessage =
+        error.message === "Failed to fetch"
+          ? "Unable to connect to the server. Check your internet connection"
+          : error.message;
       message = {
         isEditProfileResponseAvailable: true,
-        message: error.message,
+        message: errorMessage,
         type: "error",
       };
     } finally {
@@ -255,9 +269,83 @@ const UserProfile = () => {
 
       setTimeout(() => {
         setProfileUpdateLoading(false);
-        login({ ...user, profile_image: result.filePath });
-        setImagePreview(`${API_URL}/${result.filePath.replace(/^\/?/, "")}`);
+        if (message.type === "success") {
+          login({ ...user, profile_image: result?.filePath });
+          setImagePreview(`${API_URL}/${result?.filePath.replace(/^\/?/, "")}`);
+        } else {
+          setImagePreview(BlankProfile);
+        }
+
         setFile(null);
+        setEditProfileResponse({
+          isEditProfileResponseAvailable:
+            message.isEditProfileResponseAvailable,
+          message: message.message,
+          type: message.type,
+        });
+        setTimeout(() => {
+          setEditProfileResponse((prev) => ({
+            ...prev,
+            isEditProfileResponseAvailable: false,
+          }));
+        }, 2000);
+      }, Math.max(0, minimumTime - elapsedTime));
+    }
+  };
+
+  const deleteImage = async () => {
+    setLoading(true);
+    const startTime = Date.now();
+    let success;
+    let message = {
+      isEditProfileResponseAvailable: false,
+      message: "",
+      type: "",
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/api/deleteImageProfile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          userProfileImage: user.profile_image,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      const result = await response.json();
+      success = result?.success;
+      message = {
+        isEditProfileResponseAvailable: true,
+        message: result.message,
+        type: "error",
+      };
+    } catch (error) {
+      const errorMessage =
+        error.message === "Failed to fetch"
+          ? "Unable to connect to the server. Check your internet connection"
+          : error.message;
+      message = {
+        isEditProfileResponseAvailable: true,
+        message: errorMessage,
+        type: "error",
+      };
+    } finally {
+      const elapsedTime = Date.now() - startTime;
+      const minimumTime = 1000;
+
+      setTimeout(() => {
+        setLoading(false);
+        if (success) {
+          login({ ...user, profile_image: null });
+        }
         setEditProfileResponse({
           isEditProfileResponseAvailable:
             message.isEditProfileResponseAvailable,
@@ -332,15 +420,36 @@ const UserProfile = () => {
                     </button>
 
                     {file ? (
-                      <button
-                        className="px-4 py-2 mb-5 text-black bg-[#FFA726] rounded hover:bg-[#FFA720] cursor-pointer"
-                        onClick={updateProfileImage}
-                        title="Upload image"
-                      >
-                        Upload
-                      </button>
+                      <>
+                        <button
+                          className="px-4 py-2 mb-5 text-black bg-[#FFA726] rounded hover:bg-[#FF9800] cursor-pointer"
+                          onClick={updateProfileImage}
+                          title="Upload image"
+                        >
+                          Upload
+                        </button>
+
+                        <button
+                          className="px-4 py-2 mb-5 mr-5 text-red-400 bg-gray-300 rounded cursor-pointer hover:bg-gray-400"
+                          onClick={() => {
+                            setImagePreview(BlankProfile);
+                            setFile(null);
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </>
                     ) : (
-                      <button className="px-4 py-2 mb-5 mr-5 text-red-400 bg-gray-300 rounded cursor-pointer hover:bg-gray-400">
+                      <button
+                        className="px-4 py-2 mb-5 mr-5 text-red-400 bg-gray-300 rounded cursor-pointer hover:bg-gray-400"
+                        onClick={() => {
+                          if (user.profile_image) {
+                            setShowDeleteImageModal(!showDeleteImageModal);
+                          } else {
+                            deleteImage();
+                          }
+                        }}
+                      >
                         Delete Image
                       </button>
                     )}
@@ -588,13 +697,6 @@ const UserProfile = () => {
                   className="block p-2 mt-1 bg-gray-300 rounded-md cursor-pointer"
                 />
               </div>
-
-              {/* White background */}
-              <div
-                className={`fixed top-0 left-0 w-full h-full bg-white opacity-50 pointer-events-auto z-10 ${
-                  loading ? "block" : "hidden"
-                }`}
-              ></div>
             </form>
           </>
         );
@@ -845,10 +947,21 @@ const UserProfile = () => {
         <p className="text-sm font-bold">{editProfileResponse.message}</p>
       </div>
 
+      {/*Delete image alert modal */}
+      <DeleteImageModal
+        isOpen={showDeleteImageModal}
+        onClose={() => setShowDeleteImageModal(false)}
+        onConfirm={() => {
+          deleteImage();
+          setShowDeleteImageModal(false);
+        }}
+        loading={loading}
+      />
+
       {/* Background Overlay */}
       <div
         className={`fixed top-0 left-0 w-full h-full bg-black ${
-          changePassswordModal
+          changePassswordModal || loading
             ? "opacity-30 pointer-events-auto"
             : "opacity-0 pointer-events-none"
         }`}

@@ -191,40 +191,6 @@ const RoomDetails = () => {
   const [isEndNowButtonAllowedToShow, setIsEndNowButtonAllowedToShow] =
     useState(false);
 
-  //Checking if cancel button should be shown or hidden
-  //Checking if end now button should be shown or hidden
-  useEffect(() => {
-    if (timePassedAfterBooking && userOccupancyRemainingTime) {
-      const totalMinutesRemaining =
-        userOccupancyRemainingTime.hours * 60 +
-        userOccupancyRemainingTime.minutes;
-
-      // Show cancel button only during the first 15 minutes after booking
-      if (timePassedAfterBooking <= 15) {
-        setIsCancelButtonTimeout(false); // Allow cancel button to show
-      } else {
-        setIsCancelButtonTimeout(true); // Hide cancel button after 15 minutes
-      }
-
-      // Show end now button when 15 minutes or less remain
-      if (totalMinutesRemaining <= 15) {
-        setIsEndNowButtonAllowedToShow(true);
-      } else {
-        setIsEndNowButtonAllowedToShow(false);
-      }
-    }
-
-    // Reset buttons when occupancy ends
-    if (
-      !userOccupancyData ||
-      (userOccupancyRemainingTime.hours === 0 &&
-        userOccupancyRemainingTime.minutes === 0)
-    ) {
-      setIsCancelButtonTimeout(false);
-      setIsEndNowButtonAllowedToShow(false);
-    }
-  }, [timePassedAfterBooking, userOccupancyRemainingTime, userOccupancyData]);
-
   //Other Declarations
   const isBookingsFetchedRef = useRef(false);
   const lastMinuteRef = useRef(null);
@@ -371,6 +337,7 @@ const RoomDetails = () => {
     });
   };
 
+  //Function for linking the position of booking details popup to selected bookings
   const updatePosition = () => {
     if (selectedBooking) {
       const bookingElement = document.getElementById(
@@ -628,7 +595,7 @@ const RoomDetails = () => {
   ]);
 
   //Detecting if there is changes in reserve Booking start time then filter again the end time for reservation
-  //The filter in the map below doesnt automatically updates the start time
+  //The filter in the map below doesnt automatically updates when start time was changed
   useEffect(() => {
     if (reserveBookingFormData.startTime) {
       if (

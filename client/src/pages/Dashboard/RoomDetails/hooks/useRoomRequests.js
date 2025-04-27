@@ -75,7 +75,7 @@ const useRoomRequests = () => {
     } catch (error) {
       const errorMessage =
         error.message === "Failed to fetch"
-          ? "Something went wrong with the server."
+          ? "Unable to connect to the server. Check your internet connection"
           : error.message;
 
       message = {
@@ -134,7 +134,7 @@ const useRoomRequests = () => {
     } catch (error) {
       const errorMessage =
         error.message === "Failed to fetch"
-          ? "Something went wrong with the server."
+          ? "Unable to connect to the server. Check your internet connection"
           : error.message;
 
       message = {
@@ -194,7 +194,7 @@ const useRoomRequests = () => {
     } catch (error) {
       const errorMessage =
         error.message === "Failed to fetch"
-          ? "Something went wrong with the server."
+          ? "Unable to connect to the server. Check your internet connection"
           : error.message;
 
       message = {
@@ -251,7 +251,7 @@ const useRoomRequests = () => {
     } catch (error) {
       const errorMessage =
         error.message === "Failed to fetch"
-          ? "Something went wrong with the server."
+          ? "Unable to connect to the server. Check your internet connection"
           : error.message;
 
       message = {
@@ -310,7 +310,7 @@ const useRoomRequests = () => {
     } catch (error) {
       const errorMessage =
         error.message === "Failed to fetch"
-          ? "Something went wrong with the server."
+          ? "Unable to connect to the server. Check your internet connection"
           : error.message;
 
       message = {
@@ -369,7 +369,7 @@ const useRoomRequests = () => {
     } catch (error) {
       const errorMessage =
         error.message === "Failed to fetch"
-          ? "Something went wrong with the server."
+          ? "Unable to connect to the server. Check your internet connection"
           : error.message;
 
       message = {

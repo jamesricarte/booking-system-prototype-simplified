@@ -51,7 +51,7 @@ const AccountRecovery = () => {
     } catch (error) {
       const errormessage =
         error.message === "Failed to fetch"
-          ? "Something went wrong with the server."
+          ? "Unable to connect to the server. Check your internet connection"
           : error.message;
 
       message = {
