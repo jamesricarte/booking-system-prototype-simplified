@@ -30,16 +30,6 @@ const UserProfile = () => {
     newPassword: "",
     confirmPassword: "",
   });
-  const [changePasswordResponse, setChangePasswordResponse] = useState({
-    isChangePasswordMessage: false,
-    message: "",
-    type: "",
-  });
-
-  const [loading, setLoading] = useState(false);
-  const [profileUpdateLoading, setProfileUpdateLoading] = useState(false);
-  const emailInputRef = useRef(null);
-
   const [editProfileForm, setEditProfileForm] = useState({
     isEditable: false,
     id: user.id,
@@ -47,11 +37,61 @@ const UserProfile = () => {
     email: "",
     schoolId: "",
   });
+  const [changePasswordResponse, setChangePasswordResponse] = useState({
+    isChangePasswordMessage: false,
+    message: "",
+    type: "",
+  });
   const [editProfileResponse, setEditProfileResponse] = useState({
     isEditProfileResponseAvailable: false,
     message: "",
     type: "",
   });
+
+  const [loading, setLoading] = useState(false);
+  const [profileUpdateLoading, setProfileUpdateLoading] = useState(false);
+  const [bookingColorLoading, setBookingColorLoading] = useState(false);
+  const emailInputRef = useRef(null);
+
+  const [selectedColor, setSelectedColor] = useState("");
+  const [isChangeColorSubmitted, setIsChangeColorSubmitted] = useState(true);
+
+  const colors = [
+    { hex: "#ff6b6b", name: "Pastel Red" },
+    { hex: "#ff9e7d", name: "Light Coral" },
+    { hex: "#ffbe76", name: "Light Orange" },
+    { hex: "#4ecdc4", name: "Turquoise Blue" },
+    { hex: "#1abc9c", name: "Strong Cyan" },
+    { hex: "#7851a9", name: "Royal Purple" },
+    { hex: "#ff7675", name: "Soft Pink" },
+    { hex: "#a4b0be", name: "Pale Gray" },
+    { hex: "#2f3542", name: "Charcoal Gray" },
+    { hex: "#a55eea", name: "Vivid Purple" },
+    { hex: "#8854d0", name: "Medium Purple" },
+    { hex: "#303952", name: "Dark Indigo" },
+    { hex: "#e74c3c", name: "Strong Red" },
+    { hex: "#3498db", name: "Sky Blue" },
+    { hex: "#1e90ff", name: "Dodger Blue" },
+    { hex: "#2ecc71", name: "Fresh Green" },
+    { hex: "#f1c40f", name: "Sunflower Yellow" },
+    { hex: "#9b59b6", name: "Amethyst" },
+    { hex: "#ff5252", name: "Bright Pink" },
+    { hex: "#e67e22", name: "Pumpkin Orange" },
+    { hex: "#8b0000", name: "Dark Red" },
+    { hex: "#6ab04c", name: "Lime Green" },
+    { hex: "#b71540", name: "Deep Rose" },
+    { hex: "#badc58", name: "Lime Yellow" },
+  ];
+
+  useEffect(() => {
+    if (user?.booking_color) {
+      setSelectedColor(user.booking_color);
+    }
+  }, [user]);
+
+  const handleColorClick = (color) => {
+    setSelectedColor(color);
+  };
 
   const handleChangePasswordFormData = handleFormChange(
     changePasswordData,
@@ -345,6 +385,71 @@ const UserProfile = () => {
         setLoading(false);
         if (success) {
           login({ ...user, profile_image: null });
+        }
+        setEditProfileResponse({
+          isEditProfileResponseAvailable:
+            message.isEditProfileResponseAvailable,
+          message: message.message,
+          type: message.type,
+        });
+        setTimeout(() => {
+          setEditProfileResponse((prev) => ({
+            ...prev,
+            isEditProfileResponseAvailable: false,
+          }));
+        }, 2000);
+      }, Math.max(0, minimumTime - elapsedTime));
+    }
+  };
+
+  const updateBookingColor = async () => {
+    setBookingColorLoading(true);
+    const startTime = Date.now();
+    let message = {
+      isEditProfileResponseAvailable: false,
+      message: "",
+      type: "",
+    };
+
+    try {
+      const response = await fetch(`${API_URL}/api/updateBookingColor`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: user.id, selectedColor: selectedColor }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      const result = await response.json();
+      message = {
+        isEditProfileResponseAvailable: true,
+        message: result.message,
+        type: "success",
+      };
+    } catch (error) {
+      const errorMessage =
+        error.message === "Failed to fetch"
+          ? "Unable to connect to the server. Check your internet connection"
+          : error.message;
+      message = {
+        isEditProfileResponseAvailable: true,
+        message: errorMessage,
+        type: "error",
+      };
+    } finally {
+      const elapsedTime = Date.now() - startTime;
+      const minimumTime = 1000;
+
+      setTimeout(() => {
+        setBookingColorLoading(false);
+        if (message.type === "success") {
+          setIsChangeColorSubmitted(true);
+          login({ ...user, booking_color: selectedColor });
         }
         setEditProfileResponse({
           isEditProfileResponseAvailable:
@@ -706,7 +811,7 @@ const UserProfile = () => {
             <div className="flex flex-col w-full">
               <h1 className="mb-4 text-xl">Choose Your Theme Color</h1>
 
-              <div className="p-4 mb-6 rounded-md ">
+              <div className="p-4 mb-6 rounded-md">
                 <p className="mb-4 text-sm text-gray-600">
                   Note: This change will only affect the appearance of the
                   calendar for your selected booking time. It will not impact
@@ -714,112 +819,68 @@ const UserProfile = () => {
                 </p>
 
                 {/* Color picker grid */}
-                <div className="grid grid-cols-6 gap-3 mb-6 md:grid-cols-12">
-                  {/* First row */}
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#ff6b6b" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#ff9e7d" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#ffbe76" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#4ecdc4" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#1abc9c" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#7851a9" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#ff7675" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#a4b0be" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#2f3542" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#a55eea" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#8854d0" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#303952" }}
-                  ></div>
+                <div className="grid grid-cols-6 gap-4 mb-6 md:grid-cols-12">
+                  {colors.map(({ hex, name }) => {
+                    const getRingColor = (color) => {
+                      if (
+                        [
+                          "#4ecdc4",
+                          "#1abc9c",
+                          "#a4b0be",
+                          "#2f3542",
+                          "#303952",
+                          "#3498db",
+                          "#1e90ff",
+                          "#2ecc71",
+                          "#6ab04c",
+                          "#badc58",
+                        ].includes(color)
+                      ) {
+                        return "ring-[#F56C18]";
+                      } else {
+                        return "ring-cyan-500";
+                      }
+                    };
 
-                  {/* Second row */}
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#e74c3c" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#3498db" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#1e90ff" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#2ecc71" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#f1c40f" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#9b59b6" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#ff5252" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#e67e22" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#8b0000" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#6ab04c" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#b71540" }}
-                  ></div>
-                  <div
-                    className="w-full h-8 rounded cursor-pointer"
-                    style={{ backgroundColor: "#badc58" }}
-                  ></div>
+                    return (
+                      <div
+                        key={hex}
+                        title={name}
+                        className={`w-full min-w-8 h-[2vw] rounded cursor-pointer relative ${
+                          selectedColor === hex
+                            ? `ring-3 ${getRingColor(hex)}`
+                            : ""
+                        }`}
+                        style={{ backgroundColor: hex }}
+                        onClick={() => {
+                          handleColorClick(hex);
+                          setIsChangeColorSubmitted(hex === user.booking_color);
+                        }}
+                      ></div>
+                    );
+                  })}
                 </div>
 
                 <div className="flex justify-end">
-                  <button className="px-4 py-2 bg-[#B3E5FC] text-black rounded hover:bg-blue-300 cursor-pointer">
-                    Save Changes
-                  </button>
+                  <div className="relative">
+                    <button
+                      className={`h-10 text-black rounded cursor-pointer flex items-center justify-center ${
+                        isChangeColorSubmitted
+                          ? "bg-gray-300 opacity-60 w-28"
+                          : "bg-[#B3E5FC] hover:bg-blue-300 w-36"
+                      }`}
+                      onClick={updateBookingColor}
+                      disabled={isChangeColorSubmitted || bookingColorLoading}
+                    >
+                      {bookingColorLoading ? (
+                        <div
+                          className={`w-5 h-5 rounded-full border-3 border-t-transparent border-black animate-spin`}
+                        ></div>
+                      ) : (
+                        <>{isChangeColorSubmitted ? "Saved" : "Save Changes"}</>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -932,7 +993,7 @@ const UserProfile = () => {
         <p className="text-sm font-bold">{changePasswordResponse.message}</p>
       </div>
 
-      {/* Update Profile Information Message */}
+      {/* Update Profile Information &  Update Booking Color Message */}
       <div
         className={`fixed z-10 p-4 rounded-sm m-0 transform -translate-x-1/2 bg-white left-1/2 shadow-md border border-gray-300 transition-all duration-500 ease ${
           editProfileResponse.isEditProfileResponseAvailable

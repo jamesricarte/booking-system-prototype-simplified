@@ -38,6 +38,10 @@ const RoomDetails = () => {
     timePassedAfterBooking,
   } = useBooking();
 
+  useEffect(() => {
+    console.log(user.booking_color);
+  }, [user]);
+
   const {
     roomDetails,
     classes,
@@ -94,7 +98,7 @@ const RoomDetails = () => {
       }
 
       const result = await response.json();
-      fetchBookings(result);
+      fetchBookings();
     } catch (error) {
       console.error(error);
     }
@@ -255,19 +259,19 @@ const RoomDetails = () => {
       );
     });
 
-    const checkPreviousCurrentBook = bookings.find((booking) => {
+    const checkPreviousUncorrectedBookingType = bookings.find((booking) => {
       return (
         currentTime >= convertTimeToMinutes(booking.end_time) &&
-        booking.booking_type === "current_book"
+        booking.booking_type !== "past"
       );
     });
 
-    if (checkPreviousCurrentBook) {
+    if (checkPreviousUncorrectedBookingType) {
       updateBookingsType(
-        checkPreviousCurrentBook.booking_id,
-        checkPreviousCurrentBook.start_time_id,
-        checkPreviousCurrentBook.end_time_id,
-        "checkPreviousCurrent"
+        checkPreviousUncorrectedBookingType.booking_id,
+        checkPreviousUncorrectedBookingType.start_time_id,
+        checkPreviousUncorrectedBookingType.end_time_id,
+        "updatePreviousUncorrected"
       );
     }
 
@@ -470,7 +474,6 @@ const RoomDetails = () => {
   useEffect(() => {
     if (occupantBookingDetail) {
       checkOccupantRemainingTime();
-      refreshUserOccupancyAndReservationData();
     }
   }, [occupantBookingDetail, currentTime]);
 
@@ -538,9 +541,13 @@ const RoomDetails = () => {
 
     if (bookingMessage.isBookingMessageAvailable) {
       fetchBookings();
-      refreshUserOccupancyAndReservationData();
     }
   }, [bookingMessage]);
+
+  //Refresh user occupancy and reservation data everytime there is changes in bookings
+  useEffect(() => {
+    refreshUserOccupancyAndReservationData();
+  }, [bookings]);
 
   //-----------------------------------------------------------
   //JUST FILTERING TIMESLOT DROPDOWNS--------------------------
@@ -671,12 +678,18 @@ const RoomDetails = () => {
                       <div
                         key={index}
                         id={`booking-${booking.booking_id}`}
-                        className={`absolute w-[50%] p-2 text-sm text-white bg-blue-500 rounded-md cursor-pointer left-28 overflow-hidden ${
+                        className={`absolute w-[50%] p-2 text-sm text-white rounded-md cursor-pointer left-28 overflow-hidden ${
                           booking.booking_type === "current_book"
                             ? ""
                             : "opacity-60"
                         }`}
-                        style={{ top: `${top}px`, height: `${height}px` }}
+                        style={{
+                          top: `${top}px`,
+                          height: `${height}px`,
+                          backgroundColor: booking.booking_color
+                            ? booking.booking_color
+                            : "#3B82F6",
+                        }}
                         onClick={(e) => handleSelectedBookingClick(booking, e)}
                       >
                         <div className="relative">

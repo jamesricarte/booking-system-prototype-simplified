@@ -102,19 +102,19 @@ export const BookingProvider = ({ children }) => {
         booking.professor_id === user?.school_id
     );
 
-    const checkPreviousCurrentBook = bookingsForAllRoom.find(
+    const checkPreviousUncorrectedBookingType = bookingsForAllRoom.find(
       (booking) =>
         currentTime >= convertTimeToMinutes(booking.end_time) &&
         booking.booking_type === "current_book" &&
         booking.professor_id === user?.school_id
     );
 
-    if (checkPreviousCurrentBook) {
+    if (checkPreviousUncorrectedBookingType) {
       updateBookingsTypeOfUser(
-        checkPreviousCurrentBook.booking_id,
-        checkPreviousCurrentBook.start_time_id,
-        checkPreviousCurrentBook.end_time_id,
-        "checkPreviousCurrent"
+        checkPreviousUncorrectedBookingType.booking_id,
+        checkPreviousUncorrectedBookingType.start_time_id,
+        checkPreviousUncorrectedBookingType.end_time_id,
+        "updatePreviousUncorrected"
       );
     }
 

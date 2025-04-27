@@ -17,6 +17,7 @@ router.get("/bookings/:id", (req, res) => {
       t2.time AS end_time,
       b.purpose,
       booking_type,
+      u.booking_color,
       b.date,
       b.created_at 
       FROM bookings b
@@ -25,6 +26,7 @@ router.get("/bookings/:id", (req, res) => {
       JOIN classes c ON b.class_id = c.id
       JOIN timeslots t1 ON b.start_time = t1.id
       JOIN timeslots t2 ON b.end_time = t2.id
+      JOIN users u ON b.professor_id = u.school_id
       WHERE b.date = CURRENT_DATE() AND b.room_id = ?;`,
     [roomId],
     async (err, result) => {

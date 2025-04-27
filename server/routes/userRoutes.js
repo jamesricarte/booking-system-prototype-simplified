@@ -4,7 +4,6 @@ const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const path = require("path");
 const nodemailer = require("nodemailer");
-const { error } = require("console");
 require("dotenv").config();
 
 const router = express.Router();
@@ -63,6 +62,7 @@ router.post("/login", async (req, res) => {
       u.email, p.professor_name AS name,
       u.password,
       u.profile_image,
+      u.booking_color,
       u.user_type
       FROM users u
       JOIN professors p ON u.school_id = p.id
@@ -182,8 +182,8 @@ router.post("/register", async (req, res) => {
               const hashedPassword = await bcrypt.hash(user.password, 10);
 
               db.query(
-                "INSERT INTO users (email, school_id, password, user_type) VALUES(?,?,?,?)",
-                [user.email, school_id, hashedPassword, 1],
+                "INSERT INTO users (email, school_id, password, user_type, booking_color) VALUES(?,?,?,?,?)",
+                [user.email, school_id, hashedPassword, 1, "#1e90ff"],
                 (err, result) => {
                   if (err) {
                     return res.status(500).json({
@@ -698,6 +698,41 @@ router.put("/deleteImageProfile", (req, res) => {
       return res
         .status(200)
         .json({ message: "Deleted image successfully.", success: true });
+    }
+  );
+});
+
+//Update booking color
+router.put("/updateBookingColor", (req, res) => {
+  const { userId, selectedColor } = req.body;
+
+  db.query(
+    "UPDATE users SET booking_color = ? WHERE id = ?",
+    [selectedColor, userId],
+    (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
+      }
+
+      if (!result) {
+        return res
+          .status(400)
+          .json({ message: "Some problem occured", result });
+      }
+
+      if (Object.values(result).every((val) => val === 0)) {
+        return res.status(400).json({
+          message:
+            "Error changing booking color! The user you were trying to update was unfortunately not found.",
+          result: result,
+        });
+      }
+
+      return res
+        .status(200)
+        .json({ message: "Booking color updated successfully." });
     }
   );
 });
