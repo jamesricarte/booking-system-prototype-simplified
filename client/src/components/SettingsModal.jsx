@@ -1,15 +1,20 @@
-import { FiX } from "react-icons/fi";
-import { MdLocalPhone } from "react-icons/md";
-import { FaPlus } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { useState } from "react";
-import { IoIosAlert } from "react-icons/io";
+import { FiX } from 'react-icons/fi';
+import { MdLocalPhone } from 'react-icons/md';
+import { FaPlus } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext';
+import PropTypes from 'prop-types';
+import { useState } from 'react';
 
 const SettingsModal = ({ isOpen, closeModal }) => {
   const { logout } = useAuth();
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("terms");
+  const [activeTab, setActiveTab] = useState('terms');
+  const [reportPreviews, setReportPreviews] = useState([]);
+
+  const handleReportFilesChange = (e) => {
+    const files = Array.from(e.target.files);
+    setReportPreviews(files.map((file) => URL.createObjectURL(file)));
+  };
 
   if (!isOpen) return null;
 
@@ -21,9 +26,62 @@ const SettingsModal = ({ isOpen, closeModal }) => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case "terms":
-        return <p> </p>; // James
-      case "help":
+      case 'terms':
+        return (
+          <div className="text-black">
+            <h1 className="text-2xl mb-4">Terms & Conditions</h1>
+            <div className="ml-6 space-y-6">
+              <div>
+                <h1 className="text-xl mb-3">Classroom Booking Policy</h1>
+                <p className="mb-4">
+                  Please read and follow these simple guidelines to ensure fair
+                  and smooth use of the booking system.
+                </p>
+                <h2 className="font-semibold mb-2">Booking Usage:</h2>
+                <ul className="list-disc list-inside ml-6 space-y-2">
+                  <li>
+                    Bookings are available for active faculty members only.
+                  </li>
+                  <li>Only one actve booking per user is allowed at a time.</li>
+                  <li>Bookings must be made at least 15 minutes in advance.</li>
+                  <li>Time slots are first-come,first-served basis.</li>
+                </ul>
+              </div>
+              <div>
+                <h2 className="font-semibold mb-2">Check-in and Checkout:</h2>
+                <ul className="list-disc list-inside ml-6 space-y-2">
+                  <li>
+                    You must check in within 10 minutes of your booking time.
+                  </li>
+                  <li>
+                    Checkout is expected to be done before or at the scheduled
+                    end time.
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h2 className="font-semibold mb-2">
+                  Cancellations and No-shows:
+                </h2>
+                <ul className="list-disc list-inside ml-6 space-y-2">
+                  <li>
+                    Please cancel or end your booking if you no longer need the
+                    room.
+                  </li>
+                  <li>
+                    No-shows may lead to temporary restrictions on your booking
+                    access.
+                  </li>
+                  <li>
+                    You can cancel or end your booking early via the Room
+                    Details page.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        );
+      case 'help':
         return (
           <div>
             <div className="flex justify-between mb-7">
@@ -48,14 +106,14 @@ const SettingsModal = ({ isOpen, closeModal }) => {
             </div>
 
             <div className="flex flex-col w-full gap-2">
-              <h1 className="text-xl">FAQ's</h1>
+              <h1 className="text-xl">FAQs</h1>
               <ul className="flex flex-col gap-2 text-base">
                 {[
-                  "How do I create an account?",
-                  "What is its main purpose?",
-                  "I forgot my password. How can I reset it?",
-                  "Is my personal information safe?",
-                  "How do I contact customer support?",
+                  'How do I create an account?',
+                  'What is its main purpose?',
+                  'I forgot my password. How can I reset it?',
+                  'Is my personal information safe?',
+                  'How do I contact customer support?',
                 ].map((faq, index) => (
                   <li
                     key={index}
@@ -69,8 +127,63 @@ const SettingsModal = ({ isOpen, closeModal }) => {
             </div>
           </div>
         );
-      case "report":
-        return <p></p>; // James
+      case 'report':
+        return (
+          <div>
+            <div className="flex flex-col pb-5">
+              <h1 className="text-2xl pb-3">Report a problem</h1>
+              <p className="text-xl text-gray-500 pb-0">
+                Can you provide clarity on the issue? Help us understand
+              </p>
+            </div>
+            <div className="mb-4">
+              <textarea
+                id="reportMessage"
+                className="w-full h-40 p-3 bg-[#EFEFEF] border-gray-300 rounded-md resize-none"
+              ></textarea>
+            </div>
+            <div className="mb-6">
+              <h2 className="text-2xl pb-3">Attach Files</h2>
+              <label
+                htmlFor="reportMessage"
+                className="text-md text-gray-500 mb-2 block"
+              >
+                Attach screenshots, screen recordings, or any other relevant
+                files that illustrate the problem or the bug. Visual aids can
+                help developers understand the issue more effectively.
+              </label>
+              <input
+                type="file"
+                id="reportFiles"
+                multiple
+                onChange={handleReportFilesChange}
+                className="hidden"
+              />
+              <label
+                htmlFor="reportFiles"
+                className="px-4 py-2 bg-gray-300 rounded cursor-pointer inline-block"
+              >
+                Choose Files
+              </label>
+              <div className="flex gap-2 mt-2">
+                {reportPreviews.map((src, index) => (
+                  <img
+                    key={index}
+                    src={src}
+                    alt={`preview ${index}`}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="flex justify-end mb-8">
+              <button className="px-4 py-2 bg-[#B3E5FC] text-black rounded cursor-pointer">
+                Submit Report
+              </button>
+            </div>
+          </div>
+        );
       default:
         return null;
     }
@@ -95,31 +208,31 @@ const SettingsModal = ({ isOpen, closeModal }) => {
           <aside className="flex flex-col justify-between w-1/4 h-full p-6 border-r border-gray-300">
             <nav className="flex flex-col gap-2 text-xl font-medium">
               <button
-                onClick={() => setActiveTab("terms")}
+                onClick={() => setActiveTab('terms')}
                 className={`p-2 text-left cursor-pointer ${
-                  activeTab === "terms"
-                    ? "text-black bg-[#B3E5FC] rounded-sm"
-                    : ""
+                  activeTab === 'terms'
+                    ? 'text-black bg-[#B3E5FC] rounded-sm'
+                    : ''
                 }`}
               >
                 Terms & Condition
               </button>
               <button
-                onClick={() => setActiveTab("help")}
+                onClick={() => setActiveTab('help')}
                 className={`p-2 text-left cursor-pointer ${
-                  activeTab === "help"
-                    ? "text-black bg-[#B3E5FC] rounded-sm"
-                    : ""
+                  activeTab === 'help'
+                    ? 'text-black bg-[#B3E5FC] rounded-sm'
+                    : ''
                 }`}
               >
                 Help & Support
               </button>
               <button
-                onClick={() => setActiveTab("report")}
+                onClick={() => setActiveTab('report')}
                 className={`p-2 text-left cursor-pointer ${
-                  activeTab === "report"
-                    ? "text-black bg-[#B3E5FC] rounded-sm"
-                    : ""
+                  activeTab === 'report'
+                    ? 'text-black bg-[#B3E5FC] rounded-sm'
+                    : ''
                 }`}
               >
                 Report a Bug
@@ -134,7 +247,7 @@ const SettingsModal = ({ isOpen, closeModal }) => {
               </button>
             </div>
           </aside>
-          <div className="w-2/3 h-full p-6 overflow-y-auto">
+          <div className="flex-1 h-full p-6 overflow-y-auto mr-4">
             {renderTabContent()}
           </div>
         </div>
@@ -144,10 +257,10 @@ const SettingsModal = ({ isOpen, closeModal }) => {
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60">
           <div className="w-full max-w-sm bg-white rounded-md shadow-xl">
             <div className="items-center gap-2">
-                <div className="flex p-4">
-                  <h1 className="text-lg ">Confirm Logout</h1>
-                </div>
+              <div className="flex p-4">
+                <h1 className="text-lg ">Confirm Logout</h1>
               </div>
+            </div>
 
             <hr />
 
@@ -174,6 +287,11 @@ const SettingsModal = ({ isOpen, closeModal }) => {
       )}
     </div>
   );
+};
+
+SettingsModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  closeModal: PropTypes.func.isRequired,
 };
 
 export default SettingsModal;
