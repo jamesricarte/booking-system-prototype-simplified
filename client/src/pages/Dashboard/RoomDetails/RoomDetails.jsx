@@ -1138,7 +1138,7 @@ const RoomDetails = () => {
             ? "top-12 opacity-100"
             : "-top-10 opacity-0"
         } ${
-          bookingMessage.type === "success" ? "text-green-500" : "text-red-500"
+          bookingMessage.type === "success" ? "text-cyan-500" : "text-red-500"
         }`}
       >
         <p>{bookingMessage.message}</p>

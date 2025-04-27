@@ -5,6 +5,7 @@ import Input from "../../../components/Input";
 import { RiCloseCircleFill } from "react-icons/ri";
 import { FiEdit } from "react-icons/fi";
 import { handleFormChange } from "../../../utils/formHandlers";
+import { HiMiniEyeSlash } from "react-icons/hi2";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,6 +20,8 @@ const UserProfile = () => {
 
   //auth
   const [changePassswordModal, setChangePasswordModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [changePasswordData, setChangePasswordData] = useState({
     id: user.id,
     currentPassword: "",
@@ -63,7 +66,7 @@ const UserProfile = () => {
       ...prev,
       name: user.name || "",
       email: user.email || "",
-      schoolId: user.school_id || "",
+      schoolId: user.professor_school_id || "",
     }));
   }, [user]);
 
@@ -74,6 +77,8 @@ const UserProfile = () => {
   const changePassword = async (e) => {
     e.preventDefault();
 
+    setShowPassword(false);
+    setShowConfirmPassword(false);
     setLoading(true);
     const startTime = Date.now();
     let message = {
@@ -147,7 +152,11 @@ const UserProfile = () => {
 
     setProfileUpdateLoading(true);
     const startTime = Date.now();
-    let message = { isBookingMessageAvaialable: false, message: "", type: "" };
+    let message = {
+      isEditProfileResponseAvailable: false,
+      message: "",
+      type: "",
+    };
 
     try {
       const { name, schoolId, ...editProfileData } = editProfileForm;
@@ -184,6 +193,71 @@ const UserProfile = () => {
 
       setTimeout(() => {
         setProfileUpdateLoading(false);
+        if (message.type === "success") {
+          setEditProfileForm({ ...editProfileForm, isEditable: false });
+        }
+        setEditProfileResponse({
+          isEditProfileResponseAvailable:
+            message.isEditProfileResponseAvailable,
+          message: message.message,
+          type: message.type,
+        });
+        setTimeout(() => {
+          setEditProfileResponse((prev) => ({
+            ...prev,
+            isEditProfileResponseAvailable: false,
+          }));
+        }, 2000);
+      }, Math.max(0, minimumTime - elapsedTime));
+    }
+  };
+
+  const updateProfileImage = async () => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("id", user.id);
+
+    setProfileUpdateLoading(true);
+    const startTime = Date.now();
+    let result;
+    let message = {
+      isEditProfileResponseAvailable: false,
+      message: "",
+      type: "",
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/api/uploadProfile`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      result = await res.json();
+      message = {
+        isEditProfileResponseAvailable: true,
+        message: result.message,
+        type: "success",
+      };
+    } catch (error) {
+      message = {
+        isEditProfileResponseAvailable: true,
+        message: error.message,
+        type: "error",
+      };
+    } finally {
+      const elapsedTime = Date.now() - startTime;
+      const minimumTime = 1000;
+
+      setTimeout(() => {
+        setProfileUpdateLoading(false);
+        login({ ...user, profile_image: result.filePath });
+        setImagePreview(`${API_URL}/${result.filePath.replace(/^\/?/, "")}`);
+        setFile(null);
         setEditProfileResponse({
           isEditProfileResponseAvailable:
             message.isEditProfileResponseAvailable,
@@ -204,7 +278,7 @@ const UserProfile = () => {
   useEffect(() => {
     // console.log("Full user object →", user);
     if (user?.profile_image && user.profile_image.trim() !== "") {
-      setImagePreview(`http://localhost:3000${user.profile_image}`);
+      setImagePreview(`${API_URL}${user.profile_image}`);
     } else {
       setImagePreview(BlankProfile);
     }
@@ -218,13 +292,11 @@ const UserProfile = () => {
         return (
           <>
             <div className="flex flex-col w-full ml-2 mr-7">
-              <div className="flex flex-row items-center w-full m-6">
+              <div className="flex flex-row items-center w-full h-full pt-3 pl-6">
                 <img
-                  src={
-                    imagePreview || `http://localhost:3000${user.profile_image}`
-                  }
+                  src={imagePreview || `${API_URL}${user.profile_image}`}
                   alt="Profile"
-                  className="object-cover mb-4 mr-20 rounded-full w-36 h-36"
+                  className="object-cover mb-4 mr-20 rounded-full w-36 h-36 min-w-36 "
                 />
 
                 <input
@@ -251,51 +323,27 @@ const UserProfile = () => {
                   }}
                 />
                 <div className="flex flex-col">
-                  <div>
+                  <div className="flex items-center gap-3">
                     <button
-                      className="px-4 py-2 mb-5 mr-5 text-black bg-[#B3E5FC] rounded hover:bg-blue-300 cursor-pointer"
+                      className="px-4 py-2 mb-5 text-black bg-[#B3E5FC] rounded hover:bg-blue-300 cursor-pointer"
                       onClick={() => fileInputRef.current.click()}
                     >
                       Select Image
                     </button>
 
-                    {file && (
+                    {file ? (
                       <button
-                        className="px-4 py-2 mb-2 text-black bg-[#FFA726] rounded hover:bg-[#FFA720] cursor-pointer"
-                        onClick={async () => {
-                          const formData = new FormData();
-                          formData.append("file", file);
-                          formData.append("id", user.id);
-
-                          try {
-                            const res = await fetch(
-                              `${API_URL}/api/uploadProfile`,
-                              {
-                                method: "POST",
-                                body: formData,
-                              }
-                            );
-
-                            const result = await res.json();
-                            setImagePreview(
-                              `http://localhost:3000/${result.filePath.replace(
-                                /^\/?/,
-                                ""
-                              )}`
-                            );
-                            login({ ...user, profile_image: result.filePath });
-                            setFile(null);
-                          } catch (error) {
-                            console.error("Upload Failed", error);
-                          }
-                        }}
+                        className="px-4 py-2 mb-5 text-black bg-[#FFA726] rounded hover:bg-[#FFA720] cursor-pointer"
+                        onClick={updateProfileImage}
+                        title="Upload image"
                       >
                         Upload
                       </button>
+                    ) : (
+                      <button className="px-4 py-2 mb-5 mr-5 text-red-400 bg-gray-300 rounded cursor-pointer hover:bg-gray-400">
+                        Delete Image
+                      </button>
                     )}
-                    <button className="px-4 py-2 mb-5 mr-5 text-red-400 bg-gray-300 rounded cursor-pointer hover:bg-gray-400">
-                      Delete Image
-                    </button>
                   </div>
 
                   <p className="text-sm text-center text-gray-500">
@@ -397,7 +445,7 @@ const UserProfile = () => {
                                 isEditable: false,
                                 name: user.name,
                                 email: user.email,
-                                schoolId: user.school_id,
+                                schoolId: user.professor_school_id,
                               }))
                             }
                             className="px-4 py-2 text-black bg-orange-300 rounded cursor-pointer"
@@ -469,15 +517,29 @@ const UserProfile = () => {
                 >
                   New Password
                 </label>
-                <Input
-                  className="block w-full p-2 mt-1 border border-gray-300 rounded-md"
-                  type="password"
-                  id="newPassword"
-                  name="newPassword"
-                  value={changePasswordData.newPassword}
-                  onChange={handleChangePasswordFormData}
-                  required={true}
-                />
+                <div className="relative w-full">
+                  <Input
+                    className="block w-full p-2 mt-1 border border-gray-300 rounded-md"
+                    type={showPassword ? "text" : "password"}
+                    id="newPassword"
+                    name="newPassword"
+                    value={changePasswordData.newPassword}
+                    onChange={handleChangePasswordFormData}
+                    required={true}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 flex items-center text-gray-600 cursor-pointer right-6"
+                  >
+                    {showPassword ? (
+                      <HiMiniEyeSlash size={18} />
+                    ) : (
+                      <HiMiniEyeSlash size={18} color="#A9ADAB" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div>
@@ -487,15 +549,29 @@ const UserProfile = () => {
                 >
                   Confirm Password
                 </label>
-                <Input
-                  className="block w-full p-2 mt-1 border border-gray-300 rounded-md"
-                  type="password"
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  value={changePasswordData.confirmPassword}
-                  onChange={handleChangePasswordFormData}
-                  required={true}
-                />
+                <div className="relative w-full">
+                  <Input
+                    className="block w-full p-2 mt-1 border border-gray-300 rounded-md"
+                    type={showConfirmPassword ? "text" : "password"}
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    value={changePasswordData.confirmPassword}
+                    onChange={handleChangePasswordFormData}
+                    required={true}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 flex items-center text-gray-600 cursor-pointer right-6"
+                  >
+                    {showConfirmPassword ? (
+                      <HiMiniEyeSlash size={18} />
+                    ) : (
+                      <HiMiniEyeSlash size={18} color="#A9ADAB" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {changePasswordResponse.isChangePasswordMessage &&
@@ -751,7 +827,7 @@ const UserProfile = () => {
             : "text-red-500"
         }`}
       >
-        <p className="text-sm">{changePasswordResponse.message}</p>
+        <p className="text-sm font-bold">{changePasswordResponse.message}</p>
       </div>
 
       {/* Update Profile Information Message */}
@@ -766,7 +842,7 @@ const UserProfile = () => {
             : "text-red-500"
         }`}
       >
-        <p className="text-sm">{editProfileResponse.message}</p>
+        <p className="text-sm font-bold">{editProfileResponse.message}</p>
       </div>
 
       {/* Background Overlay */}

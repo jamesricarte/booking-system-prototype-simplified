@@ -61,6 +61,7 @@ router.post("/login", async (req, res) => {
       p.school_id AS professor_school_id,
       u.email, p.professor_name AS name,
       u.password,
+      u.profile_image,
       u.user_type
       FROM users u
       JOIN professors p ON u.school_id = p.id

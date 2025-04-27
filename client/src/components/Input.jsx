@@ -38,7 +38,7 @@ const Input = ({
   dataId,
   dataValue,
   // ⬇️ This is the default classname of the component (ced will set up this)
-  className = "px-4 py-3 rounded-md border-gray-500 bg-[#EFEFEF] text-[#595959] border-none outline-none focus:ring-1 focus:ring-gray-500",
+  className = "p-3 rounded-md border-gray-500 bg-[#EFEFEF] text-[#595959] border-none outline-none focus:ring-1 focus:ring-black",
   style,
   // ⬇️ This is the additional classname if you have specific adjustment when you use the component
   additionalClassName,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import Logo from "../assets/logo/Logo.png";
 import BlankProfile from "../assets/image/elipse.png";
 import { RiSettings5Fill } from "react-icons/ri";
@@ -158,11 +158,11 @@ const Sidebar = ({ isAdmin }) => {
               <img
                 src={
                   user?.profile_image
-                    ? `http://localhost:3000${user.profile_image}`
+                    ? `${API_URL}${user.profile_image}`
                     : BlankProfile
                 }
                 alt="User profile"
-                className="w-12 h-12 border border-gray-300 rounded-full"
+                className="object-cover w-12 h-12 border border-gray-300 rounded-full min-w-12 min-h-12"
               />
             </NavLink>
             <div>
