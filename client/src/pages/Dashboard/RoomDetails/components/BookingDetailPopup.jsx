@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { IoIosClose } from "react-icons/io";
 import { MdEdit } from "react-icons/md";
 import { TbClockCancel } from "react-icons/tb";
@@ -14,6 +14,14 @@ const BookingDetailPopup = ({
   cancelReservation,
 }) => {
   const { user } = useAuth();
+  const [showCancelModal, setShowCancelModal] = useState(false); // <-- added
+
+  const handleConfirmCancel = () => {
+    cancelReservation(selectedBooking.booking_id);
+    setShowCancelModal(false);
+    setSelectedBooking(null);
+  };
+
   return (
     <>
       {/* Booking Detail Popup */}
@@ -32,7 +40,7 @@ const BookingDetailPopup = ({
                   size={25}
                   className="p-1 cursor-pointer hover:bg-gray-200"
                   title="Cancel Reservation"
-                  onClick={() => cancelReservation(selectedBooking.booking_id)}
+                  onClick={() => setShowCancelModal(true)} // <-- open confirmation modal
                 />
               )}
             {selectedBooking.booking_type !== "past" &&
@@ -55,6 +63,7 @@ const BookingDetailPopup = ({
               onClick={() => setSelectedBooking(null)}
             />
           </div>
+
           <h3>Booking Details:</h3>
           <div className="flex gap-1">
             <p>Date:</p>
@@ -93,6 +102,37 @@ const BookingDetailPopup = ({
               </p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* CANCEL RESERVATION MODAL */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30">
+          <div className="w-full max-w-sm bg-white rounded-md shadow-xl">
+            <div className="flex p-4">
+            <h1 className="text-lg">Cancel Reservation</h1>
+            </div>
+            <hr className="w-full"/>
+            <div className="flex flex-col gap-5 p-5">
+              <h2 className="font-normal">Are you sure you want to cancel this reservation?</h2>
+                <div className="flex justify-end gap-3">
+                  <button
+                    className="px-4 py-2 bg-[#B3E5FC] rounded cursor-pointer hover:bg-[#99d3ee]"
+                    onClick={() => setShowCancelModal(false)}
+                  >
+                    No
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white bg-red-500 rounded cursor-pointer hover:bg-red-600"
+                    onClick={handleConfirmCancel}
+                  >
+                    Yes, Cancel
+                  </button>
+                </div>
+            </div>
+            
+            
+          </div>
         </div>
       )}
     </>
