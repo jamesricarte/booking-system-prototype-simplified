@@ -20,52 +20,57 @@ import AdminProfile from "./pages/AdminDashboard/AdminProfile/AdminProfile";
 import AccountRecovery from "./pages/Login/AccountRecovery/AccountRecovery";
 import VerifyCode from "./pages/Login/AccountRecovery/VerifyCode";
 import ResetPassword from "./pages/Login/AccountRecovery/ResetPassword";
+import AppTitleManager from "./components/AppTitleManager";
 
 const App = () => {
   const location = useLocation();
 
   return (
-    <Routes>
-      {/* Auth */}
-      <Route path="/" element={<RedirectOnLoad />}></Route>
-      <Route path="/login" element={<Login />}></Route>
-      <Route path="/register" element={<Register />}></Route>
-      <Route path="/accountRecovery" element={<AccountRecovery />} />
-      <Route path="/accountRecovery/verification" element={<VerifyCode />} />
-      <Route path="/accountRecovery/reset" element={<ResetPassword />} />
+    <>
+      <AppTitleManager />
 
-      {/* Dashboard */}
-      <Route
-        element={
-          <DashboardProtectedRoute>
-            <DashboardLayout />
-          </DashboardProtectedRoute>
-        }
-      >
-        <Route path="/dashboard" element={<Dashboard />}></Route>
-        <Route path="/bookings" element={<Bookings />}></Route>
+      <Routes>
+        {/* Auth */}
+        <Route path="/" element={<RedirectOnLoad />}></Route>
+        <Route path="/login" element={<Login />}></Route>
+        <Route path="/register" element={<Register />}></Route>
+        <Route path="/accountRecovery" element={<AccountRecovery />} />
+        <Route path="/accountRecovery/verification" element={<VerifyCode />} />
+        <Route path="/accountRecovery/reset" element={<ResetPassword />} />
+
+        {/* Dashboard */}
         <Route
-          path="/room/:id"
-          element={<RoomDetails key={location.key} />}
-        ></Route>
-        <Route path="/userProfile" element={<UserProfile />}></Route>
-      </Route>
+          element={
+            <DashboardProtectedRoute>
+              <DashboardLayout />
+            </DashboardProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<Dashboard />}></Route>
+          <Route path="/bookings" element={<Bookings />}></Route>
+          <Route
+            path="/room/:id"
+            element={<RoomDetails key={location.key} />}
+          ></Route>
+          <Route path="/userProfile" element={<UserProfile />}></Route>
+        </Route>
 
-      {/* Admin */}
-      <Route
-        element={
-          <AdminProtectedRoute>
-            <AdminLayout />
-          </AdminProtectedRoute>
-        }
-      >
-        <Route path="/admin" element={<AdminDashboard />}></Route>
-        <Route path="/history" element={<HistoryOfOccupancy />}></Route>
-        <Route path="/rooms" element={<Rooms />}></Route>
-        <Route path="/users" element={<Users />}></Route>
-        <Route path="/adminProfile" element={<AdminProfile />}></Route>
-      </Route>
-    </Routes>
+        {/* Admin */}
+        <Route
+          element={
+            <AdminProtectedRoute>
+              <AdminLayout />
+            </AdminProtectedRoute>
+          }
+        >
+          <Route path="/admin" element={<AdminDashboard />}></Route>
+          <Route path="/history" element={<HistoryOfOccupancy />}></Route>
+          <Route path="/rooms" element={<Rooms />}></Route>
+          <Route path="/users" element={<Users />}></Route>
+          <Route path="/adminProfile" element={<AdminProfile />}></Route>
+        </Route>
+      </Routes>
+    </>
   );
 };
 
