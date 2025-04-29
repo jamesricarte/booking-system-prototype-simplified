@@ -4,6 +4,7 @@ const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const path = require("path");
 const nodemailer = require("nodemailer");
+const { error } = require("console");
 require("dotenv").config();
 
 const router = express.Router();
@@ -733,6 +734,71 @@ router.put("/updateBookingColor", (req, res) => {
       return res
         .status(200)
         .json({ message: "Booking color updated successfully." });
+    }
+  );
+});
+
+//Delete user
+router.delete("/deleteUser", (req, res) => {
+  const { userId, passwordInput } = req.body;
+
+  if (!userId) {
+    return res
+      .status(400)
+      .json({ message: "No user ID was received. Something went wrong." });
+  }
+
+  db.query(
+    "SELECT password FROM users WHERE id = ?",
+    [userId],
+    async (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
+      }
+
+      if (result.length === 0) {
+        return res
+          .status(200)
+          .json({ message: "User has been already deleted", success: true });
+      }
+
+      const userPassword = result[0].password;
+
+      const passwordMatch = await bcrypt.compare(passwordInput, userPassword);
+
+      if (passwordMatch) {
+        db.query("DELETE FROM users WHERE id = ?", [userId], (err, result) => {
+          if (err) {
+            return res
+              .status(500)
+              .json({ message: "Something went wrong", error: err.message });
+          }
+
+          if (!result) {
+            return res
+              .status(400)
+              .json({ message: "Some problem occured", result });
+          }
+
+          if (Object.values(result).every((val) => val === 0)) {
+            return res.status(400).json({
+              message:
+                "Error changing booking color! The user you were trying to update was unfortunately not found.",
+              result: result,
+            });
+          }
+
+          return res
+            .status(200)
+            .json({ message: "User account has been deleted", success: true });
+        });
+      } else {
+        return res
+          .status(200)
+          .json({ message: "The password you entered is incorrect." });
+      }
     }
   );
 });
