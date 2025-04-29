@@ -38,10 +38,6 @@ const RoomDetails = () => {
     timePassedAfterBooking,
   } = useBooking();
 
-  useEffect(() => {
-    console.log(user.booking_color);
-  }, [user]);
-
   const {
     roomDetails,
     classes,

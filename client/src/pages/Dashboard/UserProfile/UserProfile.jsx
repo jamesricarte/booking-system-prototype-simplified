@@ -6,7 +6,9 @@ import { RiCloseCircleFill } from "react-icons/ri";
 import { FiEdit } from "react-icons/fi";
 import { handleFormChange } from "../../../utils/formHandlers";
 import { HiMiniEyeSlash } from "react-icons/hi2";
+import { IoWarningOutline } from "react-icons/io5";
 import DeleteImageModal from "./components/modals/DeleteImageModal";
+import DeleteAccountModal from "./components/modals/DeleteAccountModal";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -19,11 +21,16 @@ const UserProfile = () => {
   const [imagePreview, setImagePreview] = useState(BlankProfile);
   const fileInputRef = useRef();
 
-  //auth
+  //Modals
+  const [showDeleteImageModal, setShowDeleteImageModal] = useState(false);
   const [changePassswordModal, setChangePasswordModal] = useState(false);
+  const [deleteAccountModal, setDeleteAccountModal] = useState(false);
+
+  //password input
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showDeleteImageModal, setShowDeleteImageModal] = useState(false);
+
+  //auth
   const [changePasswordData, setChangePasswordData] = useState({
     id: user.id,
     currentPassword: "",
@@ -48,6 +55,7 @@ const UserProfile = () => {
     type: "",
   });
 
+  //loading variable
   const [loading, setLoading] = useState(false);
   const [profileUpdateLoading, setProfileUpdateLoading] = useState(false);
   const [bookingColorLoading, setBookingColorLoading] = useState(false);
@@ -549,7 +557,7 @@ const UserProfile = () => {
                         className="px-4 py-2 mb-5 mr-5 text-red-400 bg-gray-300 rounded cursor-pointer hover:bg-gray-400"
                         onClick={() => {
                           if (user.profile_image) {
-                            setShowDeleteImageModal(!showDeleteImageModal);
+                            setShowDeleteImageModal(true);
                           } else {
                             deleteImage();
                           }
@@ -886,6 +894,26 @@ const UserProfile = () => {
             </div>
           </>
         );
+      case "accountManagement":
+        return (
+          <>
+            <div className="flex flex-col w-full">
+              <div className="flex flex-col gap-1 mb-6">
+                <h1 className="text-xl ">Delete Account</h1>
+                <p className="text-sm text-gray-600">
+                  If you no longer wish to use the system, you can permanently
+                  delete your account.
+                </p>
+              </div>
+              <button
+                className="px-4 w-46 py-2 text-black bg-[#EF5350] text-white rounded hover:bg-[#E53935] cursor-pointer flex items-center justify-center gap-2"
+                onClick={() => setDeleteAccountModal(true)}
+              >
+                <IoWarningOutline size={17} /> Delete Account
+              </button>
+            </div>
+          </>
+        );
       default:
         return null;
     }
@@ -928,6 +956,16 @@ const UserProfile = () => {
               }`}
             >
               Calendar Preferences
+            </button>
+            <button
+              onClick={() => setActiveTab("accountManagement")}
+              className={`p-2 text-left cursor-pointer ${
+                activeTab === "accountManagement"
+                  ? "text-black bg-[#B3E5FC] rounded-sm"
+                  : ""
+              }`}
+            >
+              Account Management
             </button>
           </div>
 
@@ -1017,6 +1055,13 @@ const UserProfile = () => {
           setShowDeleteImageModal(false);
         }}
         loading={loading}
+      />
+
+      <DeleteAccountModal
+        isOpen={deleteAccountModal}
+        onClose={() => setDeleteAccountModal(false)}
+        loading={loading}
+        user={user}
       />
 
       {/* Background Overlay */}
