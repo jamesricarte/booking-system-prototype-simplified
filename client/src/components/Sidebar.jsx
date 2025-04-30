@@ -168,12 +168,23 @@ const Sidebar = ({ isAdmin }) => {
               ) : (
                 <div className="w-12 h-12 bg-[#B3E5FC] rounded-full min-w-12 min-h-12 flex justify-center items-center font-bold text-white font-arial text-lg">
                   <p>
-                    {user?.name
-                      .split(" ")
-                      .slice(0, 2)
-                      .filter((word) => word.length > 1 || !word.endsWith("."))
-                      .map((word) => word[0].toUpperCase())
-                      .join("")}
+                    {isAdmin
+                      ? user?.username
+                          .split(" ")
+                          .slice(0, 2)
+                          .filter(
+                            (word) => word.length > 1 || !word.endsWith(".")
+                          )
+                          .map((word) => word[0].toUpperCase())
+                          .join("")
+                      : user?.name
+                          .split(" ")
+                          .slice(0, 2)
+                          .filter(
+                            (word) => word.length > 1 || !word.endsWith(".")
+                          )
+                          .map((word) => word[0].toUpperCase())
+                          .join("")}
                   </p>
                 </div>
               )}

@@ -16,11 +16,24 @@ const AdminProfile = () => {
       <div className="py-7 px-14">
         <div className="flex">
           <div className="flex flex-col items-center w-[280px] mr-6">
-            <img
-              src={BlankProfile}
-              alt="Profile"
-              className="object-cover mb-4 rounded-full w-36 h-36"
-            />
+            {user?.profile_image ? (
+              <img
+                src={imagePreview || `${API_URL}${user.profile_image}`}
+                alt="Profile"
+                className="object-cover mb-4 mr-20 rounded-full w-36 h-36 min-w-36"
+              />
+            ) : (
+              <div className="mb-4 mr-20 bg-[#B3E5FC] rounded-full w-36 h-36 min-w-36 flex justify-center items-center font-bold text-5xl text-white font-arial">
+                <p>
+                  {user?.username
+                    .split(" ")
+                    .slice(0, 2)
+                    .filter((word) => word.length > 1 || !word.endsWith("."))
+                    .map((word) => word[0].toUpperCase())
+                    .join("")}
+                </p>
+              </div>
+            )}
 
             <button className="px-4 py-2 mb-2 text-black bg-[#B3E5FC] rounded hover:bg-blue-300">
               Select Image
