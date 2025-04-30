@@ -155,15 +155,28 @@ const Sidebar = ({ isAdmin }) => {
         <div className="flex items-center justify-between p-5">
           <div className="flex items-center gap-4">
             <NavLink to={`${isAdmin ? "/AdminProfile" : "/UserProfile"}`}>
-              <img
-                src={
-                  user?.profile_image
-                    ? `${API_URL}${user.profile_image}`
-                    : BlankProfile
-                }
-                alt="User profile"
-                className="object-cover w-12 h-12 border border-gray-300 rounded-full min-w-12 min-h-12"
-              />
+              {user?.profile_image ? (
+                <img
+                  src={
+                    user?.profile_image
+                      ? `${API_URL}${user.profile_image}`
+                      : BlankProfile
+                  }
+                  alt="User profile"
+                  className="object-cover w-12 h-12 border border-gray-300 rounded-full min-w-12 min-h-12"
+                />
+              ) : (
+                <div className="w-12 h-12 bg-[#B3E5FC] rounded-full min-w-12 min-h-12 flex justify-center items-center font-bold text-white font-arial text-lg">
+                  <p>
+                    {user?.name
+                      .split(" ")
+                      .slice(0, 2)
+                      .filter((word) => word.length > 1 || !word.endsWith("."))
+                      .map((word) => word[0].toUpperCase())
+                      .join("")}
+                  </p>
+                </div>
+              )}
             </NavLink>
             <div>
               <NavLink to={`${isAdmin ? "/AdminProfile" : "/UserProfile"}`}>

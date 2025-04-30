@@ -1,19 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Domine:wght@400;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Domine:wght@400;700&display=swap");
 
 @layer theme, base, components, utilities;
 
-@import 'tailwindcss/preflight.css' layer(base);
-@import 'tailwindcss/utilities.css' layer(utilities);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
 
-@import 'tailwindcss/theme.css' layer(utilities);
+@import "tailwindcss/theme.css" layer(utilities);
 
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @theme {
   --color-primary: #0000ff;
+  --font-arial: "Arial", sans-serif;
   /* --custom-gradient: linear-gradient(to right, #fdb112, #0085ca); */
 }
 
 body {
-  font-family: 'Domine', serif;
+  font-family: "Domine", serif;
 }

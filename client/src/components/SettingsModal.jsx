@@ -1,14 +1,14 @@
-import { FiX } from 'react-icons/fi';
-import { MdLocalPhone } from 'react-icons/md';
-import { FaPlus } from 'react-icons/fa';
-import { useAuth } from '../context/AuthContext';
-import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { FiX } from "react-icons/fi";
+import { MdLocalPhone } from "react-icons/md";
+import { FaPlus } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
+import PropTypes from "prop-types";
+import { useState } from "react";
 
 const SettingsModal = ({ isOpen, closeModal }) => {
   const { logout } = useAuth();
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('terms');
+  const [activeTab, setActiveTab] = useState("terms");
   const [reportPreviews, setReportPreviews] = useState([]);
 
   const handleReportFilesChange = (e) => {
@@ -26,19 +26,19 @@ const SettingsModal = ({ isOpen, closeModal }) => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      case 'terms':
+      case "terms":
         return (
           <div className="text-black">
-            <h1 className="text-2xl mb-4">Terms & Conditions</h1>
+            <h1 className="mb-4 text-2xl">Terms & Conditions</h1>
             <div className="ml-6 space-y-6">
               <div>
-                <h1 className="text-xl mb-3">Classroom Booking Policy</h1>
+                <h1 className="mb-3 text-xl">Classroom Booking Policy</h1>
                 <p className="mb-4">
                   Please read and follow these simple guidelines to ensure fair
                   and smooth use of the booking system.
                 </p>
-                <h2 className="font-semibold mb-2">Booking Usage:</h2>
-                <ul className="list-disc list-inside ml-6 space-y-2">
+                <h2 className="mb-2 font-semibold">Booking Usage:</h2>
+                <ul className="ml-6 space-y-2 list-disc list-inside">
                   <li>
                     Bookings are available for active faculty members only.
                   </li>
@@ -48,8 +48,8 @@ const SettingsModal = ({ isOpen, closeModal }) => {
                 </ul>
               </div>
               <div>
-                <h2 className="font-semibold mb-2">Check-in and Checkout:</h2>
-                <ul className="list-disc list-inside ml-6 space-y-2">
+                <h2 className="mb-2 font-semibold">Check-in and Checkout:</h2>
+                <ul className="ml-6 space-y-2 list-disc list-inside">
                   <li>
                     You must check in within 10 minutes of your booking time.
                   </li>
@@ -60,10 +60,10 @@ const SettingsModal = ({ isOpen, closeModal }) => {
                 </ul>
               </div>
               <div>
-                <h2 className="font-semibold mb-2">
+                <h2 className="mb-2 font-semibold">
                   Cancellations and No-shows:
                 </h2>
-                <ul className="list-disc list-inside ml-6 space-y-2">
+                <ul className="ml-6 space-y-2 list-disc list-inside">
                   <li>
                     Please cancel or end your booking if you no longer need the
                     room.
@@ -81,7 +81,7 @@ const SettingsModal = ({ isOpen, closeModal }) => {
             </div>
           </div>
         );
-      case 'help':
+      case "help":
         return (
           <div>
             <div className="flex justify-between mb-7">
@@ -109,11 +109,11 @@ const SettingsModal = ({ isOpen, closeModal }) => {
               <h1 className="text-xl">FAQs</h1>
               <ul className="flex flex-col gap-2 text-base">
                 {[
-                  'How do I create an account?',
-                  'What is its main purpose?',
-                  'I forgot my password. How can I reset it?',
-                  'Is my personal information safe?',
-                  'How do I contact customer support?',
+                  "How do I create an account?",
+                  "What is its main purpose?",
+                  "I forgot my password. How can I reset it?",
+                  "Is my personal information safe?",
+                  "How do I contact customer support?",
                 ].map((faq, index) => (
                   <li
                     key={index}
@@ -127,12 +127,12 @@ const SettingsModal = ({ isOpen, closeModal }) => {
             </div>
           </div>
         );
-      case 'report':
+      case "report":
         return (
           <div>
             <div className="flex flex-col pb-5">
-              <h1 className="text-2xl pb-3">Report a problem</h1>
-              <p className="text-xl text-gray-500 pb-0">
+              <h1 className="pb-3 text-2xl">Report a problem</h1>
+              <p className="pb-0 text-xl text-gray-500">
                 Can you provide clarity on the issue? Help us understand
               </p>
             </div>
@@ -143,10 +143,10 @@ const SettingsModal = ({ isOpen, closeModal }) => {
               ></textarea>
             </div>
             <div className="mb-6">
-              <h2 className="text-2xl pb-3">Attach Files</h2>
+              <h2 className="pb-3 text-2xl">Attach Files</h2>
               <label
                 htmlFor="reportMessage"
-                className="text-md text-gray-500 mb-2 block"
+                className="block mb-2 text-gray-500 text-md"
               >
                 Attach screenshots, screen recordings, or any other relevant
                 files that illustrate the problem or the bug. Visual aids can
@@ -161,7 +161,7 @@ const SettingsModal = ({ isOpen, closeModal }) => {
               />
               <label
                 htmlFor="reportFiles"
-                className="px-4 py-2 bg-gray-300 rounded cursor-pointer inline-block"
+                className="inline-block px-4 py-2 bg-gray-300 rounded cursor-pointer"
               >
                 Choose Files
               </label>
@@ -171,7 +171,7 @@ const SettingsModal = ({ isOpen, closeModal }) => {
                     key={index}
                     src={src}
                     alt={`preview ${index}`}
-                    className="w-16 h-16 object-cover rounded"
+                    className="object-cover w-16 h-16 rounded"
                   />
                 ))}
               </div>
@@ -208,46 +208,46 @@ const SettingsModal = ({ isOpen, closeModal }) => {
           <aside className="flex flex-col justify-between w-1/4 h-full p-6 border-r border-gray-300">
             <nav className="flex flex-col gap-2 text-xl font-medium">
               <button
-                onClick={() => setActiveTab('terms')}
+                onClick={() => setActiveTab("terms")}
                 className={`p-2 text-left cursor-pointer ${
-                  activeTab === 'terms'
-                    ? 'text-black bg-[#B3E5FC] rounded-sm'
-                    : ''
+                  activeTab === "terms"
+                    ? "text-black bg-[#B3E5FC] rounded-sm"
+                    : ""
                 }`}
               >
                 Terms & Condition
               </button>
               <button
-                onClick={() => setActiveTab('help')}
+                onClick={() => setActiveTab("help")}
                 className={`p-2 text-left cursor-pointer ${
-                  activeTab === 'help'
-                    ? 'text-black bg-[#B3E5FC] rounded-sm'
-                    : ''
+                  activeTab === "help"
+                    ? "text-black bg-[#B3E5FC] rounded-sm"
+                    : ""
                 }`}
               >
                 Help & Support
               </button>
               <button
-                onClick={() => setActiveTab('report')}
+                onClick={() => setActiveTab("report")}
                 className={`p-2 text-left cursor-pointer ${
-                  activeTab === 'report'
-                    ? 'text-black bg-[#B3E5FC] rounded-sm'
-                    : ''
+                  activeTab === "report"
+                    ? "text-black bg-[#B3E5FC] rounded-sm"
+                    : ""
                 }`}
               >
-                Report a Bug
+                Report a Problem
               </button>
             </nav>
             <div className="flex items-center justify-center">
               <button
                 onClick={() => setIsLogoutConfirmOpen(true)}
-                className="px-4 py-2 text-white bg-red-500 rounded cursor-pointer hover:bg-red-600"
+                className="px-4 py-2 text-white bg-[#EF5350] rounded cursor-pointer hover:bg-[#E53935]"
               >
                 Logout User
               </button>
             </div>
           </aside>
-          <div className="flex-1 h-full p-6 overflow-y-auto mr-4">
+          <div className="flex-1 h-full p-6 mr-4 overflow-y-auto">
             {renderTabContent()}
           </div>
         </div>
