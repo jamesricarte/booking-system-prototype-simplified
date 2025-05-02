@@ -12,6 +12,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const Sidebar = ({ isAdmin }) => {
   const { user } = useAuth();
+  const profileImageUrl = `${API_URL}/uploads/users/${user.id}/profileImages/${user.profile_image}`;
 
   const location = useLocation();
   const isBookingActive =
@@ -157,11 +158,7 @@ const Sidebar = ({ isAdmin }) => {
             <NavLink to={`${isAdmin ? "/AdminProfile" : "/UserProfile"}`}>
               {user?.profile_image ? (
                 <img
-                  src={
-                    user?.profile_image
-                      ? `${API_URL}${user.profile_image}`
-                      : BlankProfile
-                  }
+                  src={user?.profile_image ? profileImageUrl : BlankProfile}
                   alt="User profile"
                   className="object-cover w-12 h-12 border border-gray-300 rounded-full min-w-12 min-h-12"
                 />

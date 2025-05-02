@@ -4,8 +4,8 @@ const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const path = require("path");
 const nodemailer = require("nodemailer");
-const { error } = require("console");
 require("dotenv").config();
+const fs = require("fs");
 
 const router = express.Router();
 
@@ -22,11 +22,43 @@ const transporter = nodemailer.createTransport({
 
 // multer
 const storage = multer.diskStorage({
-  destination: (req, file, cb) =>
-    cb(null, path.join(__dirname, "../../uploads")),
+  destination: (req, file, cb) => {
+    const userId = req.headers["userid"];
+
+    if (!userId) {
+      return cb(new Error("Missing User Id"), null);
+    }
+
+    const uploadPath = path.join(
+      __dirname,
+      `../../uploads/users/${userId}/profileImages`
+    );
+
+    fs.mkdirSync(uploadPath, { recursive: true });
+
+    const prefix = `${userId}-current`;
+
+    fs.readdir(uploadPath, (err, files) => {
+      if (err) {
+        console.error("Error reading user profile image directory:", err);
+        return;
+      }
+
+      files.forEach((file) => {
+        if (file.startsWith(prefix)) {
+          const fileToDelete = path.join(uploadPath, file);
+          fs.unlinkSync(fileToDelete);
+        }
+      });
+    });
+
+    cb(null, uploadPath);
+  },
+
   filename: (req, file, cb) => {
+    const userId = req.headers["userid"];
     const ext = path.extname(file.originalname);
-    const filename = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+    const filename = `${userId}-current-${Date.now()}${ext}`;
     cb(null, filename);
   },
 });
@@ -363,9 +395,9 @@ router.post("/uploadProfile", upload.single("file"), (req, res) => {
     return res.status(400).json({ message: "No file uploaded" });
   }
 
-  const filePath = `/uploads/${req.file.filename}`;
-
   const userId = req.body.id;
+
+  const filePath = `${req.file.filename}`;
 
   if (!userId) {
     return res.status(400).json({ message: "Missing User Id" });
@@ -385,6 +417,54 @@ router.post("/uploadProfile", upload.single("file"), (req, res) => {
       filePath,
     });
   });
+});
+
+//Delete image in profile
+router.put("/deleteImageProfile", (req, res) => {
+  const { userId, userProfileImage } = req.body;
+
+  if (!userId) {
+    return res
+      .status(400)
+      .json({ message: "No user ID was received. Something went wrong." });
+  }
+
+  if (!userProfileImage) {
+    return res.status(400).json({
+      message:
+        "There is no image available to delete. Please upload a profile picture first.",
+    });
+  }
+
+  db.query(
+    "UPDATE users SET profile_image = null WHERE id = ?",
+    [userId],
+    (err, result) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Something went wrong", error: err.message });
+      }
+
+      if (!result) {
+        return res
+          .status(400)
+          .json({ message: "Some problem occured", result });
+      }
+
+      if (Object.values(result).every((val) => val === 0)) {
+        return res.status(400).json({
+          message:
+            "Error deleting image! The image you were trying to delete was unfortunately not found.",
+          result: result,
+        });
+      }
+
+      return res
+        .status(200)
+        .json({ message: "Deleted image successfully.", success: true });
+    }
+  );
 });
 
 //Check Email
@@ -651,54 +731,6 @@ router.put("/resetPassword", async (req, res) => {
           });
         }
       );
-    }
-  );
-});
-
-//Delete image in profile
-router.put("/deleteImageProfile", (req, res) => {
-  const { userId, userProfileImage } = req.body;
-
-  if (!userId) {
-    return res
-      .status(400)
-      .json({ message: "No user ID was received. Something went wrong." });
-  }
-
-  if (!userProfileImage) {
-    return res.status(400).json({
-      message:
-        "There is no image available to delete. Please upload a profile picture first.",
-    });
-  }
-
-  db.query(
-    "UPDATE users SET profile_image = null WHERE id = ?",
-    [userId],
-    (err, result) => {
-      if (err) {
-        return res
-          .status(500)
-          .json({ message: "Something went wrong", error: err.message });
-      }
-
-      if (!result) {
-        return res
-          .status(400)
-          .json({ message: "Some problem occured", result });
-      }
-
-      if (Object.values(result).every((val) => val === 0)) {
-        return res.status(400).json({
-          message:
-            "Error deleting image! The image you were trying to delete was unfortunately not found.",
-          result: result,
-        });
-      }
-
-      return res
-        .status(200)
-        .json({ message: "Deleted image successfully.", success: true });
     }
   );
 });

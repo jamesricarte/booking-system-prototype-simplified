@@ -14,11 +14,12 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const UserProfile = () => {
   const { user, login } = useAuth();
+  const profileImageUrl = `${API_URL}/uploads/users/${user.id}/profileImages/${user.profile_image}`;
 
   // file upload
   const [file, setFile] = useState(null);
 
-  const [imagePreview, setImagePreview] = useState(BlankProfile);
+  const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef();
 
   //Modals
@@ -287,6 +288,9 @@ const UserProfile = () => {
     try {
       const res = await fetch(`${API_URL}/api/uploadProfile`, {
         method: "POST",
+        headers: {
+          userid: String(user.id),
+        },
         body: formData,
       });
 
@@ -321,7 +325,7 @@ const UserProfile = () => {
           login({ ...user, profile_image: result?.filePath });
           setImagePreview(`${API_URL}/${result?.filePath.replace(/^\/?/, "")}`);
         } else {
-          setImagePreview(BlankProfile);
+          setImagePreview(null);
         }
 
         setFile(null);
@@ -479,9 +483,9 @@ const UserProfile = () => {
   useEffect(() => {
     // console.log("Full user object →", user);
     if (user?.profile_image && user.profile_image.trim() !== "") {
-      setImagePreview(`${API_URL}${user.profile_image}`);
+      setImagePreview(profileImageUrl);
     } else {
-      setImagePreview(BlankProfile);
+      setImagePreview(null);
     }
   }, [user?.profile_image]);
 
@@ -494,9 +498,9 @@ const UserProfile = () => {
           <>
             <div className="flex-col w-full ml-2flex mr-7">
               <div className="flex flex-row items-center w-full h-full pt-3 pl-6">
-                {user?.profile_image ? (
+                {user?.profile_image || file ? (
                   <img
-                    src={imagePreview || `${API_URL}${user.profile_image}`}
+                    src={imagePreview || profileImageUrl}
                     alt="Profile"
                     className="object-cover mb-4 mr-20 rounded-full w-36 h-36 min-w-36"
                   />
@@ -560,7 +564,7 @@ const UserProfile = () => {
                         <button
                           className="px-4 py-2 mb-5 mr-5 text-red-400 bg-gray-300 rounded cursor-pointer hover:bg-gray-400"
                           onClick={() => {
-                            setImagePreview(BlankProfile);
+                            setImagePreview(null);
                             setFile(null);
                           }}
                         >
