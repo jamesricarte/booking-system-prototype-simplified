@@ -7,6 +7,7 @@ import {
 } from "../../../utils/timeUtils";
 import useFetchBookingsForAllRoom from "../../../hooks/useFetchBookingsForAllRoom";
 import { IoIosInformationCircle } from "react-icons/io";
+import { RxEnterFullScreen } from "react-icons/rx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -96,20 +97,19 @@ const AdminBookings = () => {
         <div className="flex items-center justify-between px-4 py-3 border-gray-400 border-b-1">
           <h1 className="text-xl">Booking Section</h1>
           <div className="flex items-center gap-4">
-            <button
-              className="cursor-pointer hover:underline"
+            <RxEnterFullScreen
+              size={26}
+              className="text-black cursor-pointer hover:text-gray-600"
               onClick={handleFullscreen}
-            >
-              Display full screen
-            </button>
-
+              title="Enter fullscreen"
+            />
             <div
               onMouseEnter={() => setShowDisplayFullscreenInfo(true)}
               onMouseLeave={() => setShowDisplayFullscreenInfo(false)}
               className="relative"
             >
               <IoIosInformationCircle
-                className="cursor-pointer hover:text-gray-500"
+                className="text-black cursor-pointer hover:text-gray-600"
                 size={28}
               />
 
