@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 import { convertTimeToMinutes } from "../utils/timeUtils";
-import useFetchBookingsForAllRoom from "../hooks/useFetchBookingsForAllRoom"; // adjust path
+import useFetchBookingsForAllRoom from "../hooks/useFetchBookingsForAllRoom";
 import { useAuth } from "../context/AuthContext";
 
 const API_URL = import.meta.env.VITE_API_URL;

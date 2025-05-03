@@ -9,7 +9,7 @@ const AdminProtectedRoute = ({ children }) => {
     return <Navigate to="/login" />;
   }
 
-  return user.user_type === 0 ? children : <Navigate to="/dashboard" />;
+  return user.user_type === 0 ? children : <Navigate to="/bookings" />;
 };
 
 export default AdminProtectedRoute;

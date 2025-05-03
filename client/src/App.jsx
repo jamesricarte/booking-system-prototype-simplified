@@ -2,25 +2,29 @@ import React from "react";
 import "./styles/App.css";
 import { Routes, Route, useLocation } from "react-router-dom";
 import RedirectOnLoad from "./components/RedirectOnLoad";
+import AppTitleManager from "./components/AppTitleManager";
+
+//Auth
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
-import DashboardProtectedRoute from "./components/DashboardProtectedRoute";
-import Bookings from "./pages/Dashboard/Bookings/Bookings";
-import RoomDetails from "./pages/Dashboard/RoomDetails/RoomDetails";
-import AdminProtectedRoute from "./components/AdminProtectedRoute";
-import DashboardLayout from "./layouts/DashboardLayout/DashboardLayout";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import AdminLayout from "./layouts/AdminLayout/AdminLayout";
-import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
-import UserProfile from "./pages/Dashboard/UserProfile/UserProfile";
-import HistoryOfOccupancy from "./pages/AdminDashboard/HistoryOfOccupancy/HistoryOfOccupancy";
-import Rooms from "./pages/AdminDashboard/Rooms/rooms";
-import Users from "./pages/AdminDashboard/Users/users";
-import AdminProfile from "./pages/AdminDashboard/AdminProfile/AdminProfile";
 import AccountRecovery from "./pages/Login/AccountRecovery/AccountRecovery";
 import VerifyCode from "./pages/Login/AccountRecovery/VerifyCode";
 import ResetPassword from "./pages/Login/AccountRecovery/ResetPassword";
-import AppTitleManager from "./components/AppTitleManager";
+
+//Dashboard
+import DashboardProtectedRoute from "./components/DashboardProtectedRoute";
+import DashboardLayout from "./layouts/DashboardLayout/DashboardLayout";
+import Bookings from "./pages/Dashboard/Bookings/Bookings";
+import RoomDetails from "./pages/Dashboard/RoomDetails/RoomDetails";
+import UserProfile from "./pages/Dashboard/UserProfile/UserProfile";
+
+//Admin
+import AdminProtectedRoute from "./components/AdminProtectedRoute";
+import AdminLayout from "./layouts/AdminLayout/AdminLayout";
+import AdminBookings from "./pages/AdminDashboard/AdminBookings/AdminBookings";
+import AdminRoomDetails from "./pages/AdminDashboard/AdminRoomDetails/AdminRoomDetails";
+import HistoryOfOccupancy from "./pages/AdminDashboard/HistoryOfOccupancy/HistoryOfOccupancy";
+import AdminProfile from "./pages/AdminDashboard/AdminProfile/AdminProfile";
 
 const App = () => {
   const location = useLocation();
@@ -46,7 +50,6 @@ const App = () => {
             </DashboardProtectedRoute>
           }
         >
-          <Route path="/dashboard" element={<Dashboard />}></Route>
           <Route path="/bookings" element={<Bookings />}></Route>
           <Route
             path="/room/:id"
@@ -63,10 +66,12 @@ const App = () => {
             </AdminProtectedRoute>
           }
         >
-          <Route path="/admin" element={<AdminDashboard />}></Route>
+          <Route path="/adminBookings" element={<AdminBookings />}></Route>
+          <Route
+            path="/admin/room/:id"
+            element={<AdminRoomDetails key={location.key} />}
+          ></Route>
           <Route path="/history" element={<HistoryOfOccupancy />}></Route>
-          <Route path="/rooms" element={<Rooms />}></Route>
-          <Route path="/users" element={<Users />}></Route>
           <Route path="/adminProfile" element={<AdminProfile />}></Route>
         </Route>
       </Routes>

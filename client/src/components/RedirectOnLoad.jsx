@@ -10,7 +10,7 @@ const RedirectOnLoad = () => {
     return <Navigate to="/login" />;
   } else {
     return (
-      <Navigate to={`${user.user_type === 0 ? "/admin" : "/dashboard"}`} />
+      <Navigate to={`${user.user_type === 0 ? "/history" : "/bookings"}`} />
     );
   }
 };

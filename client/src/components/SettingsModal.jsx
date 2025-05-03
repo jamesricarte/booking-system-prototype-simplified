@@ -81,109 +81,6 @@ const SettingsModal = ({ isOpen, closeModal }) => {
             </div>
           </div>
         );
-      case "help":
-        return (
-          <div>
-            <div className="flex justify-between mb-7">
-              <h1 className="text-2xl">Help Center</h1>
-              <div className="flex items-center gap-2 text-[#FFA726]">
-                <MdLocalPhone className="text-lg" />
-                <h2 className="text-lg">Contact us</h2>
-              </div>
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="userMessage" className="block mb-2 font-light">
-                Write us a message:
-              </label>
-              <textarea className="w-full h-40 p-3 bg-[#EFEFEF] border-gray-300 rounded-md resize-none"></textarea>
-            </div>
-
-            <div className="flex justify-end mb-8">
-              <button className="px-4 py-2 bg-[#B3E5FC] text-black rounded cursor-pointer">
-                Send Message
-              </button>
-            </div>
-
-            <div className="flex flex-col w-full gap-2">
-              <h1 className="text-xl">FAQs</h1>
-              <ul className="flex flex-col gap-2 text-base">
-                {[
-                  "How do I create an account?",
-                  "What is its main purpose?",
-                  "I forgot my password. How can I reset it?",
-                  "Is my personal information safe?",
-                  "How do I contact customer support?",
-                ].map((faq, index) => (
-                  <li
-                    key={index}
-                    className="px-4 py-2 flex items-center justify-between text-black bg-[#EFEFEF] rounded-sm cursor-pointer"
-                  >
-                    {faq}
-                    <FaPlus className="text-[#A9ADAB]" />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        );
-      case "report":
-        return (
-          <div>
-            <div className="flex flex-col pb-5">
-              <h1 className="pb-3 text-2xl">Report a problem</h1>
-              <p className="pb-0 text-xl text-gray-500">
-                Can you provide clarity on the issue? Help us understand
-              </p>
-            </div>
-            <div className="mb-4">
-              <textarea
-                id="reportMessage"
-                className="w-full h-40 p-3 bg-[#EFEFEF] border-gray-300 rounded-md resize-none"
-              ></textarea>
-            </div>
-            <div className="mb-6">
-              <h2 className="pb-3 text-2xl">Attach Files</h2>
-              <label
-                htmlFor="reportMessage"
-                className="block mb-2 text-gray-500 text-md"
-              >
-                Attach screenshots, screen recordings, or any other relevant
-                files that illustrate the problem or the bug. Visual aids can
-                help developers understand the issue more effectively.
-              </label>
-              <input
-                type="file"
-                id="reportFiles"
-                multiple
-                onChange={handleReportFilesChange}
-                className="hidden"
-              />
-              <label
-                htmlFor="reportFiles"
-                className="inline-block px-4 py-2 bg-gray-300 rounded cursor-pointer"
-              >
-                Choose Files
-              </label>
-              <div className="flex gap-2 mt-2">
-                {reportPreviews.map((src, index) => (
-                  <img
-                    key={index}
-                    src={src}
-                    alt={`preview ${index}`}
-                    className="object-cover w-16 h-16 rounded"
-                  />
-                ))}
-              </div>
-            </div>
-
-            <div className="flex justify-end mb-8">
-              <button className="px-4 py-2 bg-[#B3E5FC] text-black rounded cursor-pointer">
-                Submit Report
-              </button>
-            </div>
-          </div>
-        );
       default:
         return null;
     }
@@ -216,26 +113,6 @@ const SettingsModal = ({ isOpen, closeModal }) => {
                 }`}
               >
                 Terms & Condition
-              </button>
-              <button
-                onClick={() => setActiveTab("help")}
-                className={`p-2 text-left cursor-pointer ${
-                  activeTab === "help"
-                    ? "text-black bg-[#B3E5FC] rounded-sm"
-                    : ""
-                }`}
-              >
-                Help & Support
-              </button>
-              <button
-                onClick={() => setActiveTab("report")}
-                className={`p-2 text-left cursor-pointer ${
-                  activeTab === "report"
-                    ? "text-black bg-[#B3E5FC] rounded-sm"
-                    : ""
-                }`}
-              >
-                Report a Problem
               </button>
             </nav>
             <div className="flex items-center justify-center">

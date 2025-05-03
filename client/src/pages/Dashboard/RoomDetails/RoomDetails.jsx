@@ -648,7 +648,7 @@ const RoomDetails = () => {
             {isRoomAvailableForBooking ? (
               <>
                 <div
-                  className="relative px-6 overflow-y-scroll border border-gray-200 h-[55vh]"
+                  className="relative px-6 overflow-y-scroll border border-gray-200 h-[57vh]"
                   ref={scrollableDivRef}
                 >
                   <div

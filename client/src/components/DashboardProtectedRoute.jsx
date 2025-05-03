@@ -9,7 +9,7 @@ const DashboardProtectedRoute = ({ children }) => {
     return <Navigate to="/login" />;
   }
 
-  return user.user_type === 1 ? children : <Navigate to="/admin" />;
+  return user.user_type === 1 ? children : <Navigate to="/history" />;
 };
 
 export default DashboardProtectedRoute;

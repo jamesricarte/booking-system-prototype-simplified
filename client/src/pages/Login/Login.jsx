@@ -80,9 +80,9 @@ const Login = () => {
       setTimeout(() => {
         setLoading(false);
         if (result?.fetchedUser.user_type === 0) {
-          navigate("/admin");
+          navigate("/history");
         } else if (result?.fetchedUser.user_type === 1) {
-          navigate("/dashboard");
+          navigate("/bookings");
         }
         setResponse({
           isResponseAvailable: message.isResponseAvailable,

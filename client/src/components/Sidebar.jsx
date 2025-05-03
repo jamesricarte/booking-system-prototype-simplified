@@ -17,6 +17,9 @@ const Sidebar = ({ isAdmin }) => {
   const location = useLocation();
   const isBookingActive =
     location.pathname === "/bookings" || location.pathname.startsWith("/room/");
+  const isAdminBookingActive =
+    location.pathname === "/adminBookings" ||
+    location.pathname.startsWith("/admin/room/");
 
   const [serverDate, setServerDate] = useState({
     day: "",
@@ -82,16 +85,6 @@ const Sidebar = ({ isAdmin }) => {
             {isAdmin ? (
               <>
                 <NavLink
-                  to="admin"
-                  className={({ isActive }) =>
-                    `p-2 transition-colors text-2xl ${
-                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
-                    }`
-                  }
-                >
-                  Dashboard
-                </NavLink>
-                <NavLink
                   to="/history"
                   className={({ isActive }) =>
                     `p-2 transition-colors text-2xl ${
@@ -102,39 +95,18 @@ const Sidebar = ({ isAdmin }) => {
                   History of Occupancy
                 </NavLink>
                 <NavLink
-                  to="/rooms"
-                  className={({ isActive }) =>
-                    `p-2 transition-colors text-2xl ${
-                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
-                    }`
-                  }
+                  to="/adminBookings"
+                  className={`p-2 transition-colors text-2xl rounded-sm ${
+                    isAdminBookingActive
+                      ? "bg-[#B3E5FC]"
+                      : "text-black hover:bg-white/20"
+                  }`}
                 >
-                  Rooms
-                </NavLink>
-                <NavLink
-                  to="/users"
-                  className={({ isActive }) =>
-                    `p-2 transition-colors text-2xl ${
-                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
-                    }`
-                  }
-                >
-                  User
+                  Bookings
                 </NavLink>
               </>
             ) : (
               <>
-                <NavLink
-                  to="/dashboard"
-                  className={({ isActive }) =>
-                    `p-2 transition-colors text-2xl rounded-sm ${
-                      isActive ? "bg-[#B3E5FC]" : "text-black hover:bg-white/20"
-                    }`
-                  }
-                >
-                  Dashboard
-                </NavLink>
-
                 <NavLink
                   to="/bookings"
                   className={`p-2 transition-colors text-2xl rounded-sm ${
