@@ -56,6 +56,10 @@ const AdminRoomDetails = () => {
   //For calculating the position of time indicator in scrollable div
   const [currentTimePosition, setCurrentTimePosition] = useState(0);
 
+  //If booking for all rooms is elligible
+  const [isRoomAvailableForBooking, setIsRoomAvailableForBooking] =
+    useState(true);
+
   //Current time in total minutes
   const [currentTime, setCurrentTime] = useState(0);
 
@@ -112,13 +116,16 @@ const AdminRoomDetails = () => {
 
       if (hours - 7 < 0) {
         setCurrentTimePosition(initialTimePosition);
+        setIsRoomAvailableForBooking(false);
       } else if (hours - 7 >= 12) {
         setCurrentTimePosition(timeslotDistance * 24 + initialTimePosition);
+        setIsRoomAvailableForBooking(false);
       } else {
         setCurrentTimePosition(
           (totalMinutes / 30) * timeslotDistance + initialTimePosition
         );
         setCurrentTime(hours * 60 + minutes);
+        setIsRoomAvailableForBooking(true);
       }
     }
   };
@@ -396,12 +403,15 @@ const AdminRoomDetails = () => {
                   <td className="p-2 border">
                     <span
                       className={`${
-                        roomAvailability.type === "available"
+                        roomAvailability.type === "available" &&
+                        isRoomAvailableForBooking
                           ? "text-green-500"
                           : "text-red-500"
                       } font-bold`}
                     >
-                      {roomAvailability.message}
+                      {isRoomAvailableForBooking
+                        ? roomAvailability.message
+                        : "Booking not Available"}
                     </span>
                   </td>
                 </tr>
@@ -471,9 +481,13 @@ const AdminRoomDetails = () => {
                   <p className="text-sm font-semibold text-green-500">
                     Occupant already ended his booking.
                   </p>
-                ) : (
+                ) : isRoomAvailableForBooking ? (
                   <p className="text-sm font-semibold text-green-500">
                     Room is not occupied at the moment.
+                  </p>
+                ) : (
+                  <p className="text-sm font-semibold text-red-500">
+                    Booking is not available at this time period.
                   </p>
                 )}
               </div>

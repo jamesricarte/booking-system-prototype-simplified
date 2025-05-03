@@ -42,7 +42,9 @@ const SettingsModal = ({ isOpen, closeModal }) => {
                   <li>
                     Bookings are available for active faculty members only.
                   </li>
-                  <li>Only one actve booking per user is allowed at a time.</li>
+                  <li>
+                    Only one active booking per user is allowed at a time.
+                  </li>
                   <li>Bookings must be made at least 15 minutes in advance.</li>
                   <li>Time slots are first-come,first-served basis.</li>
                 </ul>
@@ -75,6 +77,30 @@ const SettingsModal = ({ isOpen, closeModal }) => {
                   <li>
                     You can cancel or end your booking early via the Room
                     Details page.
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h2 className="mb-2 font-semibold">
+                  Room Usage Responsibilities
+                </h2>
+                <ul className="ml-6 space-y-2 list-disc list-inside">
+                  <li>Leave the room clean and ready for the next user.</li>
+                  <li>Do not move or damage any equipment or furniture.</li>
+                </ul>
+              </div>
+              <div>
+                <h2 className="mb-2 font-semibold">
+                   Booking Appearance (User Color Tag)
+                </h2>
+                <ul className="ml-6 space-y-2 list-disc list-inside">
+                  <li>
+                    You may choose your custom color from the Settings tab to
+                    personalize your bookings on the time chart.
+                  </li>
+                  <li>
+                    Your selected color will appear in all your bookings for
+                    easier identification.
                   </li>
                 </ul>
               </div>
