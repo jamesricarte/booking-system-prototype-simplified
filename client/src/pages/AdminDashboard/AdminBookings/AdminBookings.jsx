@@ -8,11 +8,25 @@ import {
 import useFetchBookingsForAllRoom from "../../../hooks/useFetchBookingsForAllRoom";
 import { IoIosInformationCircle } from "react-icons/io";
 import { RxEnterFullScreen } from "react-icons/rx";
+import useWebSocket from "../../../hooks/useWebSocket";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
 
 const AdminBookings = () => {
-  const { bookingsForAllRoom } = useFetchBookingsForAllRoom();
+  const { bookingsForAllRoom, fetchBookingsForAllRoom } =
+    useFetchBookingsForAllRoom();
+
+  const { socket, isConnected } = useWebSocket(WEBSOCKET_URL);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.onmessage = (event) => {
+      console.log("Message from server:", event.data);
+      fetchBookingsForAllRoom();
+    };
+  }, [socket]);
 
   const [rooms, setRooms] = useState([]);
   const [currentTime, setCurrentTime] = useState(null);

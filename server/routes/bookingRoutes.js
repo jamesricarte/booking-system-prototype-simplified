@@ -2,6 +2,19 @@ const express = require("express");
 const db = require("../config/db");
 const router = express.Router();
 
+function broadcastBookingsUpdate(req) {
+  const wss = req.app.get("wss");
+
+  if (!wss) return console.log("!WSS");
+
+  wss.clients.forEach((socket) => {
+    if (socket.readyState === 1) {
+      socket.send(JSON.stringify({ type: "BOOKINGS_UPDATED" }));
+      console.log("SENT BOOKINGS_UPDATED");
+    }
+  });
+}
+
 //Fetch Bookings for specific room and date
 router.get("/bookings/:id", (req, res) => {
   const roomId = req.params.id;
@@ -164,6 +177,8 @@ router.post("/newBooking", (req, res) => {
                 .json({ message: "Error adding booking", error: result });
             }
 
+            broadcastBookingsUpdate(req);
+
             res.status(201).json({
               message: "Your booking has been successfully added!",
               result,
@@ -233,6 +248,8 @@ router.post("/reserveBooking", (req, res) => {
                 .json({ message: "Error adding booking", error: result });
             }
 
+            broadcastBookingsUpdate(req);
+
             res.status(201).json({
               message: "Your reservation has been successfully confirmed!",
               result,
@@ -282,6 +299,8 @@ router.put("/updateBookingType", (req, res) => {
               .json({ message: "Some problem occured", result });
           }
 
+          broadcastBookingsUpdate(req);
+
           return res
             .status(200)
             .json({ message: "Successfully updated booking type", result });
@@ -328,6 +347,8 @@ router.put("/updateBookingTypeOfUser", (req, res) => {
               .status(400)
               .json({ message: "Some problem occured", result });
           }
+
+          broadcastBookingsUpdate(req);
 
           return res
             .status(200)
@@ -408,6 +429,8 @@ router.delete("/deleteUserOccupancyBooking", (req, res) => {
       });
     }
 
+    broadcastBookingsUpdate(req);
+
     return res.status(200).json({
       message: "Booking was canceled.",
       result: result,
@@ -468,6 +491,8 @@ router.put("/endUserOccupancyBooking", (req, res) => {
             result: result,
           });
         }
+
+        broadcastBookingsUpdate(req);
 
         return res.status(200).json({ message: "Ended your booking" });
       }
@@ -550,6 +575,8 @@ router.put("/updateBooking", (req, res) => {
         });
       }
 
+      broadcastBookingsUpdate(req);
+
       return res
         .status(200)
         .json({ message: "Updated your booking successfully!" });
@@ -579,6 +606,8 @@ router.delete("/cancelReservation/:bookingId", (req, res) => {
         result: result,
       });
     }
+
+    broadcastBookingsUpdate(req);
 
     return res
       .status(200)

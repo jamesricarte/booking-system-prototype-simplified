@@ -8,8 +8,10 @@ import {
   convertTimeToMinutes,
 } from "../../../utils/timeUtils";
 import { IoIosArrowRoundBack } from "react-icons/io";
+import useWebSocket from "../../../hooks/useWebSocket";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
 
 const AdminRoomDetails = () => {
   //React router dom states
@@ -18,6 +20,17 @@ const AdminRoomDetails = () => {
 
   const { roomDetails, timeslots, bookings, fetchBookings } =
     useRoomFetches(roomId);
+
+  const { socket, isConnected } = useWebSocket(WEBSOCKET_URL);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.onmessage = (event) => {
+      console.log("Message from server:", event.data);
+      fetchBookings();
+    };
+  }, [socket]);
 
   //Post Request for updating booking type
   const updateBookingsType = async (

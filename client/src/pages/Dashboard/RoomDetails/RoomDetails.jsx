@@ -21,8 +21,10 @@ import { useAuth } from "../../../context/AuthContext";
 import { useBooking } from "../../../context/BookingContext";
 import CancelModal from "./components/modals/CancelModal";
 import EndNowModal from "./components/modals/EndModal";
+import useWebSocket from "../../../hooks/useWebSocket";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
 
 const RoomDetails = () => {
   //React router dom states
@@ -65,6 +67,17 @@ const RoomDetails = () => {
     editBooking,
     cancelReservation,
   } = useRoomRequests();
+
+  const { socket, isConnected } = useWebSocket(WEBSOCKET_URL);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.onmessage = (event) => {
+      console.log("Message from server:", event.data);
+      fetchBookings();
+    };
+  }, [socket]);
 
   //Post Request for updating booking type
   const updateBookingsType = async (

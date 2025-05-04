@@ -191,7 +191,7 @@ export const BookingProvider = ({ children }) => {
   const checkCancelButtonRemainingTime = () => {
     if (userOccupancyData) {
       const timeWhenBooked = JSON.parse(localStorage.getItem("timeWhenBooked"));
-      const timePassed = currentTime - timeWhenBooked.time;
+      const timePassed = currentTime - timeWhenBooked?.time;
 
       setTimePassedAfterBooking(timePassed);
     }
