@@ -3,7 +3,7 @@ import BlankProfile from "../../../assets/image/elipse.png";
 import { useAuth } from "../../../context/AuthContext";
 import DeleteImageModal from "./components/modals/DeleteImageModal";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../../../config/apiConfig";
 
 const AdminProfile = () => {
   const { user, login } = useAuth();

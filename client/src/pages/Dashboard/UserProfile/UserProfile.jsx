@@ -10,7 +10,7 @@ import { IoWarningOutline } from "react-icons/io5";
 import DeleteImageModal from "./components/modals/DeleteImageModal";
 import DeleteAccountModal from "./components/modals/DeleteAccountModal";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../../../config/apiConfig";
 
 const UserProfile = () => {
   const { user, login } = useAuth();

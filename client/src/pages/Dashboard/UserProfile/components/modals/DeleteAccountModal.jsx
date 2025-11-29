@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../../../../context/AuthContext";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../../../../../config/apiConfig";
 
 const DeleteAccountModal = ({ isOpen, onClose, loading, user }) => {
   const { logout } = useAuth();

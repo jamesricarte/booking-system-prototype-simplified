@@ -4,7 +4,7 @@ import Logo from "../../../assets/logo/Logo.png";
 import Background from "../../../assets/background/Background_bu.png";
 import { useState } from "react";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../../../config/apiConfig";
 
 const AccountRecovery = () => {
   const navigate = useNavigate();

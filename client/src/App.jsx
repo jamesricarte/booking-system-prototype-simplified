@@ -1,4 +1,3 @@
-import React from "react";
 import "./styles/App.css";
 import { Routes, Route, useLocation } from "react-router-dom";
 import RedirectOnLoad from "./components/RedirectOnLoad";

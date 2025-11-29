@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { convertUTCDateToSameTimezone } from "../../../../utils/timeUtils";
 import { useAuth } from "../../../../context/AuthContext";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../../../../config/apiConfig";
 
 const useRoomFetches = (roomId) => {
   // Database States

@@ -4,7 +4,7 @@ import Background from "../../../assets/background/Background_bu.png";
 import Logo from "../../../assets/logo/Logo.png";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../../../config/apiConfig";
 
 const ResetPassword = () => {
   const location = useLocation();

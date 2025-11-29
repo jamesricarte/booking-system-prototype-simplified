@@ -9,7 +9,7 @@ import { convertTimeToMinutes } from "../utils/timeUtils";
 import useFetchBookingsForAllRoom from "../hooks/useFetchBookingsForAllRoom";
 import { useAuth } from "../context/AuthContext";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../config/apiConfig";
 
 const BookingContext = createContext();
 

@@ -8,7 +8,7 @@ import Logo from "../../assets/logo/Logo.png";
 import { useBooking } from "../../context/BookingContext";
 import { HiMiniEyeSlash } from "react-icons/hi2";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../../config/apiConfig";
 
 const Login = () => {
   const { refreshUserOccupancyAndReservationData } = useBooking();

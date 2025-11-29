@@ -8,7 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import { formatUTCDateWithOrdinal, getDayName } from "../utils/timeUtils";
 import SettingsModal from "./SettingsModal";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../config/apiConfig";
 
 const Sidebar = ({ isAdmin }) => {
   const { user } = useAuth();

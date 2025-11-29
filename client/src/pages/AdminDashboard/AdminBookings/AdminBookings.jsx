@@ -10,8 +10,7 @@ import { IoIosInformationCircle } from "react-icons/io";
 import { RxEnterFullScreen } from "react-icons/rx";
 import useWebSocket from "../../../hooks/useWebSocket";
 
-const API_URL = import.meta.env.VITE_API_URL;
-const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
+import { API_URL, WS_URL as WEBSOCKET_URL } from "../../../config/apiConfig";
 
 const AdminBookings = () => {
   const { bookingsForAllRoom, fetchBookingsForAllRoom } =

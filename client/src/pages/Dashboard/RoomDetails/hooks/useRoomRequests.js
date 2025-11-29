@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useBooking } from "../../../../context/BookingContext";
 
-const API_URL = import.meta.env.VITE_API_URL;
+import { API_URL } from "../../../../config/apiConfig";
 
 const useRoomRequests = () => {
   const { setTimeWhenBooked, currentTime, userOccupancyData } = useBooking();
