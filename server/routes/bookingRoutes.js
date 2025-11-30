@@ -28,6 +28,9 @@ router.get("/bookings/:id", (req, res) => {
       t1.time AS start_time,
       b.end_time AS end_time_id,
       t2.time AS end_time,
+      s.id as subject_id,
+      s.course_code,
+      s.course_name,
       b.purpose,
       booking_type,
       u.booking_color,
@@ -37,6 +40,7 @@ router.get("/bookings/:id", (req, res) => {
       JOIN rooms r ON b.room_id = r.id
       JOIN professors p ON b.professor_id = p.id
       JOIN classes c ON b.class_id = c.id
+      LEFT JOIN subjects s ON b.subject_id = s.id
       JOIN timeslots t1 ON b.start_time = t1.id
       JOIN timeslots t2 ON b.end_time = t2.id
       JOIN users u ON b.professor_id = u.school_id
@@ -123,6 +127,8 @@ router.get("/roomBookingAvailability", (req, res) => {
 router.post("/newBooking", (req, res) => {
   const booking = req.body;
 
+  const subjectId = booking.subjectId == 0 ? null : booking.subjectId;
+
   if (
     Object.values(booking).includes("") ||
     Object.values(booking).includes(null) ||
@@ -153,13 +159,14 @@ router.post("/newBooking", (req, res) => {
           .json({ message: "The selected time period was already booked." });
       } else {
         db.query(
-          "INSERT INTO bookings (room_id, professor_id, class_id, start_time, end_time, purpose, booking_type, date) VALUES (?, ?, ? ,?, ?, ?, ?, NOW())",
+          "INSERT INTO bookings (room_id, professor_id, class_id, start_time, end_time, subject_id, purpose, booking_type, date) VALUES (?, ?, ? ,?, ?, ?, ?, ?, NOW())",
           [
             booking.roomId,
             booking.professorId,
             booking.classId,
             booking.startTime,
             booking.endTime,
+            subjectId,
             booking.purpose,
             booking.booking_type,
           ],
@@ -194,6 +201,8 @@ router.post("/newBooking", (req, res) => {
 router.post("/reserveBooking", (req, res) => {
   const booking = req.body;
 
+  const subjectId = booking.subjectId == 0 ? null : booking.subjectId;
+
   if (
     Object.values(booking).includes("") ||
     Object.values(booking).includes(null) ||
@@ -224,13 +233,14 @@ router.post("/reserveBooking", (req, res) => {
           .json({ message: "The selected time period was already booked." });
       } else {
         db.query(
-          "INSERT INTO bookings (room_id, professor_id, class_id, start_time, end_time, purpose, booking_type, date) VALUES (?, ?, ? ,?, ?, ?, ?, NOW())",
+          "INSERT INTO bookings (room_id, professor_id, class_id, start_time, end_time, subject_id, purpose, booking_type, date) VALUES (?, ?, ? ,?, ?, ?, ?, ?, NOW())",
           [
             booking.roomId,
             booking.professorId,
             booking.classId,
             booking.startTime,
             booking.endTime,
+            subjectId,
             booking.purpose,
             booking.booking_type,
           ],
@@ -545,12 +555,15 @@ router.put("/endUserOccupancyBooking", (req, res) => {
 router.put("/updateBooking", (req, res) => {
   const editBooking = req.body;
 
+  const subjectId = editBooking.subjectId == 0 ? null : editBooking.subjectId;
+
   db.query(
-    "UPDATE bookings SET start_time = ?, end_time = ?, class_id = ?, purpose = ? WHERE id = ?",
+    "UPDATE bookings SET start_time = ?, end_time = ?, class_id = ?, subject_id = ?, purpose = ? WHERE id = ?",
     [
       editBooking.startTime,
       editBooking.endTime,
       editBooking.classId,
+      subjectId,
       editBooking.purpose,
       editBooking.bookingId,
     ],

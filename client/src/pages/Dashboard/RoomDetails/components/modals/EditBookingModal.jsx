@@ -13,6 +13,7 @@ const EditBookingModal = ({
   serverDate,
   filteredStartTimeSlots,
   filteredEndTimeSlotsForReservation,
+  subjects,
   classes,
   bookingsPurposes,
   editBookingFormData,
@@ -109,9 +110,15 @@ const EditBookingModal = ({
         bookingId: selectedBooking.booking_id,
         startTime: selectedBooking.start_time_id,
         endTime: selectedBooking.end_time_id,
+        subjectId:
+          subjects.find(
+            (subjectItem) =>
+              subjectItem.course_name === selectedBooking.course_name
+          )?.id || 0,
         classId:
-          classes.find((c) => c.class_name === selectedBooking.class_name)
-            ?.id || "",
+          classes.find(
+            (classItem) => classItem.class_name === selectedBooking.class_name
+          )?.id || "",
         purpose: selectedBooking.purpose,
       }));
     }
@@ -172,54 +179,69 @@ const EditBookingModal = ({
           )}
 
           <form className="flex flex-col gap-4" onSubmit={editBooking}>
-            <div className="flex items-center justify-between gap-5">
-              {selectedBooking?.booking_type === "reservation" && (
-                <>
-                  <div className="w-full">
-                    <p>Start Time:</p>
-                    <select
-                      className="bg-[#EFEFEF] p-3 text-[#343434] rounded-md w-full"
-                      name="startTime"
-                      value={editBookingFormData.startTime}
-                      onChange={handleEditReserveFormData}
-                    >
-                      {filteredStartTimeSlots
-                        .slice(0, -1)
-                        .map((timeslot, index) => (
-                          <option key={index} value={timeslot.id}>
-                            {convertTimeTo12HourFormat(timeslot.time)}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                  <div className="w-full">
-                    <p>End Time:</p>
-                    <select
-                      className="bg-[#EFEFEF] p-3 text-[#343434] rounded-md w-full"
-                      name="endTime"
-                      id="endTime"
-                      value={editBookingFormData.endTime}
-                      onChange={handleEditReserveFormData}
-                    >
-                      {filteredEndTimeSlotsForReservation
-                        .filter(
-                          (timeslot) =>
-                            timeslot.id >
-                            parseInt(editBookingFormData.startTime)
-                        )
-                        .map((timeslot, index) => (
-                          <option key={index} value={timeslot.id}>
-                            {convertTimeTo12HourFormat(timeslot.time)}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
-                </>
-              )}
+            {selectedBooking?.booking_type === "reservation" && (
+              <div className="flex items-center justify-between gap-5">
+                <div className="w-full">
+                  <p>Start Time:</p>
+                  <select
+                    className="bg-[#EFEFEF] p-3 text-[#343434] rounded-md w-full"
+                    name="startTime"
+                    value={editBookingFormData.startTime}
+                    onChange={handleEditReserveFormData}
+                  >
+                    {filteredStartTimeSlots
+                      .slice(0, -1)
+                      .map((timeslot, index) => (
+                        <option key={index} value={timeslot.id}>
+                          {convertTimeTo12HourFormat(timeslot.time)}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                <div className="w-full">
+                  <p>End Time:</p>
+                  <select
+                    className="bg-[#EFEFEF] p-3 text-[#343434] rounded-md w-full"
+                    name="endTime"
+                    id="endTime"
+                    value={editBookingFormData.endTime}
+                    onChange={handleEditReserveFormData}
+                  >
+                    {filteredEndTimeSlotsForReservation
+                      .filter(
+                        (timeslot) =>
+                          timeslot.id > parseInt(editBookingFormData.startTime)
+                      )
+                      .map((timeslot, index) => (
+                        <option key={index} value={timeslot.id}>
+                          {convertTimeTo12HourFormat(timeslot.time)}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col">
+              <p>Subject</p>
+              <select
+                className="bg-[#EFEFEF] p-3 text-[#343434] rounded-md w-full"
+                name="subjectId"
+                value={editBookingFormData.subjectId}
+                onChange={handleEditReserveFormData}
+              >
+                {subjects.map((subjectItem, index) => (
+                  <option key={index} value={subjectItem.id}>
+                    {subjectItem.id
+                      ? `${subjectItem.course_code} - ${subjectItem.course_name}`
+                      : subjectItem.course_name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="flex flex-col">
-              <p>Class Year &amp; Block:&nbsp;</p>
+              <p>Year &amp; Block:&nbsp;</p>
               <select
                 className="bg-[#EFEFEF] p-3 text-[#343434] rounded-md w-full"
                 name="classId"

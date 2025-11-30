@@ -82,11 +82,19 @@ const BookingDetailPopup = ({
             <p>{convertTimeTo12HourFormat(selectedBooking.end_time)}</p>
           </div>
           <div className="flex gap-1">
+            <p>Subject:</p>
+            <p>
+              {selectedBooking.subject_id
+                ? `${selectedBooking.course_code} - ${selectedBooking.course_name}`
+                : "None"}
+            </p>
+          </div>
+          <div className="flex gap-1">
             <p>Faculty In Charge:</p>
             <p>{selectedBooking.professor_name}</p>
           </div>
           <div className="flex gap-1">
-            <p>Class:</p>
+            <p>Year & Block:</p>
             <p>{selectedBooking.class_name}</p>
           </div>
           <div className="flex gap-1">
@@ -110,28 +118,28 @@ const BookingDetailPopup = ({
         <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30">
           <div className="w-full max-w-sm bg-white rounded-md shadow-xl">
             <div className="flex p-4">
-            <h1 className="text-lg">Cancel Reservation</h1>
+              <h1 className="text-lg">Cancel Reservation</h1>
             </div>
-            <hr className="w-full"/>
+            <hr className="w-full" />
             <div className="flex flex-col gap-5 p-5">
-              <h2 className="font-normal">Are you sure you want to cancel this reservation?</h2>
-                <div className="flex justify-end gap-3">
-                  <button
-                    className="px-4 py-2 bg-[#B3E5FC] rounded cursor-pointer hover:bg-[#99d3ee]"
-                    onClick={() => setShowCancelModal(false)}
-                  >
-                    No
-                  </button>
-                  <button
-                    className="px-4 py-2 text-white bg-red-500 rounded cursor-pointer hover:bg-red-600"
-                    onClick={handleConfirmCancel}
-                  >
-                    Yes, Cancel
-                  </button>
-                </div>
+              <h2 className="font-normal">
+                Are you sure you want to cancel this reservation?
+              </h2>
+              <div className="flex justify-end gap-3">
+                <button
+                  className="px-4 py-2 bg-[#B3E5FC] rounded cursor-pointer hover:bg-[#99d3ee]"
+                  onClick={() => setShowCancelModal(false)}
+                >
+                  No
+                </button>
+                <button
+                  className="px-4 py-2 text-white bg-red-500 rounded cursor-pointer hover:bg-red-600"
+                  onClick={handleConfirmCancel}
+                >
+                  Yes, Cancel
+                </button>
+              </div>
             </div>
-            
-            
           </div>
         </div>
       )}

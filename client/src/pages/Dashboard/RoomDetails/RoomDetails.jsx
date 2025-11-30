@@ -39,8 +39,10 @@ const RoomDetails = () => {
     timePassedAfterBooking,
   } = useBooking();
 
+  // Hook for fetching
   const {
     roomDetails,
+    subjects,
     classes,
     timeslots,
     bookings,
@@ -50,6 +52,7 @@ const RoomDetails = () => {
     fetchBookings,
   } = useRoomFetches(roomId);
 
+  // Hook for requests
   const {
     reserveBookingFormData,
     bookNowFormData,
@@ -702,6 +705,7 @@ const RoomDetails = () => {
                       >
                         <div className="relative">
                           <p>{booking.professor_name}</p>
+                          {booking.subject_id && <p>{booking.course_code}</p>}
                           <p>{booking.class_name}</p>
                         </div>
                       </div>
@@ -924,7 +928,17 @@ const RoomDetails = () => {
                 occupantBookingDetail ? (
                   <>
                     <div className="flex gap-2">
-                      <p className="text-red-500">Class & Block:</p>
+                      <p className="text-red-500">Subject:</p>
+                      <p>
+                        {" "}
+                        {occupantBookingDetail.subject_id
+                          ? `${occupantBookingDetail.course_code} - ${occupantBookingDetail.course_name}`
+                          : "None"}
+                      </p>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <p className="text-red-500">Year & Block:</p>
                       <p>{occupantBookingDetail?.class_name}</p>
                     </div>
 
@@ -1041,6 +1055,7 @@ const RoomDetails = () => {
         bookNowFormData={bookNowFormData}
         setBookNowFormData={setBookNowFormData}
         filteredEndTimeSlots={filteredEndTimeSlots}
+        subjects={subjects}
         classes={classes}
         bookingsPurposes={bookingsPurposes}
         loading={loading}
@@ -1061,6 +1076,7 @@ const RoomDetails = () => {
         reserveBookingFormData={reserveBookingFormData}
         setReserveBookingFromData={setReserveBookingFromData}
         filteredEndTimeSlotsForReservation={filteredEndTimeSlotsForReservation}
+        subjects={subjects}
         classes={classes}
         bookingsPurposes={bookingsPurposes}
         loading={loading}
@@ -1075,6 +1091,7 @@ const RoomDetails = () => {
         serverDate={serverDate}
         filteredStartTimeSlots={filteredStartTimeSlots}
         filteredEndTimeSlotsForReservation={filteredEndTimeSlotsForReservation}
+        subjects={subjects}
         classes={classes}
         bookingsPurposes={bookingsPurposes}
         editBookingFormData={editBookingFormData}

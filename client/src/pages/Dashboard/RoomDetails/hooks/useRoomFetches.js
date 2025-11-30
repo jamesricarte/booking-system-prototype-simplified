@@ -7,6 +7,7 @@ import { API_URL } from "../../../../config/apiConfig";
 const useRoomFetches = (roomId) => {
   // Database States
   const [roomDetails, setRoomDetails] = useState(null);
+  const [subjects, setSubjects] = useState([]);
   const [classes, setClasses] = useState([]);
   const [timeslots, setTimeslots] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -17,7 +18,51 @@ const useRoomFetches = (roomId) => {
   const { user } = useAuth();
   const schoolId = user.school_id;
 
-  //Fetches from database
+  // Fetching server date
+  const fetchServerDate = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/serverDate`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      const result = await response.json();
+      setServerDate(convertUTCDateToSameTimezone(result.serverDate));
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  // Fetching professors
+  const fetchProfessor = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/professor/${schoolId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw errorData;
+      }
+
+      const result = await response.json();
+      setProfessor(result.professor);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  // Fetching rooms
   const fetchRoom = async () => {
     try {
       const response = await fetch(`${API_URL}/api/room/${roomId}`, {
@@ -39,27 +84,7 @@ const useRoomFetches = (roomId) => {
     }
   };
 
-  const fetchClasses = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/classes`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw errorData;
-      }
-
-      const result = await response.json();
-      setClasses(result.classes);
-    } catch (error) {
-      console.error(error.message);
-    }
-  };
-
+  // Fetching timeslots
   const fetchTimeslots = async () => {
     try {
       const response = await fetch(`${API_URL}/api/timeslots`, {
@@ -81,6 +106,7 @@ const useRoomFetches = (roomId) => {
     }
   };
 
+  // Fetching bookings
   const fetchBookings = async () => {
     try {
       const response = await fetch(`${API_URL}/api/bookings/${roomId}`, {
@@ -109,6 +135,7 @@ const useRoomFetches = (roomId) => {
     }
   };
 
+  // Fetching booking purposes
   const fetchBookingPurposes = async () => {
     try {
       const response = await fetch(`${API_URL}/api/bookingPurposes`, {
@@ -130,9 +157,10 @@ const useRoomFetches = (roomId) => {
     }
   };
 
-  const fetchServerDate = async () => {
+  // Fetching subjects
+  const fetchSubjects = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/serverDate`, {
+      const response = await fetch(`${API_URL}/api/subjects`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -145,15 +173,16 @@ const useRoomFetches = (roomId) => {
       }
 
       const result = await response.json();
-      setServerDate(convertUTCDateToSameTimezone(result.serverDate));
+      setSubjects([{ id: 0, course_name: "None" }, ...result.subjects]);
     } catch (error) {
       console.error(error.message);
     }
   };
 
-  const fetchProfessor = async () => {
+  // Fetching classes
+  const fetchClasses = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/professor/${schoolId}`, {
+      const response = await fetch(`${API_URL}/api/classes`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -166,7 +195,7 @@ const useRoomFetches = (roomId) => {
       }
 
       const result = await response.json();
-      setProfessor(result.professor);
+      setClasses(result.classes);
     } catch (error) {
       console.error(error.message);
     }
@@ -176,6 +205,7 @@ const useRoomFetches = (roomId) => {
     const fetchData = async () => {
       await Promise.all([
         fetchRoom(),
+        fetchSubjects(),
         fetchClasses(),
         fetchTimeslots(),
         fetchBookings(),
@@ -189,6 +219,7 @@ const useRoomFetches = (roomId) => {
 
   return {
     roomDetails,
+    subjects,
     classes,
     timeslots,
     bookings,

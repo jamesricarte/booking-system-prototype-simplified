@@ -17,6 +17,7 @@ const BookNowModal = ({
   bookNowFormData,
   setBookNowFormData,
   filteredEndTimeSlots,
+  subjects,
   classes,
   bookingsPurposes,
   loading,
@@ -116,7 +117,25 @@ const BookNowModal = ({
             </div>
 
             <div className="flex flex-col">
-              <p>Class Year &amp; Block:&nbsp;</p>
+              <p>Subject:&nbsp;</p>
+              <select
+                className="bg-[#EFEFEF] p-3 text-[#343434] rounded-md"
+                name="subjectId"
+                value={bookNowFormData.subjectId}
+                onChange={handleBookNowFormData}
+              >
+                {subjects.map((subjectItem, index) => (
+                  <option key={index} value={subjectItem.id}>
+                    {subjectItem.id
+                      ? `${subjectItem.course_code} - ${subjectItem.course_name}`
+                      : subjectItem.course_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col">
+              <p>Year &amp; Block:&nbsp;</p>
               <select
                 className="bg-[#EFEFEF] p-3 text-[#343434] rounded-md"
                 name="classId"

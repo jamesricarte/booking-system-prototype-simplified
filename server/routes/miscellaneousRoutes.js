@@ -23,6 +23,25 @@ router.get("/serverDate", (req, res) => {
   });
 });
 
+//Fetch subjects
+router.get("/subjects", (req, res) => {
+  db.query("SELECT * FROM subjects", async (err, result) => {
+    if (err) {
+      return res
+        .status(500)
+        .json({ message: "Something went wrong", error: err.message });
+    }
+
+    if (result.length === 0) {
+      return res.status(400).json({ message: "No classes were found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Successfully fetched subjects", subjects: result });
+  });
+});
+
 //Fetch Classes
 router.get("/classes", (req, res) => {
   db.query("SELECT * FROM classes", async (err, result) => {

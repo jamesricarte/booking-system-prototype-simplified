@@ -10,6 +10,7 @@ const useRoomRequests = () => {
   const [bookNowFormData, setBookNowFormData] = useState({
     startTime: "",
     endTime: "",
+    subjectId: 0,
     classId: "",
     purpose: "",
     roomId: "",
@@ -19,6 +20,7 @@ const useRoomRequests = () => {
   const [reserveBookingFormData, setReserveBookingFromData] = useState({
     startTime: "",
     endTime: "",
+    subjectId: 0,
     classId: "",
     purpose: "",
     roomId: "",
@@ -30,6 +32,7 @@ const useRoomRequests = () => {
     bookingId: 0,
     startTime: "",
     endTime: "",
+    subjectId: 0,
     classId: "",
     purpose: "",
   });
@@ -43,7 +46,7 @@ const useRoomRequests = () => {
 
   const [loading, setLoading] = useState(false);
 
-  //POST Requests
+  // Book now request
   const bookNow = async (e) => {
     e.preventDefault();
 
@@ -104,6 +107,7 @@ const useRoomRequests = () => {
     }
   };
 
+  // Reserve now request
   const reserveBooking = async (e) => {
     e.preventDefault();
 
@@ -163,6 +167,7 @@ const useRoomRequests = () => {
     }
   };
 
+  // Cancel booking request
   const cancelBooking = async () => {
     setLoading(true);
     const startTime = Date.now();
@@ -223,6 +228,7 @@ const useRoomRequests = () => {
     }
   };
 
+  // End booking request
   const endBooking = async () => {
     setLoading(true);
     const startTime = Date.now();
@@ -280,6 +286,7 @@ const useRoomRequests = () => {
     }
   };
 
+  // Edit booking request
   const editBooking = async (e) => {
     e.preventDefault();
 
@@ -339,6 +346,7 @@ const useRoomRequests = () => {
     }
   };
 
+  // Cancel reservation request
   const cancelReservation = async (bookingId) => {
     setLoading(true);
     const startTime = Date.now();
