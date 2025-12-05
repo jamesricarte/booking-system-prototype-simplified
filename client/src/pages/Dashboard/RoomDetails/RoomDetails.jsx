@@ -19,8 +19,8 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 import { IoMdTime } from "react-icons/io";
 import { useAuth } from "../../../context/AuthContext";
 import { useBooking } from "../../../context/BookingContext";
-import CancelModal from "./components/modals/CancelModal";
-import EndNowModal from "./components/modals/EndModal";
+import CancelModal from "./components/modals/CancelBookingConfirmModal";
+import EndNowModal from "./components/modals/EndNowConfirmModal";
 import useWebSocket from "../../../hooks/useWebSocket";
 
 import { API_URL, WS_URL as WEBSOCKET_URL } from "../../../config/apiConfig";
@@ -30,6 +30,8 @@ const RoomDetails = () => {
   const { id } = useParams();
   const roomId = parseInt(id);
   const { user } = useAuth();
+
+  // Booking context states
   const {
     userOccupancyData,
     userOccupancyRemainingTime,

@@ -158,6 +158,8 @@ router.get("/occupancyHistory", (req, res) => {
       t1.time AS start_time,
       b.end_time AS end_time_id,
       t2.time AS end_time,
+      s.course_code,
+      s.course_name,
       b.purpose,
       b.date,
       b.created_at 
@@ -167,6 +169,7 @@ router.get("/occupancyHistory", (req, res) => {
       JOIN classes c ON b.class_id = c.id
       JOIN timeslots t1 ON b.start_time = t1.id
       JOIN timeslots t2 ON b.end_time = t2.id
+      LEFT JOIN subjects s ON b.subject_id = s.id
       WHERE b.booking_type = 'past'
       ORDER BY b.date DESC, b.end_time DESC;`,
     async (err, result) => {

@@ -105,6 +105,10 @@ const HistoryOfOccupancy = () => {
   };
 
   const exportToPDF = () => {
+    const confirmExport = confirm("Export to pdf?");
+
+    if (!confirmExport) return;
+
     const doc = new jsPDF();
 
     const generatedDate = new Date().toLocaleDateString("en-US", {
@@ -128,10 +132,17 @@ const HistoryOfOccupancy = () => {
       "Date",
       "Start",
       "End",
+      "Subject",
       "Booked By",
       "Purpose",
       "Status",
     ];
+
+    const getSubjetName = (entry) => {
+      if (!entry.course_code || !entry.course_name) return "None";
+
+      return `${entry.course_code} - ${entry.course_name}`;
+    };
 
     const tableRows = filteredHistoryData.map((entry, index) => [
       index + 1,
@@ -140,6 +151,7 @@ const HistoryOfOccupancy = () => {
       convertUTCDateToSameTimezone(entry.date),
       convertTimeTo12HourFormat(entry.start_time),
       convertTimeTo12HourFormat(entry.end_time),
+      getSubjetName(entry),
       entry.professor_name,
       entry.purpose,
       "Completed",

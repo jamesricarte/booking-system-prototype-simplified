@@ -925,7 +925,7 @@ const UserProfile = () => {
                 </p>
               </div>
               <button
-                className="px-4 w-46 py-2 text-black bg-[#EF5350] text-white rounded hover:bg-[#E53935] cursor-pointer flex items-center justify-center gap-2"
+                className="px-4 w-46 py-2  bg-[#EF5350] text-white rounded hover:bg-[#E53935] cursor-pointer flex items-center justify-center gap-2"
                 onClick={() => setDeleteAccountModal(true)}
               >
                 <IoWarningOutline size={17} /> Delete Account

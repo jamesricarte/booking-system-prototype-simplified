@@ -4,7 +4,7 @@ import { useAuth } from "../../../../context/AuthContext";
 
 import { API_URL } from "../../../../config/apiConfig";
 
-const useRoomFetches = (roomId) => {
+const useRoomFetches = (roomId = null) => {
   // Database States
   const [roomDetails, setRoomDetails] = useState(null);
   const [subjects, setSubjects] = useState([]);
@@ -64,6 +64,8 @@ const useRoomFetches = (roomId) => {
 
   // Fetching rooms
   const fetchRoom = async () => {
+    if (!roomId) return;
+
     try {
       const response = await fetch(`${API_URL}/api/room/${roomId}`, {
         method: "GET",
@@ -108,6 +110,8 @@ const useRoomFetches = (roomId) => {
 
   // Fetching bookings
   const fetchBookings = async () => {
+    if (!roomId) return;
+
     try {
       const response = await fetch(`${API_URL}/api/bookings/${roomId}`, {
         method: "GET",

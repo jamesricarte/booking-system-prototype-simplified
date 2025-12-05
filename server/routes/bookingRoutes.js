@@ -86,12 +86,17 @@ router.get("/roomBookingAvailability", (req, res) => {
     b.booking_type,
     r.room_number,
     b.start_time AS start_time_id,
-    b.end_time AS end_time_id
+    b.end_time AS end_time_id,
+    s.course_code,
+    s.course_name,
+    c.class_name
     FROM bookings b 
     JOIN timeslots t1 ON b.start_time = t1.id
     JOIN timeslots t2 ON b.end_time = t2.id
     JOIN professors p ON b.professor_id = p.id
-    jOIN rooms r ON b.room_id = r.id
+    JOIN rooms r ON b.room_id = r.id
+    LEFT JOIN subjects s ON b.subject_id = s.id
+    JOIN classes c ON b.class_id = c.id
     WHERE b.date = CURRENT_DATE()`,
     (err, result) => {
       if (err) {

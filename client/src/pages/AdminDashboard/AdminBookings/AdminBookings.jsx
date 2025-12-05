@@ -104,6 +104,12 @@ const AdminBookings = () => {
     }
   };
 
+  const getSubjectName = (booking) => {
+    if (!booking.course_code || !booking.course_name) return "None";
+
+    return `${booking.course_code} - ${booking.course_name}`;
+  };
+
   return (
     <>
       <main className="container h-full mx-auto bg-white">
@@ -152,20 +158,58 @@ const AdminBookings = () => {
             <table className="w-full h-screen border-collapse">
               <thead className="text-white bg-[#F56C18]">
                 <tr className="border border-black">
-                  <td className="p-2 text-center border border-black">
+                  <td
+                    className={`text-center border border-black ${
+                      isFullscreen ? "p-4 font-bold text-lg" : "p-2"
+                    }`}
+                  >
                     Room no.
                   </td>
-                  <td className="p-2 text-center border border-black">
+                  <td
+                    className={`text-center border border-black ${
+                      isFullscreen ? "p-4 font-bold text-lg" : "p-2"
+                    }`}
+                  >
                     Status
                   </td>
-                  <td className="p-2 text-center border border-black">
+                  {isFullscreen && (
+                    <>
+                      <td
+                        className={`text-center border border-black ${
+                          isFullscreen ? "p-4 font-bold text-lg" : "p-2"
+                        }`}
+                      >
+                        Subject
+                      </td>
+                      <td
+                        className={`text-center border border-black ${
+                          isFullscreen ? "p-4 font-bold text-lg" : "p-2"
+                        }`}
+                      >
+                        Year & Block
+                      </td>{" "}
+                    </>
+                  )}
+                  <td
+                    className={`text-center border border-black ${
+                      isFullscreen ? "p-4 font-bold text-lg" : "p-2"
+                    }`}
+                  >
                     Faculty in Charge
                   </td>
-                  <td className="p-2 text-center border border-black">
+                  <td
+                    className={`text-center border border-black ${
+                      isFullscreen ? "p-4 font-bold text-lg" : "p-2"
+                    }`}
+                  >
                     Checkout Time
                   </td>
                   {!isFullscreen && (
-                    <td className="p-2 text-center border border-black">
+                    <td
+                      className={`text-center border border-black ${
+                        isFullscreen ? "p-4 font-bold text-lg" : "p-2"
+                      }`}
+                    >
                       Action
                     </td>
                   )}
@@ -214,6 +258,27 @@ const AdminBookings = () => {
                           </p>
                         </div>
                       </td>
+
+                      {isFullscreen && (
+                        <>
+                          <td className="text-center border border-gray-500">
+                            <p className="font-semibold">
+                              {isOccupied
+                                ? getSubjectName(activeBooking)
+                                : "N/A"}
+                            </p>
+                          </td>
+
+                          <td className="text-center border border-gray-500">
+                            <p className="font-semibold">
+                              {isOccupied
+                                ? `${activeBooking.class_name}`
+                                : "N/A"}
+                            </p>
+                          </td>
+                        </>
+                      )}
+
                       <td className="text-center border border-gray-500">
                         <p className="font-semibold">
                           {isOccupied
@@ -221,6 +286,7 @@ const AdminBookings = () => {
                             : "N/A"}
                         </p>
                       </td>
+
                       <td className="text-center border border-gray-500">
                         <p className="font-semibold">
                           {isOccupied

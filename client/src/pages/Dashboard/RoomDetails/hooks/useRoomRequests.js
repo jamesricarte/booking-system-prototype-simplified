@@ -69,7 +69,6 @@ const useRoomRequests = () => {
       }
 
       const result = await response.json();
-      setTimeWhenBooked(currentTime);
       message = {
         isBookingMessageAvailable: true,
         message: result.message,
@@ -92,6 +91,7 @@ const useRoomRequests = () => {
 
       setTimeout(() => {
         setLoading(false);
+        setTimeWhenBooked(currentTime);
         setBookingMessage({
           isBookingMessageAvailable: message.isBookingMessageAvailable,
           message: message.message,

@@ -1,34 +1,35 @@
 import React from "react";
 
-const LogoutModal = ({ isOpen, onConfirm, onCancel }) => {
+const CancelBookingConfirmModal = ({ isOpen, onClose, onConfirm, loading }) => {
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60">
       <div className="w-full max-w-sm bg-white rounded-md shadow-xl">
-        <div className="items-center gap-2">
-          <div className="flex p-4">
-            <h1 className="text-lg ">Confirm Logout</h1>
-          </div>
+        <div className="flex p-4">
+          <h1 className="text-lg ">Cancel Booking</h1>
         </div>
 
         <hr />
-
         <div className="flex flex-col gap-5 p-5">
-          <h2 className="font-normal ">Are you sure you want to logout?</h2>
+          <h2 className="font-normal">
+            Are you sure you want to cancel this booking?
+          </h2>
 
           <div className="flex justify-end gap-3">
             <button
-              onClick={onCancel}
               className="px-4 py-2 bg-[#B3E5FC] rounded cursor-pointer hover:bg-[#99d3ee]"
+              onClick={onClose}
+              disabled={loading}
             >
-              Cancel
+              No
             </button>
             <button
+              className="px-4 py-2 text-white bg-[#EF5350] hover:bg-[#E53935] rounded cursor-pointer"
               onClick={onConfirm}
-              className="px-4 py-2 text-white  rounded cursor-pointer bg-[#EF5350] hover:bg-[#E53935]"
+              disabled={loading}
             >
-              Logout
+              Yes
             </button>
           </div>
         </div>
@@ -37,4 +38,4 @@ const LogoutModal = ({ isOpen, onConfirm, onCancel }) => {
   );
 };
 
-export default LogoutModal;
+export default CancelBookingConfirmModal;

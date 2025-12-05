@@ -1,35 +1,31 @@
 import React from "react";
 
-const CancelModal = ({ isOpen, onClose, onConfirm, loading }) => {
+const CancelReservatonConfirmModal = ({ isOpen, onConfirm, onCancel }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60">
+    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30">
       <div className="w-full max-w-sm bg-white rounded-md shadow-xl">
         <div className="flex p-4">
-          <h1 className="text-lg ">Cancel Booking</h1>
+          <h1 className="text-lg">Cancel Reservation</h1>
         </div>
-
-        <hr />
+        <hr className="w-full" />
         <div className="flex flex-col gap-5 p-5">
           <h2 className="font-normal">
-            Are you sure you want to cancel this booking?
+            Are you sure you want to cancel this reservation?
           </h2>
-
           <div className="flex justify-end gap-3">
             <button
               className="px-4 py-2 bg-[#B3E5FC] rounded cursor-pointer hover:bg-[#99d3ee]"
-              onClick={onClose}
-              disabled={loading}
+              onClick={onCancel}
             >
               No
             </button>
             <button
-              className="px-4 py-2 text-white bg-red-500 rounded cursor-pointer hover:bg-red-600"
+              className="px-4 py-2 text-white bg-[#EF5350] hover:bg-[#E53935] rounded cursor-pointer"
               onClick={onConfirm}
-              disabled={loading}
             >
-              Yes
+              Yes, Cancel
             </button>
           </div>
         </div>
@@ -38,4 +34,4 @@ const CancelModal = ({ isOpen, onClose, onConfirm, loading }) => {
   );
 };
 
-export default CancelModal;
+export default CancelReservatonConfirmModal;

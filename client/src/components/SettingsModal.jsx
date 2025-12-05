@@ -4,10 +4,11 @@ import { FaPlus } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import PropTypes from "prop-types";
 import { useState } from "react";
+import LogoutModal from "./LogoutModal";
 
 const SettingsModal = ({ isOpen, closeModal }) => {
   const { logout } = useAuth();
-  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
+  const [isConfirmLogoutOpen, setIsConfirmLogoutOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("terms");
   const [reportPreviews, setReportPreviews] = useState([]);
 
@@ -20,7 +21,7 @@ const SettingsModal = ({ isOpen, closeModal }) => {
 
   const handleConfirmLogout = () => {
     logout(); // or your custom logout logic
-    setIsLogoutConfirmOpen(false);
+    setIsConfirmLogoutOpen(false);
     closeModal(); // close settings modal too if you want
   };
 
@@ -143,7 +144,7 @@ const SettingsModal = ({ isOpen, closeModal }) => {
             </nav>
             <div className="flex items-center justify-center">
               <button
-                onClick={() => setIsLogoutConfirmOpen(true)}
+                onClick={() => setIsConfirmLogoutOpen(true)}
                 className="px-4 py-2 text-white bg-[#EF5350] rounded cursor-pointer hover:bg-[#E53935]"
               >
                 Logout User
@@ -156,38 +157,11 @@ const SettingsModal = ({ isOpen, closeModal }) => {
         </div>
       </div>
 
-      {isLogoutConfirmOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-60">
-          <div className="w-full max-w-sm bg-white rounded-md shadow-xl">
-            <div className="items-center gap-2">
-              <div className="flex p-4">
-                <h1 className="text-lg ">Confirm Logout</h1>
-              </div>
-            </div>
-
-            <hr />
-
-            <div className="flex flex-col gap-5 p-5">
-              <h2 className="font-normal ">Are you sure you want to logout?</h2>
-
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => setIsLogoutConfirmOpen(false)}
-                  className="px-4 py-2 bg-[#B3E5FC] rounded cursor-pointer hover:bg-[#99d3ee]"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleConfirmLogout}
-                  className="px-4 py-2 text-white bg-red-500 rounded cursor-pointer hover:bg-red-600"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <LogoutModal
+        isOpen={isConfirmLogoutOpen}
+        onConfirm={handleConfirmLogout}
+        onCancel={() => setIsConfirmLogoutOpen(false)}
+      />
     </div>
   );
 };

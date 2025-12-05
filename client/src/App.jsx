@@ -14,6 +14,7 @@ import ResetPassword from "./pages/Login/AccountRecovery/ResetPassword";
 import DashboardProtectedRoute from "./components/DashboardProtectedRoute";
 import DashboardLayout from "./layouts/DashboardLayout/DashboardLayout";
 import Bookings from "./pages/Dashboard/Bookings/Bookings";
+import MyClassSchedule from "./pages/Dashboard/MyClassSchedule/MyClassSchedule";
 import RoomDetails from "./pages/Dashboard/RoomDetails/RoomDetails";
 import UserProfile from "./pages/Dashboard/UserProfile/UserProfile";
 
@@ -50,6 +51,7 @@ const App = () => {
           }
         >
           <Route path="/bookings" element={<Bookings />}></Route>
+          <Route path="/myClassSchedule" element={<MyClassSchedule />}></Route>
           <Route
             path="/room/:id"
             element={<RoomDetails key={location.key} />}

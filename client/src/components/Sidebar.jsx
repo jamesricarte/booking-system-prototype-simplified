@@ -3,6 +3,7 @@ import Logo from "../assets/logo/Logo.png";
 import BlankProfile from "../assets/image/elipse.png";
 import { RiSettings5Fill } from "react-icons/ri";
 import { FaRegCalendarAlt } from "react-icons/fa";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { formatUTCDateWithOrdinal, getDayName } from "../utils/timeUtils";
@@ -17,6 +18,7 @@ const Sidebar = ({ isAdmin }) => {
   const location = useLocation();
   const isBookingActive =
     location.pathname === "/bookings" || location.pathname.startsWith("/room/");
+  const isMyClassScheduleActive = location.pathname === "/myClassSchedule";
   const isAdminBookingActive =
     location.pathname === "/adminBookings" ||
     location.pathname.startsWith("/admin/room/");
@@ -25,6 +27,11 @@ const Sidebar = ({ isAdmin }) => {
     day: "",
     date: "",
   });
+
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Modal Settings
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const fetchServerDate = async () => {
     try {
@@ -54,21 +61,32 @@ const Sidebar = ({ isAdmin }) => {
     fetchServerDate();
   }, []);
 
-  // Modal Settings
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-
   const handleClick = (e) => {
     e.preventDefault(); // Stop NavLink from navigating
     setIsSettingsOpen(true);
   };
 
   return (
-    <aside className="w-[372px] min-h-screen p-4 shadow-lg flex flex-col justify-between">
+    <aside
+      className={` min-h-screen p-4 shadow-lg flex flex-col justify-between transition-all duration-300 ease-in-out overflow-hidden ${
+        sidebarOpen ? "w-[372px]" : "w-0"
+      }`}
+    >
       <div>
         {/* Logo and title */}
-        <div className="flex items-center">
-          <img src={Logo} alt="" className="w-24 h-24" />
-          <h1 className="text-[22px]">Bicol University</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <img src={Logo} alt="" className="w-24 h-24" />
+            <h1 className="text-[22px]">Bicol University</h1>
+          </div>
+
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-2 transition-colors rounded-lg hover:bg-gray-100"
+            aria-label="Hide sidebar"
+          >
+            <LuChevronLeft className="w-6 h-6" />
+          </button>
         </div>
 
         <div className="p-6">
@@ -116,6 +134,17 @@ const Sidebar = ({ isAdmin }) => {
                   }`}
                 >
                   Bookings
+                </NavLink>
+
+                <NavLink
+                  to="/myClassSchedule"
+                  className={`p-2 transition-colors text-2xl rounded-sm ${
+                    isMyClassScheduleActive
+                      ? "bg-[#B3E5FC]"
+                      : "text-black hover:bg-white/20"
+                  }`}
+                >
+                  My Class Schedule
                 </NavLink>
               </>
             )}
@@ -178,6 +207,17 @@ const Sidebar = ({ isAdmin }) => {
           </button>
         </div>
       </div>
+
+      {/* Toggle Button (when sidebar is hidden) */}
+      {!sidebarOpen && (
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="fixed p-3 transition-colors bg-white border border-gray-200 rounded-lg shadow-md top-8 left-4 hover:bg-gray-50"
+          aria-label="Show sidebar"
+        >
+          <LuChevronRight className="w-6 h-6" />
+        </button>
+      )}
 
       <SettingsModal
         isOpen={isSettingsOpen}
